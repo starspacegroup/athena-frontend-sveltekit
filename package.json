@@ -10,9 +10,11 @@
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
   },
   "devDependencies": {
+    "@playwright/test": "^1.56.1",
     "@sveltejs/adapter-cloudflare": "^4.7.2",
     "@sveltejs/kit": "^2.5.28",
     "@sveltejs/vite-plugin-svelte": "^4.0.0",
+    "playwright": "^1.56.1",
     "svelte": "^5.1.9",
     "svelte-check": "^4.0.4",
     "tslib": "^2.7.0",
@@ -21,8 +23,8 @@
   },
   "dependencies": {
     "@auth/sveltekit": "^1.8.0",
-    "ethers": "^6.13.2",
-    "dotenv": "^16.4.5"
+    "dotenv": "^16.4.5",
+    "ethers": "^6.13.2"
   },
   "type": "module"
 }
