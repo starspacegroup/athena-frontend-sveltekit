@@ -1,215 +1,269 @@
 # Athena DAO
 
-Digital Autonomous Organization for *Space: Members can accrue non-tradable SpaceTime tokens and earn or purchase SpaceMoney tokens, each provide magnified powers for creating and voting on proposals.
+> _Governance interface for \*Space — a Wyoming DAO LLC with on-chain rule._
 
-## Features
+---
 
-- **Dual Authentication**: Connect with both blockchain wallet (MetaMask/Coinbase Wallet) and Discord account
-- **Polygon Network**: Built for Polygon blockchain for lower transaction fees
-- **Token Management**: 
-  - View SpaceTime token balances (non-tradable governance tokens)
-  - View SpaceMoney token balances (purchasable and transferable)
-  - Purchase SpaceMoney tokens
-  - Transfer SpaceMoney tokens to other addresses
-- **Cloudflare Pages**: Optimized for deployment on Cloudflare's edge network
+## Why Athena?
+
+Athena is the governance layer for **\*Space**, a decentralized organization
+designed to evolve from founder-led to fully community-governed. The system is
+built with **hardcoded sunset triggers** that automatically dissolve centralized
+control when the community proves itself ready.
+
+### The Vision
+
+```
+Founder Control → Earned Trust → Community Sovereignty
+```
+
+\*Space starts with a benevolent dictator model (you hold veto + keys), but the
+contracts enforce a path to decentralization. When the DAO hits maturity
+metrics, control burns automatically. No promises—just code.
+
+---
+
+## Two-Token Model
+
+| Token               | Type       | Acquisition     | Purpose                                                           |
+| ------------------- | ---------- | --------------- | ----------------------------------------------------------------- |
+| **SpaceMoney (SM)** | Economic   | Purchase / Earn | Treasury share, revenue share, incubator access, proposal funding |
+| **SpaceTime (ST)**  | Governance | Work only       | Voting power, proposal creation, reputation                       |
+
+### SpaceMoney — _The Economic Token_
+
+- **Buyable** — functions like an equity analog
+- **Zero voting weight** — money can't buy governance
+- Use cases:
+  - 💰 Fund proposals
+  - 🔐 Stake for incubator project access
+  - 🔥 Burn → mint dev credits in ecosystem projects
+
+### SpaceTime — _The Labor Token_
+
+- **Earned only** — never purchasable
+- **Decays slowly** — prevents whale hoarding
+- Earned through:
+  - ✅ Completing tasks & proposals
+  - 🗳️ Correct governance votes (outcome-verified)
+  - 🎯 Passing internal qualification tests
+
+---
+
+## Governance Transition
+
+### Initial State
+
+- Founder holds **100% veto**
+- Founder controls **treasury keys**
+- Founder controls **contract upgrade keys**
+
+### Sunset Triggers (Hardcoded)
+
+Control auto-revokes when ALL conditions are met:
+
+| Metric                   | Threshold                     |
+| ------------------------ | ----------------------------- |
+| Proposal acceptance rate | 99.9% for 5 consecutive years |
+| ST distribution          | 10,000+ distinct earners      |
+| Treasury concentration   | < 20% held by founder         |
+
+**Result:** Veto burns. Upgrade keys burn. Voting becomes pure ST-weighted
+democracy.
+
+---
+
+## Proposal System
+
+Every proposal contains:
+
+```
+┌─────────────────────────────────────────┐
+│  BUDGET          SM or stablecoins      │
+│  REWARD          ST to executor         │
+│  VOTER REWARD    ST to correct voters   │
+│  SUCCESS METRIC  Measurable outcomes    │
+│  EXECUTION       Auto-runs or escrows   │
+└─────────────────────────────────────────┘
+```
+
+**Incentive alignment:**
+
+- Work = minted ST
+- Correct governance = minted ST
+- Bad actors = nothing
+
+---
+
+## Legal Structure
+
+**Entity:** Wyoming DAO LLC\
+**Operating Agreement declares:**
+
+- Token holders = members
+- Smart contracts = operating rules
+- Founder = "Initial Controller" with sunset conditions
+- Trigger conditions dissolve special rights automatically
+
+---
 
 ## Tech Stack
 
-- **Framework**: SvelteKit 2 with Svelte 5
-- **Styling**: CSS (no framework)
-- **Blockchain**: Ethers.js v6 for Web3 interactions
-- **Authentication**: Custom session-based auth with Discord OAuth
-- **Deployment**: Cloudflare Pages
+| Layer      | Technology                    |
+| ---------- | ----------------------------- |
+| Framework  | SvelteKit 2 + Svelte 5        |
+| Blockchain | Ethers.js v6 / Polygon        |
+| Auth       | Session-based + Discord OAuth |
+| Deploy     | Cloudflare Pages (Edge)       |
+| Styling    | Vanilla CSS (minimal bundle)  |
 
-## Prerequisites
+---
 
-- Node.js 18+ 
-- A Discord OAuth application ([Create one here](https://discord.com/developers/applications))
-- MetaMask or Coinbase Wallet browser extension
-- Token contracts deployed on Polygon (addresses configured in environment variables)
+## Quick Start
 
-## Getting Started
+### Prerequisites
 
-### 1. Clone the repository
+- Node.js 18+
+- Discord OAuth app ([create here](https://discord.com/developers/applications))
+- MetaMask or Coinbase Wallet
+- Token contracts on Polygon
+
+### 1. Clone & Install
 
 ```bash
 git clone https://github.com/starspacegroup/athena.git
-cd athena
+cd athena && npm install
 ```
 
-### 2. Install dependencies
-
-```bash
-npm install
-```
-
-### 3. Configure environment variables
-
-Copy `.env.example` to `.env` and fill in your values:
+### 2. Configure Environment
 
 ```bash
 cp .env.example .env
 ```
 
-Update the following variables:
-- `DISCORD_CLIENT_ID`: Your Discord OAuth client ID
-- `DISCORD_CLIENT_SECRET`: Your Discord OAuth client secret
-- `DISCORD_REDIRECT_URI`: OAuth callback URL (e.g., `http://localhost:5173/api/auth/callback`)
-- `SPACETIME_TOKEN_ADDRESS`: SpaceTime token contract address on Polygon
-- `SPACEMONEY_TOKEN_ADDRESS`: SpaceMoney token contract address on Polygon
-- `SESSION_SECRET`: Random secret for session encryption
+| Variable                   | Description             |
+| -------------------------- | ----------------------- |
+| `DISCORD_CLIENT_ID`        | Discord OAuth client ID |
+| `DISCORD_CLIENT_SECRET`    | Discord OAuth secret    |
+| `DISCORD_REDIRECT_URI`     | Callback URL            |
+| `SPACETIME_TOKEN_ADDRESS`  | ST contract (Polygon)   |
+| `SPACEMONEY_TOKEN_ADDRESS` | SM contract (Polygon)   |
+| `SESSION_SECRET`           | Session encryption key  |
 
-### 4. Run the development server
+### 3. Run
 
 ```bash
 npm run dev
 ```
 
-Visit `http://localhost:5173` to see the application.
+→ Open `http://localhost:5173`
+
+---
 
 ## Project Structure
 
 ```
-athena/
-├── src/
-│   ├── lib/
-│   │   ├── components/       # Reusable components (future use)
-│   │   ├── server/           # Server-side utilities
-│   │   │   └── session.ts    # Session management
-│   │   ├── stores/           # Svelte stores
-│   │   │   ├── auth.ts       # Authentication state
-│   │   │   └── tokens.ts     # Token balances state
-│   │   └── wallet.ts         # Wallet connection utilities
-│   ├── routes/
-│   │   ├── api/              # API endpoints
-│   │   │   ├── auth/         # Authentication endpoints
-│   │   │   └── tokens/       # Token operation endpoints
-│   │   ├── dashboard/        # Dashboard page
-│   │   ├── tokens/
-│   │   │   ├── purchase/     # Purchase tokens page
-│   │   │   └── transfer/     # Transfer tokens page
-│   │   ├── +layout.svelte    # Root layout
-│   │   └── +page.svelte      # Home/login page
-│   ├── app.d.ts              # TypeScript declarations
-│   └── app.html              # HTML template
-├── static/                   # Static assets
-├── .env.example              # Environment variables template
-├── package.json              # Dependencies
-├── svelte.config.js          # SvelteKit configuration
-├── tsconfig.json             # TypeScript configuration
-├── vite.config.ts            # Vite configuration
-└── wrangler.toml             # Cloudflare configuration
+src/
+├── lib/
+│   ├── server/session.ts     # Session management
+│   ├── stores/
+│   │   ├── auth.ts           # Auth state
+│   │   └── tokens.ts         # Token balances
+│   └── wallet.ts             # Web3 utilities
+├── routes/
+│   ├── api/
+│   │   ├── auth/             # Auth endpoints
+│   │   └── tokens/           # Token endpoints
+│   ├── dashboard/            # Main dashboard
+│   └── tokens/               # Purchase & transfer
+└── app.html                  # Shell
 ```
 
-## Authentication Flow
+---
 
-1. User visits the homepage
-2. User connects their wallet (MetaMask or Coinbase Wallet)
-   - Wallet connection triggers network switch to Polygon
-3. User connects their Discord account via OAuth
-4. Both connections are required to create/access an account
-5. For returning users, either wallet or Discord can be used to log in
-6. Session is maintained via secure HTTP-only cookies
+## Auth Flow
 
-## Deployment to Cloudflare Pages
+```
+┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+│ Connect     │ → │ Connect     │ → │ Dashboard   │
+│ Wallet      │    │ Discord     │    │ Access      │
+└─────────────┘    └─────────────┘    └─────────────┘
+     ↓                   ↓                   ↓
+  Polygon           OAuth2             Session
+  Network           Flow               Cookie
+```
 
-### Option 1: Deploy via GitHub
+- Both wallet + Discord required for new accounts
+- Returning users can auth with either
+- HTTP-only secure cookies
 
-1. Push your code to GitHub
-2. Go to [Cloudflare Pages dashboard](https://dash.cloudflare.com/pages)
-3. Click "Create a project" and connect your GitHub repository
-4. Configure build settings:
-   - Build command: `npm run build`
-   - Build output directory: `.svelte-kit/cloudflare`
-5. Add environment variables in the Cloudflare dashboard
-6. Deploy!
+---
 
-### Option 2: Deploy via Wrangler CLI
+## Deploy
+
+### GitHub → Cloudflare Pages
+
+1. Push to GitHub
+2. Connect repo in [Cloudflare Pages](https://dash.cloudflare.com/pages)
+3. Build: `npm run build` → `.svelte-kit/cloudflare`
+4. Add env vars
+5. Deploy
+
+### CLI
 
 ```bash
-npm install -g wrangler
-wrangler login
 npm run build
-wrangler pages publish .svelte-kit/cloudflare
+npx wrangler pages publish .svelte-kit/cloudflare
 ```
 
-### Environment Variables for Production
-
-Set these in the Cloudflare Pages dashboard under Settings > Environment variables:
-
-- `DISCORD_CLIENT_ID`
-- `DISCORD_CLIENT_SECRET`
-- `DISCORD_REDIRECT_URI` (use your production URL)
-- `SPACETIME_TOKEN_ADDRESS`
-- `SPACEMONEY_TOKEN_ADDRESS`
-- `SESSION_SECRET`
+---
 
 ## Usage
 
-### Connecting Wallet
+| Action              | Steps                                                                                |
+| ------------------- | ------------------------------------------------------------------------------------ |
+| **Connect Wallet**  | Click "Connect Wallet" → Select MetaMask/Coinbase → Approve → Auto-switch to Polygon |
+| **Connect Discord** | Click "Connect Discord" → Authorize → Redirected back                                |
+| **View Balances**   | Dashboard shows ST (earned) + SM (owned)                                             |
+| **Purchase SM**     | Dashboard → Purchase → Enter amount → Confirm tx                                     |
+| **Transfer SM**     | Dashboard → Transfer → Enter recipient + amount → Confirm tx                         |
 
-1. Click "Connect Wallet" on the homepage
-2. Select your preferred wallet (MetaMask or Coinbase Wallet)
-3. Approve the connection request in your wallet
-4. The wallet will automatically switch to Polygon network
-
-### Connecting Discord
-
-1. After connecting wallet, click "Connect Discord Account"
-2. Authorize the application in Discord
-3. You'll be redirected back to the application
-
-### Viewing Balances
-
-Navigate to the Dashboard to see your current token balances for:
-- SpaceTime tokens (non-tradable)
-- SpaceMoney tokens (tradable)
-
-### Purchasing SpaceMoney
-
-1. Go to Dashboard and click "Purchase SpaceMoney"
-2. Enter the amount you want to purchase
-3. Confirm the transaction in your wallet
-4. Wait for blockchain confirmation
-
-### Transferring SpaceMoney
-
-1. Go to Dashboard and click "Transfer SpaceMoney"
-2. Enter recipient address and amount
-3. Confirm the transaction in your wallet
-4. Wait for blockchain confirmation
+---
 
 ## Development Notes
 
-### Mock Data
+### Current State: Mock Data
 
-Currently, the token balances and transactions use mock data. To connect to real smart contracts:
+| Component      | Status    | Production TODO                    |
+| -------------- | --------- | ---------------------------------- |
+| Token Balances | Mock      | Fetch from chain via ethers.js     |
+| Purchases      | Mock      | Implement sale contract            |
+| Transfers      | Mock      | Connect to `wallet.ts` transfer fn |
+| Sessions       | In-memory | Move to Cloudflare KV/D1           |
 
-1. Deploy ERC-20 token contracts for SpaceTime and SpaceMoney on Polygon
-2. Update the token addresses in `.env`
-3. Update `src/lib/wallet.ts` to use the real contract addresses
-4. Implement the actual purchase mechanism (e.g., via a sale contract)
+### Security Checklist
 
-### Session Storage
+- [ ] Wallet signature verification
+- [ ] Rate limiting on API endpoints
+- [ ] HTTPS everywhere
+- [ ] CSRF protection
+- [ ] Discord secrets secured
 
-The current implementation uses in-memory session storage which will reset on server restart. For production, consider:
+---
 
-- Cloudflare KV for session storage
-- Cloudflare D1 for persistent user data
-- Or use a JWT-based approach
+## Roadmap
 
-### Security Considerations
+```
+Phase 1: Auth + Balances     ← You are here
+Phase 2: Real token contracts
+Phase 3: Proposal system
+Phase 4: ST earning mechanics
+Phase 5: Governance voting
+Phase 6: Sunset trigger implementation
+```
 
-- Always validate wallet signatures for sensitive operations
-- Implement rate limiting on API endpoints
-- Use HTTPS in production
-- Keep Discord OAuth secrets secure
-- Implement proper CSRF protection if needed
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
+---
 
 ## License
 
-MIT License
+MIT

@@ -7,6 +7,8 @@
 	let error = $state('');
 	let success = $state('');
 
+	const presetAmounts = [10, 50, 100, 500, 1000];
+
 	async function handlePurchase() {
 		if (!amount || parseFloat(amount) <= 0) {
 			error = 'Please enter a valid amount';
@@ -30,7 +32,7 @@
 				throw new Error(data.error || 'Purchase failed');
 			}
 
-			success = `Successfully purchased ${amount} SpaceMoney! Transaction: ${data.txHash}`;
+			success = `Successfully purchased ${amount} SpaceMoney!`;
 			amount = '';
 
 			setTimeout(() => {
@@ -44,6 +46,10 @@
 		}
 	}
 
+	function setPresetAmount(preset: number) {
+		amount = preset.toString();
+	}
+
 	$effect(() => {
 		if (!$user || !$user.walletAddress || !$user.discordId) {
 			goto('/');
@@ -51,133 +57,435 @@
 	});
 </script>
 
-<div class="container">
-	<h1>Purchase SpaceMoney</h1>
+<div class="page">
+	<!-- Back Link -->
+	<a href="/dashboard" class="back-link">
+		<span class="back-arrow">←</span>
+		Back to Dashboard
+	</a>
 
-	<div class="card">
-		<p class="description">
-			Purchase SpaceMoney tokens to increase your voting power in the DAO. These tokens are
-			transferable and can be used for governance decisions.
-		</p>
+	<div class="page-header">
+		<div class="header-icon">💰</div>
+		<div>
+			<h1>Purchase SpaceMoney</h1>
+			<p>Increase your voting power in *Space DAO</p>
+		</div>
+	</div>
 
-		<form onsubmit={(e) => { e.preventDefault(); handlePurchase(); }}>
-			<div class="form-group">
-				<label for="amount">Amount to Purchase</label>
-				<input
-					type="number"
-					id="amount"
-					bind:value={amount}
-					placeholder="0.0"
-					step="0.01"
-					min="0"
-					disabled={loading}
-				/>
+	<div class="content-grid">
+		<!-- Purchase Form Card -->
+		<div class="form-card">
+			<div class="card-header">
+				<h2>Buy Tokens</h2>
+				<span class="token-badge">SM</span>
 			</div>
 
-			{#if error}
-				<div class="error">{error}</div>
-			{/if}
+			<form onsubmit={(e) => { e.preventDefault(); handlePurchase(); }}>
+				<!-- Amount Input -->
+				<div class="form-group">
+					<label for="amount">Amount to Purchase</label>
+					<div class="input-wrapper">
+						<span class="input-prefix">💵</span>
+						<input
+							type="number"
+							id="amount"
+							bind:value={amount}
+							placeholder="0.00"
+							step="0.01"
+							min="0"
+							disabled={loading}
+						/>
+						<span class="input-suffix">SM</span>
+					</div>
+				</div>
 
-			{#if success}
-				<div class="success">{success}</div>
-			{/if}
+				<!-- Preset Amounts -->
+				<div class="preset-amounts">
+					{#each presetAmounts as preset}
+						<button
+							type="button"
+							class="preset-btn"
+							class:active={amount === preset.toString()}
+							onclick={() => setPresetAmount(preset)}
+							disabled={loading}
+						>
+							{preset}
+						</button>
+					{/each}
+				</div>
 
-			<div class="actions">
-				<button type="submit" class="btn btn-primary" disabled={loading}>
-					{loading ? 'Processing...' : 'Purchase'}
-				</button>
-				<a href="/dashboard" class="btn btn-secondary">Cancel</a>
+				<!-- Summary -->
+				{#if amount && parseFloat(amount) > 0}
+					<div class="summary">
+						<div class="summary-row">
+							<span>Amount</span>
+							<span>{parseFloat(amount).toLocaleString()} SM</span>
+						</div>
+						<div class="summary-row">
+							<span>Network Fee</span>
+							<span class="fee">~0.001 ETH</span>
+						</div>
+						<div class="summary-divider"></div>
+						<div class="summary-row total">
+							<span>You'll Receive</span>
+							<span class="gradient-text">{parseFloat(amount).toLocaleString()} SpaceMoney</span>
+						</div>
+					</div>
+				{/if}
+
+				<!-- Messages -->
+				{#if error}
+					<div class="message error">
+						<span class="message-icon">⚠️</span>
+						{error}
+					</div>
+				{/if}
+
+				{#if success}
+					<div class="message success">
+						<span class="message-icon">✓</span>
+						<div>
+							<strong>{success}</strong>
+							<p>Redirecting to dashboard...</p>
+						</div>
+					</div>
+				{/if}
+
+				<!-- Actions -->
+				<div class="actions">
+					<button type="submit" class="btn btn-primary btn-lg" disabled={loading || !amount}>
+						{#if loading}
+							<span class="spinner"></span>
+							Processing...
+						{:else}
+							Purchase SpaceMoney
+						{/if}
+					</button>
+				</div>
+			</form>
+		</div>
+
+		<!-- Info Card -->
+		<div class="info-card">
+			<h3>About SpaceMoney</h3>
+			<div class="info-items">
+				<div class="info-item">
+					<span class="info-icon">🗳️</span>
+					<div>
+						<h4>Voting Power</h4>
+						<p>Each SpaceMoney token equals one vote in *Space DAO governance</p>
+					</div>
+				</div>
+				<div class="info-item">
+					<span class="info-icon">📤</span>
+					<div>
+						<h4>Transferable</h4>
+						<p>SpaceMoney can be transferred to other wallet addresses</p>
+					</div>
+				</div>
+				<div class="info-item">
+					<span class="info-icon">🔒</span>
+					<div>
+						<h4>Secure</h4>
+						<p>Tokens are stored securely on the blockchain</p>
+					</div>
+				</div>
+				<div class="info-item">
+					<span class="info-icon">⚡</span>
+					<div>
+						<h4>Instant</h4>
+						<p>Tokens are credited immediately after purchase</p>
+					</div>
+				</div>
 			</div>
-		</form>
+		</div>
 	</div>
 </div>
 
 <style>
-	.container {
-		max-width: 600px;
+	.page {
+		max-width: 1000px;
 		margin: 0 auto;
 	}
 
-	h1 {
+	.back-link {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-sm);
+		color: var(--color-text-muted);
+		text-decoration: none;
+		font-size: 0.875rem;
+		margin-bottom: var(--space-xl);
+		transition: color var(--transition-fast);
+	}
+
+	.back-link:hover {
+		color: var(--color-text-primary);
+	}
+
+	.back-arrow {
+		font-size: 1.25rem;
+	}
+
+	.page-header {
+		display: flex;
+		align-items: center;
+		gap: var(--space-lg);
+		margin-bottom: var(--space-2xl);
+	}
+
+	.header-icon {
+		width: 64px;
+		height: 64px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
 		font-size: 2rem;
-		margin-bottom: 1.5rem;
-		color: #333;
+		background: rgba(139, 92, 246, 0.15);
+		border-radius: var(--radius-lg);
 	}
 
-	.card {
-		background: white;
-		padding: 2rem;
-		border-radius: 12px;
-		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+	.page-header h1 {
+		font-family: var(--font-display);
+		font-size: 2rem;
+		margin: 0 0 var(--space-xs);
 	}
 
-	.description {
-		color: #666;
-		line-height: 1.6;
-		margin-bottom: 2rem;
+	.page-header p {
+		color: var(--color-text-muted);
+		margin: 0;
+	}
+
+	.content-grid {
+		display: grid;
+		grid-template-columns: 1fr 360px;
+		gap: var(--space-xl);
+	}
+
+	/* Form Card */
+	.form-card {
+		background: var(--color-bg-card);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-xl);
+		padding: var(--space-2xl);
+		backdrop-filter: blur(20px);
+	}
+
+	.card-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: var(--space-xl);
+	}
+
+	.card-header h2 {
+		font-family: var(--font-display);
+		font-size: 1.25rem;
+		margin: 0;
+	}
+
+	.token-badge {
+		padding: 0.25rem 0.75rem;
+		background: var(--gradient-primary);
+		border-radius: var(--radius-full);
+		font-size: 0.75rem;
+		font-weight: 600;
 	}
 
 	.form-group {
-		margin-bottom: 1.5rem;
+		margin-bottom: var(--space-lg);
 	}
 
 	label {
 		display: block;
+		font-weight: 500;
+		margin-bottom: var(--space-sm);
+		color: var(--color-text-secondary);
+		font-size: 0.875rem;
+	}
+
+	.input-wrapper {
+		display: flex;
+		align-items: center;
+		background: var(--color-bg-secondary);
+		border: 2px solid var(--color-border);
+		border-radius: var(--radius-md);
+		transition: border-color var(--transition-fast);
+		overflow: hidden;
+	}
+
+	.input-wrapper:focus-within {
+		border-color: var(--color-accent-primary);
+	}
+
+	.input-prefix,
+	.input-suffix {
+		padding: 0 var(--space-md);
+		color: var(--color-text-muted);
+		font-size: 1.125rem;
+	}
+
+	.input-suffix {
+		font-size: 0.875rem;
 		font-weight: 600;
-		margin-bottom: 0.5rem;
-		color: #555;
+		background: var(--color-bg-tertiary);
+		padding: var(--space-md);
 	}
 
 	input {
+		flex: 1;
+		padding: var(--space-md);
+		background: transparent;
+		border: none;
+		font-size: 1.25rem;
+		font-family: var(--font-display);
+		font-weight: 600;
+		color: var(--color-text-primary);
 		width: 100%;
-		padding: 0.75rem;
-		border: 2px solid #e0e0e0;
-		border-radius: 8px;
-		font-size: 1rem;
-		transition: border-color 0.2s;
 	}
 
 	input:focus {
 		outline: none;
-		border-color: #667eea;
+	}
+
+	input::placeholder {
+		color: var(--color-text-muted);
 	}
 
 	input:disabled {
-		background: #f5f5f5;
+		opacity: 0.5;
 		cursor: not-allowed;
 	}
 
-	.error {
-		background: #fee;
-		color: #c33;
-		padding: 1rem;
-		border-radius: 8px;
-		margin-bottom: 1rem;
+	/* Preset Amounts */
+	.preset-amounts {
+		display: flex;
+		gap: var(--space-sm);
+		margin-bottom: var(--space-xl);
+		flex-wrap: wrap;
 	}
 
-	.success {
-		background: #efe;
-		color: #3c3;
-		padding: 1rem;
-		border-radius: 8px;
-		margin-bottom: 1rem;
+	.preset-btn {
+		padding: var(--space-sm) var(--space-md);
+		background: var(--color-bg-secondary);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-md);
+		color: var(--color-text-secondary);
+		font-weight: 500;
+		cursor: pointer;
+		transition: all var(--transition-fast);
 	}
 
+	.preset-btn:hover:not(:disabled) {
+		background: var(--color-bg-tertiary);
+		border-color: var(--color-border-hover);
+	}
+
+	.preset-btn.active {
+		background: rgba(139, 92, 246, 0.15);
+		border-color: var(--color-accent-primary);
+		color: var(--color-accent-primary);
+	}
+
+	.preset-btn:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+
+	/* Summary */
+	.summary {
+		padding: var(--space-lg);
+		background: var(--color-bg-secondary);
+		border-radius: var(--radius-md);
+		margin-bottom: var(--space-xl);
+	}
+
+	.summary-row {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: var(--space-sm) 0;
+		color: var(--color-text-secondary);
+		font-size: 0.9375rem;
+	}
+
+	.summary-row.total {
+		font-weight: 600;
+		font-size: 1rem;
+		color: var(--color-text-primary);
+	}
+
+	.fee {
+		font-size: 0.8125rem;
+		color: var(--color-text-muted);
+	}
+
+	.summary-divider {
+		height: 1px;
+		background: var(--color-border);
+		margin: var(--space-sm) 0;
+	}
+
+	.gradient-text {
+		background: var(--gradient-primary);
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;
+		background-clip: text;
+	}
+
+	/* Messages */
+	.message {
+		display: flex;
+		align-items: flex-start;
+		gap: var(--space-md);
+		padding: var(--space-md);
+		border-radius: var(--radius-md);
+		margin-bottom: var(--space-lg);
+	}
+
+	.message.error {
+		background: rgba(239, 68, 68, 0.1);
+		border: 1px solid rgba(239, 68, 68, 0.3);
+		color: var(--color-error);
+	}
+
+	.message.success {
+		background: rgba(16, 185, 129, 0.1);
+		border: 1px solid rgba(16, 185, 129, 0.3);
+		color: var(--color-success);
+	}
+
+	.message-icon {
+		font-size: 1.25rem;
+		flex-shrink: 0;
+	}
+
+	.message p {
+		margin: var(--space-xs) 0 0;
+		font-size: 0.875rem;
+		opacity: 0.8;
+	}
+
+	/* Actions */
 	.actions {
 		display: flex;
-		gap: 1rem;
+		gap: var(--space-md);
 	}
 
 	.btn {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: var(--space-sm);
 		padding: 0.75rem 1.5rem;
 		border: none;
-		border-radius: 8px;
-		font-size: 1rem;
+		border-radius: var(--radius-md);
+		font-family: var(--font-sans);
+		font-size: 0.9375rem;
 		font-weight: 600;
 		cursor: pointer;
-		transition: all 0.2s;
+		transition: all var(--transition-fast);
 		text-decoration: none;
-		display: inline-block;
 	}
 
 	.btn:disabled {
@@ -186,22 +494,101 @@
 	}
 
 	.btn-primary {
-		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+		background: var(--gradient-primary);
 		color: white;
+		box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+		width: 100%;
 	}
 
 	.btn-primary:hover:not(:disabled) {
 		transform: translateY(-2px);
-		box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+		box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
 	}
 
-	.btn-secondary {
-		background: white;
-		color: #667eea;
-		border: 2px solid #667eea;
+	.btn-lg {
+		padding: 1rem 2rem;
+		font-size: 1rem;
 	}
 
-	.btn-secondary:hover {
-		background: #f9f9f9;
+	.spinner {
+		width: 18px;
+		height: 18px;
+		border: 2px solid rgba(255, 255, 255, 0.3);
+		border-top-color: white;
+		border-radius: 50%;
+		animation: spin 0.8s linear infinite;
+	}
+
+	@keyframes spin {
+		to { transform: rotate(360deg); }
+	}
+
+	/* Info Card */
+	.info-card {
+		background: var(--color-bg-card);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-xl);
+		padding: var(--space-xl);
+		height: fit-content;
+		position: sticky;
+		top: 100px;
+	}
+
+	.info-card h3 {
+		font-family: var(--font-display);
+		font-size: 1rem;
+		margin: 0 0 var(--space-lg);
+		color: var(--color-text-secondary);
+	}
+
+	.info-items {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-lg);
+	}
+
+	.info-item {
+		display: flex;
+		gap: var(--space-md);
+	}
+
+	.info-icon {
+		font-size: 1.5rem;
+		flex-shrink: 0;
+	}
+
+	.info-item h4 {
+		margin: 0 0 var(--space-xs);
+		font-size: 0.9375rem;
+		font-weight: 600;
+	}
+
+	.info-item p {
+		margin: 0;
+		font-size: 0.8125rem;
+		color: var(--color-text-muted);
+		line-height: 1.5;
+	}
+
+	/* Responsive */
+	@media (max-width: 900px) {
+		.content-grid {
+			grid-template-columns: 1fr;
+		}
+
+		.info-card {
+			position: static;
+		}
+	}
+
+	@media (max-width: 640px) {
+		.page-header {
+			flex-direction: column;
+			text-align: center;
+		}
+
+		.form-card {
+			padding: var(--space-lg);
+		}
 	}
 </style>
