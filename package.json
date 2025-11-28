@@ -7,9 +7,14 @@
     "build": "vite build",
     "preview": "vite preview --host 0.0.0.0 --port 4222",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-    "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
+    "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+    "db:create": "wrangler d1 create athena-db",
+    "db:migrate": "wrangler d1 migrations apply athena-db",
+    "db:migrate:local": "wrangler d1 migrations apply athena-db --local",
+    "db:studio": "wrangler d1 execute athena-db --local --command \"SELECT 1\""
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20251128.0",
     "@playwright/test": "^1.56.1",
     "@sveltejs/adapter-cloudflare": "^4.7.2",
     "@sveltejs/kit": "^2.5.28",

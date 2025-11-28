@@ -99,7 +99,12 @@
 			</div>
 			<div class="account-card">
 				<div class="account-avatar">
-					{#if $user?.discordUsername}
+					{#if $user?.discordAvatar && $user?.discordId}
+						<img 
+							src="https://cdn.discordapp.com/avatars/{$user.discordId}/{$user.discordAvatar}.png?size=128" 
+							alt="{$user.discordUsername}'s avatar"
+						/>
+					{:else if $user?.discordUsername}
 						{$user.discordUsername.charAt(0).toUpperCase()}
 					{:else}
 						✦
@@ -387,6 +392,13 @@
 		font-size: 2rem;
 		font-weight: 700;
 		flex-shrink: 0;
+		overflow: hidden;
+	}
+
+	.account-avatar img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
 	}
 
 	.account-details {

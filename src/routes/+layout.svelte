@@ -71,7 +71,13 @@
 				{#if $user}
 					<a href="/profile" class="user-pill" class:active={$page.url.pathname === '/profile'}>
 						<div class="user-avatar">
-							{#if $user.discordUsername}
+							{#if $user.discordAvatar && $user.discordId}
+								<img 
+									src="https://cdn.discordapp.com/avatars/{$user.discordId}/{$user.discordAvatar}.png?size=64" 
+									alt="{$user.discordUsername}'s avatar"
+									class="avatar-img"
+								/>
+							{:else if $user.discordUsername}
 								{$user.discordUsername.charAt(0).toUpperCase()}
 							{:else}
 								<img src="/space-logo.png" alt="" class="avatar-logo" />
@@ -528,6 +534,13 @@
 		justify-content: center;
 		font-weight: 600;
 		font-size: 0.875rem;
+		overflow: hidden;
+	}
+
+	.user-avatar .avatar-img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
 	}
 
 	.user-avatar .avatar-logo {

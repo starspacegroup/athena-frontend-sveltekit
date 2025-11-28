@@ -66,7 +66,12 @@
 		<!-- Profile Header -->
 		<div class="profile-header">
 			<div class="profile-avatar">
-				{#if $user.discordUsername}
+				{#if $user.discordAvatar && $user.discordId}
+					<img 
+						src="https://cdn.discordapp.com/avatars/{$user.discordId}/{$user.discordAvatar}.png?size=128" 
+						alt="{$user.discordUsername}'s avatar"
+					/>
+				{:else if $user.discordUsername}
 					{$user.discordUsername.charAt(0).toUpperCase()}
 				{:else}
 					✦
@@ -212,6 +217,13 @@
 		font-weight: 700;
 		color: white;
 		box-shadow: var(--shadow-lg);
+		overflow: hidden;
+	}
+
+	.profile-avatar img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
 	}
 
 	.profile-info h1 {
