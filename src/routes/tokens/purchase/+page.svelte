@@ -173,7 +173,7 @@
 					<span class="info-icon">🗳️</span>
 					<div>
 						<h4>Voting Power</h4>
-						<p>Each SpaceMoney token equals one vote in *Space DAO governance</p>
+						<p>Each SpaceMoney token equals one vote in *Space DAO governance. Voting weight is heavier on finance-based proposals.</p>
 					</div>
 				</div>
 				<div class="info-item">

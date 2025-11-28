@@ -103,7 +103,7 @@
 			icon: '💎',
 			title: 'SpaceMoney (SM)',
 			subtitle: 'Economic Token',
-			description: 'Your stake in the treasury. Fund proposals, access incubator projects, and share in revenue—without voting weight.'
+			description: 'Your stake in the treasury. Fund proposals, access incubator projects, and share in revenue. Carries higher voting weight on finance-based proposals.'
 		},
 		{
 			icon: '⚖️',
