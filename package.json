@@ -24,7 +24,7 @@
   "dependencies": {
     "@auth/sveltekit": "^1.8.0",
     "dotenv": "^16.4.5",
-    "ethers": "^6.13.2"
+    "ethers": "^6.15.0"
   },
   "type": "module"
 }

@@ -1,20 +1,39 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { user, walletConnected, discordConnected } from '$lib/stores/auth';
-	import { connectWallet } from '$lib/wallet';
+	import { isMobile, isInWalletBrowser, getDefaultWallet, connectWallet } from '$lib/wallet';
+	import WalletModal from '$lib/components/WalletModal.svelte';
 
 	let loading = $state(false);
 	let error = $state('');
-	let selectedWallet = $state<'metamask' | 'coinbase'>('metamask');
 	let currentStep = $state(1);
+	let showWalletModal = $state(false);
 
-	async function handleWalletConnect() {
+	// Check if we should auto-connect (in wallet browser on mobile)
+	$effect(() => {
+		if (typeof window !== 'undefined' && !$walletConnected) {
+			const mobile = isMobile();
+			const inWallet = isInWalletBrowser();
+			
+			if (mobile && inWallet) {
+				// Auto-trigger connection in wallet browser
+				handleAutoConnect();
+			}
+		}
+	});
+
+	async function handleAutoConnect() {
+		const wallet = getDefaultWallet();
+		if (wallet?.installed) {
+			await handleWalletConnected(await connectWallet(wallet));
+		}
+	}
+
+	async function handleWalletConnected(address: string) {
 		error = '';
 		loading = true;
 
 		try {
-			const address = await connectWallet(selectedWallet);
-
 			// Send wallet address to server
 			const response = await fetch('/api/auth/wallet', {
 				method: 'POST',
@@ -32,10 +51,7 @@
 			currentStep = 2;
 
 			// Check if user needs to connect Discord
-			if (!data.user.discordId) {
-				// User needs to connect Discord
-				error = '';
-			} else {
+			if (data.user.discordId) {
 				// User is fully authenticated
 				goto('/dashboard');
 			}
@@ -45,6 +61,10 @@
 		} finally {
 			loading = false;
 		}
+	}
+
+	function handleWalletError(message: string) {
+		error = message;
 	}
 
 	async function handleDiscordConnect() {
@@ -75,23 +95,48 @@
 	const features = [
 		{
 			icon: '⏰',
-			title: 'SpaceTime Tokens',
-			description: 'Earn non-tradable governance tokens through active participation in the DAO'
+			title: 'SpaceTime (ST)',
+			subtitle: 'Labor Token',
+			description: 'Earned through work—proposals, tasks, successful outcomes. Carries voting power & decays over time to prevent hoarding.'
 		},
 		{
-			icon: '💰',
-			title: 'SpaceMoney',
-			description: 'Purchase and transfer governance tokens to increase your voting power'
+			icon: '💎',
+			title: 'SpaceMoney (SM)',
+			subtitle: 'Economic Token',
+			description: 'Your stake in the treasury. Fund proposals, access incubator projects, and share in revenue—without voting weight.'
 		},
 		{
-			icon: '🗳️',
-			title: 'Governance',
-			description: 'Participate in DAO decisions and shape the future of *Space'
+			icon: '⚖️',
+			title: 'Progressive Decentralization',
+			subtitle: 'Trustless Transition',
+			description: 'Hardcoded triggers transfer control to the community. 5 years of 99.9% proposal alignment → full autonomy.'
 		},
 		{
-			icon: '🔗',
-			title: 'Web3 Native',
-			description: 'Connect your wallet and Discord for a seamless decentralized experience'
+			icon: '🏛️',
+			title: 'Wyoming DAO LLC',
+			subtitle: 'Legal Foundation',
+			description: 'Real-world legal entity. Smart contracts are supreme—the Operating Agreement enforces on-chain governance.'
+		}
+	];
+
+	const governancePhases = [
+		{
+			phase: 'Now',
+			status: 'active',
+			title: 'Guided Launch',
+			items: ['Initial Controller holds veto', 'Treasury & upgrade keys secured', 'Community building phase']
+		},
+		{
+			phase: 'Transition',
+			status: 'pending',
+			title: 'Earning Trust',
+			items: ['10K+ distinct ST earners', 'Treasury diversification (<20% founder)', 'Proposal success metrics tracked']
+		},
+		{
+			phase: 'Future',
+			status: 'locked',
+			title: 'Full Autonomy',
+			items: ['Veto auto-revoked', 'Upgrade keys burned', 'Pure ST-weighted governance']
 		}
 	];
 </script>
@@ -109,8 +154,8 @@
 				<span class="gradient-text">*Space DAO</span>
 			</h1>
 			<p class="hero-description">
-				Join the future of decentralized governance. Earn SpaceTime tokens through participation
-				and acquire SpaceMoney to shape the direction of *Space.
+				A Wyoming DAO LLC with on-chain governance. Earn SpaceTime through work to gain voting power.
+				Hold SpaceMoney for economic stake. Built to decentralize—trustlessly.
 			</p>
 			
 			{#if !$user}
@@ -151,15 +196,52 @@
 
 	<!-- Features Section -->
 	<section class="features" id="features">
-		<h2 class="section-title">Why *Space DAO?</h2>
+		<div class="section-header">
+			<span class="section-badge">Two-Token Model</span>
+			<h2 class="section-title">Why *Space DAO?</h2>
+			<p class="section-subtitle">Separate economic value from governance power. Work earns votes. Money earns stake.</p>
+		</div>
 		<div class="features-grid">
 			{#each features as feature, i}
 				<div class="feature-card" style="--delay: {i * 0.1}s">
-					<div class="feature-icon">{feature.icon}</div>
+					<div class="feature-header">
+						<div class="feature-icon">{feature.icon}</div>
+						<span class="feature-subtitle">{feature.subtitle}</span>
+					</div>
 					<h3>{feature.title}</h3>
 					<p>{feature.description}</p>
 				</div>
 			{/each}
+		</div>
+	</section>
+
+	<!-- Governance Roadmap Section -->
+	<section class="governance-section" id="governance">
+		<div class="section-header">
+			<span class="section-badge">Governance</span>
+			<h2 class="section-title">The Path to Autonomy</h2>
+			<p class="section-subtitle">Built-in sunset triggers ensure power transfers to the community—trustlessly.</p>
+		</div>
+		<div class="governance-timeline">
+			{#each governancePhases as phase, i}
+				<div class="timeline-card {phase.status}" style="--delay: {i * 0.15}s">
+					<div class="timeline-marker">
+						<span class="timeline-phase">{phase.phase}</span>
+					</div>
+					<div class="timeline-content">
+						<h3>{phase.title}</h3>
+						<ul>
+							{#each phase.items as item}
+								<li>{item}</li>
+							{/each}
+						</ul>
+					</div>
+				</div>
+			{/each}
+		</div>
+		<div class="governance-note">
+			<span class="note-icon">🔐</span>
+			<p>These transitions are <strong>hardcoded in smart contracts</strong>—not promises, but guarantees.</p>
 		</div>
 	</section>
 
@@ -190,40 +272,18 @@
 					</div>
 				</div>
 
-				<!-- Wallet Selection -->
+				<!-- Wallet Connection -->
 				{#if !$walletConnected}
 					<div class="wallet-section">
-						<h3>Choose Your Wallet</h3>
-						<div class="wallet-options">
-							<label class="wallet-option" class:selected={selectedWallet === 'metamask'}>
-								<input type="radio" bind:group={selectedWallet} value="metamask" />
-								<div class="wallet-icon">🦊</div>
-								<div class="wallet-info">
-									<span class="wallet-name">MetaMask</span>
-									<span class="wallet-desc">Popular browser wallet</span>
-								</div>
-								{#if selectedWallet === 'metamask'}
-									<span class="check-icon">✓</span>
-								{/if}
-							</label>
-							<label class="wallet-option" class:selected={selectedWallet === 'coinbase'}>
-								<input type="radio" bind:group={selectedWallet} value="coinbase" />
-								<div class="wallet-icon">💙</div>
-								<div class="wallet-info">
-									<span class="wallet-name">Coinbase Wallet</span>
-									<span class="wallet-desc">By Coinbase</span>
-								</div>
-								{#if selectedWallet === 'coinbase'}
-									<span class="check-icon">✓</span>
-								{/if}
-							</label>
-						</div>
-						<button onclick={handleWalletConnect} disabled={loading} class="btn btn-primary btn-block">
+						<h3>Connect Your Wallet</h3>
+						<p class="wallet-hint">Connect any Ethereum wallet to get started</p>
+						<button onclick={() => showWalletModal = true} disabled={loading} class="btn btn-primary btn-block btn-connect">
 							{#if loading}
 								<span class="spinner"></span>
 								Connecting...
 							{:else}
-								Connect {selectedWallet === 'metamask' ? 'MetaMask' : 'Coinbase Wallet'}
+								<span class="wallet-icon-btn">🔗</span>
+								Connect Wallet
 							{/if}
 						</button>
 					</div>
@@ -257,80 +317,37 @@
 				{/if}
 			</div>
 		{:else}
-			<div class="welcome-card">
-				<div class="welcome-header">
-					<div class="welcome-avatar">
-						{#if $user.discordUsername}
-							{$user.discordUsername.charAt(0).toUpperCase()}
-						{:else}
-							✦
-						{/if}
-					</div>
+			<!-- User is signed in - simplified view -->
+			<div class="signed-in-card">
+				<div class="signed-in-content">
+					<div class="signed-in-icon">✓</div>
 					<div>
-						<h2>Welcome back!</h2>
-						<p class="welcome-subtitle">You're connected to *Space DAO</p>
+						<h3>You're connected!</h3>
+						<p>Welcome back, {$user.discordUsername || 'member'}</p>
 					</div>
 				</div>
-
-				<div class="user-details">
-					{#if $user.walletAddress}
-						<div class="detail-row">
-							<span class="detail-icon">💎</span>
-							<div class="detail-content">
-								<span class="detail-label">Wallet</span>
-								<span class="detail-value mono">
-									{$user.walletAddress.slice(0, 6)}...{$user.walletAddress.slice(-4)}
-								</span>
-							</div>
-							<span class="status-badge success">Connected</span>
-						</div>
-					{/if}
-					{#if $user.discordUsername}
-						<div class="detail-row">
-							<span class="detail-icon">💬</span>
-							<div class="detail-content">
-								<span class="detail-label">Discord</span>
-								<span class="detail-value">{$user.discordUsername}</span>
-							</div>
-							<span class="status-badge success">Linked</span>
-						</div>
-					{/if}
-				</div>
-
-				{#if $user.walletAddress && $user.discordId}
-					<a href="/dashboard" class="btn btn-primary btn-block btn-lg">
+				<div class="signed-in-actions">
+					<a href="/dashboard" class="btn btn-primary">
 						<span class="btn-icon">📊</span>
-						Go to Dashboard
+						Dashboard
 					</a>
-				{:else}
-					<div class="warning-message">
-						<span class="warning-icon">⚡</span>
-						Complete your profile to access all features
-					</div>
-					{#if !$user.walletAddress}
-						<button onclick={handleWalletConnect} class="btn btn-primary btn-block">
-							Connect Wallet
-						</button>
-					{/if}
-					{#if !$user.discordId}
-						<button onclick={handleDiscordConnect} class="btn btn-discord btn-block">
-							<span class="discord-logo">
-								<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-									<path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
-								</svg>
-							</span>
-							Connect Discord
-						</button>
-					{/if}
-				{/if}
-
-				<button onclick={handleLogout} class="btn btn-ghost btn-sm logout-btn">
-					Sign Out
-				</button>
+					<a href="/profile" class="btn btn-glass">
+						<span class="btn-icon">👤</span>
+						Profile
+					</a>
+				</div>
 			</div>
 		{/if}
 	</section>
 </div>
+
+<!-- Wallet Connection Modal -->
+<WalletModal 
+	open={showWalletModal} 
+	onClose={() => showWalletModal = false}
+	onConnect={handleWalletConnected}
+	onError={handleWalletError}
+/>
 
 <style>
 	.page {
@@ -478,15 +495,43 @@
 	}
 
 	/* Features Section */
-	.features {
+	.features,
+	.governance-section {
 		padding: var(--space-3xl) 0;
+	}
+
+	.section-header {
+		text-align: center;
+		margin-bottom: var(--space-2xl);
+	}
+
+	.section-badge {
+		display: inline-block;
+		padding: var(--space-xs) var(--space-md);
+		background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(59, 130, 246, 0.15));
+		border: 1px solid rgba(139, 92, 246, 0.3);
+		border-radius: var(--radius-full);
+		font-size: 0.75rem;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		color: var(--color-primary);
+		margin-bottom: var(--space-md);
 	}
 
 	.section-title {
 		font-family: var(--font-display);
 		font-size: 2rem;
 		text-align: center;
-		margin-bottom: var(--space-2xl);
+		margin: 0 0 var(--space-sm);
+	}
+
+	.section-subtitle {
+		color: var(--color-text-secondary);
+		font-size: 1.0625rem;
+		max-width: 500px;
+		margin: 0 auto;
+		line-height: 1.6;
 	}
 
 	.features-grid {
@@ -512,9 +557,27 @@
 		box-shadow: var(--shadow-lg);
 	}
 
-	.feature-icon {
-		font-size: 2.5rem;
+	.feature-header {
+		display: flex;
+		align-items: center;
+		gap: var(--space-md);
 		margin-bottom: var(--space-md);
+	}
+
+	.feature-icon {
+		font-size: 2rem;
+		line-height: 1;
+	}
+
+	.feature-subtitle {
+		font-size: 0.6875rem;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		color: var(--color-text-muted);
+		background: var(--color-bg-tertiary);
+		padding: var(--space-2xs) var(--space-sm);
+		border-radius: var(--radius-sm);
 	}
 
 	.feature-card h3 {
@@ -529,6 +592,127 @@
 		font-size: 0.9375rem;
 		line-height: 1.6;
 		margin: 0;
+	}
+
+	/* Governance Section */
+	.governance-timeline {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: var(--space-lg);
+		margin-bottom: var(--space-xl);
+	}
+
+	.timeline-card {
+		background: var(--color-bg-card);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-lg);
+		padding: var(--space-lg);
+		position: relative;
+		animation: fadeInUp 0.6s ease-out backwards;
+		animation-delay: var(--delay);
+		transition: all var(--transition-base);
+	}
+
+	.timeline-card:hover {
+		border-color: var(--color-border-hover);
+		transform: translateY(-2px);
+	}
+
+	.timeline-card.active {
+		border-color: var(--color-success);
+		background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), transparent);
+	}
+
+	.timeline-card.pending {
+		border-color: var(--color-warning);
+		background: linear-gradient(135deg, rgba(245, 158, 11, 0.05), transparent);
+	}
+
+	.timeline-card.locked {
+		border-color: var(--color-primary);
+		background: linear-gradient(135deg, rgba(139, 92, 246, 0.05), transparent);
+	}
+
+	.timeline-marker {
+		margin-bottom: var(--space-md);
+	}
+
+	.timeline-phase {
+		display: inline-block;
+		font-size: 0.6875rem;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
+		padding: var(--space-2xs) var(--space-sm);
+		border-radius: var(--radius-sm);
+	}
+
+	.timeline-card.active .timeline-phase {
+		background: rgba(16, 185, 129, 0.2);
+		color: var(--color-success);
+	}
+
+	.timeline-card.pending .timeline-phase {
+		background: rgba(245, 158, 11, 0.2);
+		color: var(--color-warning);
+	}
+
+	.timeline-card.locked .timeline-phase {
+		background: rgba(139, 92, 246, 0.2);
+		color: var(--color-primary);
+	}
+
+	.timeline-content h3 {
+		font-family: var(--font-display);
+		font-size: 1.125rem;
+		margin: 0 0 var(--space-sm);
+	}
+
+	.timeline-content ul {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+	}
+
+	.timeline-content li {
+		font-size: 0.875rem;
+		color: var(--color-text-secondary);
+		padding: var(--space-xs) 0;
+		padding-left: var(--space-md);
+		position: relative;
+	}
+
+	.timeline-content li::before {
+		content: '→';
+		position: absolute;
+		left: 0;
+		color: var(--color-text-muted);
+		font-size: 0.75rem;
+	}
+
+	.governance-note {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: var(--space-sm);
+		padding: var(--space-md) var(--space-lg);
+		background: var(--color-bg-secondary);
+		border-radius: var(--radius-lg);
+		text-align: center;
+	}
+
+	.governance-note .note-icon {
+		font-size: 1.25rem;
+	}
+
+	.governance-note p {
+		margin: 0;
+		font-size: 0.9375rem;
+		color: var(--color-text-secondary);
+	}
+
+	.governance-note strong {
+		color: var(--color-text-primary);
 	}
 
 	@keyframes fadeInUp {
@@ -549,8 +733,7 @@
 		justify-content: center;
 	}
 
-	.connect-card,
-	.welcome-card {
+	.connect-card {
 		width: 100%;
 		max-width: 500px;
 		background: var(--color-bg-card);
@@ -639,73 +822,30 @@
 	}
 
 	/* Wallet Section */
+	.wallet-section {
+		text-align: center;
+	}
+
 	.wallet-section h3,
 	.discord-section h3 {
-		font-size: 1rem;
-		margin: 0 0 var(--space-md);
+		font-size: 1.125rem;
+		margin: 0 0 var(--space-sm);
+		color: var(--color-text-primary);
+	}
+
+	.wallet-hint {
 		color: var(--color-text-secondary);
+		font-size: 0.875rem;
+		margin: 0 0 var(--space-lg);
 	}
 
-	.wallet-options {
-		display: flex;
-		flex-direction: column;
-		gap: var(--space-sm);
-		margin-bottom: var(--space-lg);
+	.btn-connect {
+		font-size: 1rem;
+		padding: 1rem 1.5rem;
 	}
 
-	.wallet-option {
-		display: flex;
-		align-items: center;
-		gap: var(--space-md);
-		padding: var(--space-md);
-		background: var(--color-bg-secondary);
-		border: 2px solid transparent;
-		border-radius: var(--radius-md);
-		cursor: pointer;
-		transition: all var(--transition-fast);
-	}
-
-	.wallet-option:hover {
-		background: var(--color-bg-tertiary);
-	}
-
-	.wallet-option.selected {
-		border-color: var(--color-accent-primary);
-		background: rgba(139, 92, 246, 0.1);
-	}
-
-	.wallet-option input {
-		display: none;
-	}
-
-	.wallet-icon {
-		font-size: 2rem;
-	}
-
-	.wallet-info {
-		flex: 1;
-		display: flex;
-		flex-direction: column;
-	}
-
-	.wallet-name {
-		font-weight: 600;
-	}
-
-	.wallet-desc {
-		font-size: 0.8125rem;
-		color: var(--color-text-muted);
-	}
-
-	.check-icon {
-		width: 24px;
-		height: 24px;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		background: var(--color-accent-primary);
-		border-radius: 50%;
-		font-size: 0.75rem;
+	.wallet-icon-btn {
+		font-size: 1.25rem;
 	}
 
 	/* Discord Section */
@@ -736,79 +876,6 @@
 		font-size: 1.25rem;
 	}
 
-	/* Welcome Card */
-	.welcome-header {
-		display: flex;
-		align-items: center;
-		gap: var(--space-md);
-		margin-bottom: var(--space-xl);
-	}
-
-	.welcome-avatar {
-		width: 56px;
-		height: 56px;
-		background: var(--gradient-primary);
-		border-radius: 50%;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		font-size: 1.5rem;
-		font-weight: 700;
-	}
-
-	.welcome-header h2 {
-		margin: 0;
-		font-family: var(--font-display);
-	}
-
-	.welcome-subtitle {
-		margin: 0;
-		color: var(--color-text-muted);
-		font-size: 0.875rem;
-	}
-
-	.user-details {
-		display: flex;
-		flex-direction: column;
-		gap: var(--space-sm);
-		margin-bottom: var(--space-xl);
-	}
-
-	.detail-row {
-		display: flex;
-		align-items: center;
-		gap: var(--space-md);
-		padding: var(--space-md);
-		background: var(--color-bg-secondary);
-		border-radius: var(--radius-md);
-	}
-
-	.detail-icon {
-		font-size: 1.25rem;
-	}
-
-	.detail-content {
-		flex: 1;
-		display: flex;
-		flex-direction: column;
-	}
-
-	.detail-label {
-		font-size: 0.75rem;
-		color: var(--color-text-muted);
-		text-transform: uppercase;
-		letter-spacing: 0.5px;
-	}
-
-	.detail-value {
-		font-weight: 500;
-	}
-
-	.detail-value.mono {
-		font-family: 'SF Mono', Monaco, monospace;
-		font-size: 0.875rem;
-	}
-
 	.status-badge {
 		font-size: 0.6875rem;
 		font-weight: 600;
@@ -823,9 +890,56 @@
 		color: var(--color-success);
 	}
 
-	.logout-btn {
-		margin-top: var(--space-md);
+	/* Signed In Card (simplified) */
+	.signed-in-card {
 		width: 100%;
+		max-width: 500px;
+		background: var(--color-bg-card);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-xl);
+		padding: var(--space-xl);
+		backdrop-filter: blur(20px);
+	}
+
+	.signed-in-content {
+		display: flex;
+		align-items: center;
+		gap: var(--space-md);
+		margin-bottom: var(--space-lg);
+	}
+
+	.signed-in-icon {
+		width: 48px;
+		height: 48px;
+		background: rgba(16, 185, 129, 0.15);
+		border: 1px solid rgba(16, 185, 129, 0.3);
+		border-radius: 50%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 1.25rem;
+		color: var(--color-success);
+	}
+
+	.signed-in-content h3 {
+		margin: 0;
+		font-family: var(--font-display);
+		font-size: 1.25rem;
+	}
+
+	.signed-in-content p {
+		margin: 0;
+		color: var(--color-text-secondary);
+		font-size: 0.9375rem;
+	}
+
+	.signed-in-actions {
+		display: flex;
+		gap: var(--space-sm);
+	}
+
+	.signed-in-actions .btn {
+		flex: 1;
 	}
 
 	/* Buttons */
@@ -978,6 +1092,10 @@
 			width: 280px;
 			height: 280px;
 		}
+
+		.governance-timeline {
+			grid-template-columns: 1fr;
+		}
 	}
 
 	@media (max-width: 640px) {
@@ -986,8 +1104,12 @@
 		}
 
 		.connect-card,
-		.welcome-card {
+		.signed-in-card {
 			padding: var(--space-lg);
+		}
+
+		.signed-in-actions {
+			flex-direction: column;
 		}
 
 		.steps {
@@ -997,6 +1119,11 @@
 
 		.step-line {
 			display: none;
+		}
+
+		.governance-note {
+			flex-direction: column;
+			text-align: center;
 		}
 	}
 </style>

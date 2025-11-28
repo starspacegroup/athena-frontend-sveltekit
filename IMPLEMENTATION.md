@@ -2,7 +2,9 @@
 
 ## Overview
 
-This is a complete SvelteKit application for the Athena DAO that allows users to:
+This is a complete SvelteKit application for the Athena DAO that allows users
+to:
+
 - Connect with their blockchain wallet (MetaMask or Coinbase Wallet on Polygon)
 - Authenticate with Discord OAuth
 - View their SpaceTime and SpaceMoney token balances
@@ -14,6 +16,7 @@ This is a complete SvelteKit application for the Athena DAO that allows users to
 ### 1. Authentication System
 
 #### Wallet Connection
+
 - **File**: `src/lib/wallet.ts`
 - Supports MetaMask and Coinbase Wallet
 - Automatically switches to Polygon network (Chain ID: 137)
@@ -21,13 +24,15 @@ This is a complete SvelteKit application for the Athena DAO that allows users to
 - Returns connected wallet address
 
 #### Discord OAuth
-- **Files**: 
+
+- **Files**:
   - `src/routes/api/auth/discord/+server.ts` - Initiates OAuth flow
   - `src/routes/api/auth/callback/+server.ts` - Handles OAuth callback
 - Uses Discord's OAuth2 to authenticate users
 - Stores Discord ID, username, and avatar
 
 #### Session Management
+
 - **File**: `src/lib/server/session.ts`
 - Creates and manages user sessions
 - Stores both wallet address and Discord information
@@ -37,6 +42,7 @@ This is a complete SvelteKit application for the Athena DAO that allows users to
 ### 2. User Interface
 
 #### Home Page (`/`)
+
 - **File**: `src/routes/+page.svelte`
 - Landing page with authentication
 - Two-step authentication process:
@@ -46,6 +52,7 @@ This is a complete SvelteKit application for the Athena DAO that allows users to
 - Logout functionality
 
 #### Dashboard (`/dashboard`)
+
 - **File**: `src/routes/dashboard/+page.svelte`
 - Displays user account information
 - Shows SpaceTime token balance (non-tradable)
@@ -53,12 +60,14 @@ This is a complete SvelteKit application for the Athena DAO that allows users to
 - Links to purchase and transfer pages
 
 #### Purchase Page (`/tokens/purchase`)
+
 - **File**: `src/routes/tokens/purchase/+page.svelte`
 - Form to specify amount of SpaceMoney to purchase
 - Processes purchase through API
 - Shows transaction hash on success
 
 #### Transfer Page (`/tokens/transfer`)
+
 - **File**: `src/routes/tokens/transfer/+page.svelte`
 - Form to specify recipient address and amount
 - Processes transfer through API
@@ -67,6 +76,7 @@ This is a complete SvelteKit application for the Athena DAO that allows users to
 ### 3. API Endpoints
 
 #### Authentication Endpoints
+
 - `POST /api/auth/wallet` - Authenticate with wallet address
 - `GET /api/auth/discord` - Initiate Discord OAuth
 - `GET /api/auth/callback` - Handle Discord OAuth callback
@@ -74,6 +84,7 @@ This is a complete SvelteKit application for the Athena DAO that allows users to
 - `POST /api/auth/logout` - Clear session and logout
 
 #### Token Endpoints
+
 - `GET /api/tokens/balances` - Get user's token balances
 - `POST /api/tokens/purchase` - Purchase SpaceMoney tokens
 - `POST /api/tokens/transfer` - Transfer SpaceMoney tokens
@@ -81,6 +92,7 @@ This is a complete SvelteKit application for the Athena DAO that allows users to
 ### 4. State Management
 
 #### Svelte Stores
+
 - **`src/lib/stores/auth.ts`**: User authentication state
   - `user`: Current user information (wallet, Discord)
   - `walletConnected`: Boolean flag for wallet connection
@@ -92,15 +104,34 @@ This is a complete SvelteKit application for the Athena DAO that allows users to
 ### 5. Blockchain Integration
 
 #### Wallet Functions (`src/lib/wallet.ts`)
-- `connectWallet()`: Connect to MetaMask or Coinbase Wallet
+
+- `detectWallets()`: Auto-detect available wallets (MetaMask, Coinbase, Trust,
+  Brave, Rabby, etc.)
+- `connectWallet()`: Universal wallet connection with mobile deep-linking
+  support
+- `isMobile()`: Detect mobile devices
+- `isInWalletBrowser()`: Detect if running in a wallet's in-app browser
+- `getDefaultWallet()`: Get the best available wallet for auto-connection
 - `getTokenBalance()`: Fetch ERC-20 token balance
 - `transferToken()`: Transfer ERC-20 tokens to another address
+- `onAccountChange()`: Listen for wallet account changes
+- `onChainChange()`: Listen for chain/network changes
 
-These functions use ethers.js v6 to interact with the Ethereum/Polygon blockchain.
+#### Wallet Modal Component (`src/lib/components/WalletModal.svelte`)
+
+- Unified wallet selection interface
+- Auto-detects installed wallets
+- Mobile-optimized with deep linking to wallet apps
+- Shows install links for non-installed wallets
+- Smooth animations and accessibility support
+
+These functions use ethers.js v6 to interact with the Ethereum/Polygon
+blockchain.
 
 ### 6. Cloudflare Pages Deployment
 
 #### Configuration Files
+
 - **`svelte.config.js`**: Uses `@sveltejs/adapter-cloudflare`
 - **`wrangler.toml`**: Cloudflare Workers configuration
 - Build output: `.svelte-kit/cloudflare`
@@ -112,8 +143,10 @@ These functions use ethers.js v6 to interact with the Ethereum/Polygon blockchai
 1. **New User Registration**:
    ```
    User visits homepage
-   → Clicks "Connect Wallet"
-   → MetaMask/Coinbase Wallet prompts for connection
+   → Clicks "Connect Wallet" button
+   → Wallet modal opens with detected wallets
+   → User selects wallet (or opens mobile app via deep link)
+   → Wallet prompts for connection approval
    → Wallet switches to Polygon network
    → POST /api/auth/wallet with address
    → Server creates session with wallet address
@@ -180,6 +213,7 @@ These functions use ethers.js v6 to interact with the Ethereum/Polygon blockchai
 ## Current Limitations & Production TODOs
 
 ### Mock Data
+
 Currently, the following features use mock data:
 
 1. **Token Balances** (`/api/tokens/balances`):
@@ -188,20 +222,25 @@ Currently, the following features use mock data:
 
 2. **Token Purchase** (`/api/tokens/purchase`):
    - Returns mock transaction hash
-   - **Production TODO**: Implement actual purchase mechanism (e.g., via a sale contract)
+   - **Production TODO**: Implement actual purchase mechanism (e.g., via a sale
+     contract)
 
 3. **Token Transfer** (`/api/tokens/transfer`):
    - Returns mock transaction hash
-   - **Production TODO**: Call `transferToken()` function in `wallet.ts` to execute real blockchain transaction
+   - **Production TODO**: Call `transferToken()` function in `wallet.ts` to
+     execute real blockchain transaction
 
 ### Session Storage
+
 - Currently uses in-memory Map
 - **Production TODO**: Use Cloudflare KV or D1 for persistent session storage
 
 ### Environment Variables
+
 Required for production:
+
 - `DISCORD_CLIENT_ID`: Your Discord OAuth client ID
-- `DISCORD_CLIENT_SECRET`: Your Discord OAuth client secret  
+- `DISCORD_CLIENT_SECRET`: Your Discord OAuth client secret
 - `DISCORD_REDIRECT_URI`: Your production callback URL
 - `SPACETIME_TOKEN_ADDRESS`: SpaceTime ERC-20 contract address on Polygon
 - `SPACEMONEY_TOKEN_ADDRESS`: SpaceMoney ERC-20 contract address on Polygon
@@ -243,6 +282,7 @@ Required for production:
    - Verify success message with transaction hash
 
 ### Build Testing
+
 ```bash
 npm run build
 npm run preview
@@ -314,6 +354,7 @@ athena/
 ## Styling
 
 The application uses vanilla CSS with:
+
 - Modern, clean design
 - Purple gradient theme (#667eea to #764ba2)
 - Responsive layouts using Flexbox and Grid

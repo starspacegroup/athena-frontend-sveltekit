@@ -63,7 +63,7 @@
 					</a>
 				{/if}
 				{#if $user}
-					<div class="user-pill">
+					<a href="/profile" class="user-pill" class:active={$page.url.pathname === '/profile'}>
 						<div class="user-avatar">
 							{#if $user.discordUsername}
 								{$user.discordUsername.charAt(0).toUpperCase()}
@@ -72,7 +72,7 @@
 							{/if}
 						</div>
 						<span class="user-name">{$user.discordUsername || 'Connected'}</span>
-					</div>
+					</a>
 				{/if}
 			</nav>
 		</div>
@@ -435,6 +435,19 @@
 		border: 1px solid var(--color-border);
 		border-radius: var(--radius-full);
 		margin-left: var(--space-md);
+		text-decoration: none;
+		transition: all var(--transition-base);
+		cursor: pointer;
+	}
+
+	.user-pill:hover {
+		background: var(--color-bg-card-hover);
+		border-color: var(--color-border-hover);
+	}
+
+	.user-pill.active {
+		border-color: var(--color-accent-primary);
+		background: rgba(139, 92, 246, 0.1);
 	}
 
 	.user-avatar {
