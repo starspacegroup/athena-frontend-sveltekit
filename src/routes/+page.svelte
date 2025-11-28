@@ -455,7 +455,6 @@
 		top: 15%;
 		left: 15%;
 		animation-duration: 15s;
-		animation-direction: reverse;
 	}
 
 	.orbit-3 {
