@@ -1,13 +1,11 @@
 import { redirect } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-
-const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID || 'your-discord-client-id';
-const REDIRECT_URI = process.env.DISCORD_REDIRECT_URI || 'http://localhost:5173/api/auth/callback';
+import { DISCORD_CLIENT_ID, DISCORD_REDIRECT_URI } from '$env/static/private';
 
 export const GET: RequestHandler = async () => {
 	const params = new URLSearchParams({
 		client_id: DISCORD_CLIENT_ID,
-		redirect_uri: REDIRECT_URI,
+		redirect_uri: DISCORD_REDIRECT_URI,
 		response_type: 'code',
 		scope: 'identify'
 	});

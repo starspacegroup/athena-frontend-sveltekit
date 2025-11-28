@@ -7,10 +7,7 @@ import {
 	updateSession,
 	setSessionCookie
 } from '$lib/server/session';
-
-const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID || 'your-discord-client-id';
-const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET || 'your-discord-client-secret';
-const REDIRECT_URI = process.env.DISCORD_REDIRECT_URI || 'http://localhost:5173/api/auth/callback';
+import { DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET, DISCORD_REDIRECT_URI } from '$env/static/private';
 
 export const GET: RequestHandler = async ({ url, cookies }) => {
 	const code = url.searchParams.get('code');
@@ -31,7 +28,7 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 				client_secret: DISCORD_CLIENT_SECRET,
 				grant_type: 'authorization_code',
 				code,
-				redirect_uri: REDIRECT_URI
+				redirect_uri: DISCORD_REDIRECT_URI
 			})
 		});
 
