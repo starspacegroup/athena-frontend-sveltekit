@@ -383,6 +383,68 @@
 		font-weight: 500;
 	}
 
+	/* Button Base Styles */
+	.btn {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: var(--space-sm);
+		padding: 0.75rem 1.5rem;
+		border: none;
+		border-radius: var(--radius-md);
+		font-family: var(--font-sans);
+		font-size: 0.9375rem;
+		font-weight: 600;
+		cursor: pointer;
+		transition: all var(--transition-fast);
+		text-decoration: none;
+		position: relative;
+		overflow: hidden;
+	}
+
+	.btn:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
+
+	.btn-primary {
+		background: var(--gradient-primary);
+		color: white;
+		box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+	}
+
+	.btn-primary:hover:not(:disabled) {
+		transform: translateY(-2px);
+		box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+	}
+
+	.btn-ghost {
+		background: transparent;
+		color: var(--color-text-muted);
+		border: 1px solid var(--color-border);
+	}
+
+	.btn-ghost:hover {
+		color: var(--color-text-primary);
+		background: rgba(255, 255, 255, 0.05);
+	}
+
+	.btn-sm {
+		padding: 0.5rem 1rem;
+		font-size: 0.8125rem;
+	}
+
+	.btn-discord {
+		background: #5865f2;
+		color: white;
+	}
+
+	.btn-discord:hover {
+		background: #4752c4;
+		transform: translateY(-2px);
+		box-shadow: 0 4px 15px rgba(88, 101, 242, 0.4);
+	}
+
 	/* Logout Button */
 	.logout-btn {
 		width: 100%;
@@ -394,6 +456,8 @@
 
 	.logout-btn:hover {
 		color: var(--color-error);
+		background: rgba(239, 68, 68, 0.1);
+		border-color: rgba(239, 68, 68, 0.3);
 	}
 
 	/* Error Message */

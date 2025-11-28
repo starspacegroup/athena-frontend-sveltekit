@@ -30,6 +30,12 @@
 </script>
 
 <div class="app">
+	<!-- Alpha Preview Banner -->
+	<div class="alpha-banner">
+		<span class="alpha-badge">⚠️ ALPHA</span>
+		<span class="alpha-text">This is a non-working preview build. Features are under active development.</span>
+	</div>
+
 	<!-- Animated background -->
 	<div class="bg-gradient"></div>
 	<div class="bg-grid"></div>
@@ -262,16 +268,78 @@
 		66% { transform: translate(-20px, 20px) scale(0.95); }
 	}
 
+	/* Alpha Preview Banner */
+	.alpha-banner {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		z-index: 200;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: var(--space-sm);
+		padding: var(--space-xs) var(--space-md);
+		background: linear-gradient(90deg, #f59e0b 0%, #ea580c 50%, #f59e0b 100%);
+		background-size: 200% 100%;
+		animation: shimmer 3s ease-in-out infinite;
+		color: #000;
+		font-size: 0.85rem;
+		font-weight: 600;
+		text-align: center;
+		box-shadow: 0 2px 10px rgba(245, 158, 11, 0.4);
+	}
+
+	@keyframes shimmer {
+		0%, 100% { background-position: 0% 50%; }
+		50% { background-position: 100% 50%; }
+	}
+
+	.alpha-badge {
+		display: inline-flex;
+		align-items: center;
+		gap: 4px;
+		background: rgba(0, 0, 0, 0.2);
+		padding: 2px 8px;
+		border-radius: var(--radius-sm);
+		font-weight: 700;
+		font-size: 0.75rem;
+		text-transform: uppercase;
+		letter-spacing: 0.5px;
+	}
+
+	.alpha-text {
+		opacity: 0.9;
+	}
+
+	@media (max-width: 600px) {
+		.alpha-banner {
+			flex-direction: column;
+			gap: 2px;
+			padding: var(--space-xs);
+		}
+		
+		.alpha-text {
+			font-size: 0.75rem;
+		}
+	}
+
 	/* Header */
 	header {
 		position: fixed;
-		top: 0;
+		top: 32px;
 		left: 0;
 		right: 0;
 		z-index: 100;
 		padding: var(--space-md) var(--space-xl);
 		transition: all var(--transition-base);
 		background: transparent;
+	}
+
+	@media (max-width: 600px) {
+		header {
+			top: 48px;
+		}
 	}
 
 	header.scrolled {
@@ -477,12 +545,18 @@
 	/* Main Content */
 	main {
 		flex: 1;
-		padding: calc(80px + var(--space-2xl)) var(--space-xl) var(--space-2xl);
+		padding: calc(112px + var(--space-2xl)) var(--space-xl) var(--space-2xl);
 		max-width: 1400px;
 		width: 100%;
 		margin: 0 auto;
 		position: relative;
 		z-index: 1;
+	}
+
+	@media (max-width: 600px) {
+		main {
+			padding-top: calc(128px + var(--space-2xl));
+		}
 	}
 
 	/* Footer */
