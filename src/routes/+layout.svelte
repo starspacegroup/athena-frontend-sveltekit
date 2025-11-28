@@ -39,9 +39,8 @@
 	<header class:scrolled>
 		<div class="header-content">
 			<a href="/" class="logo">
-				<span class="logo-icon">✦</span>
-				<span class="logo-text">*Space</span>
-				<span class="logo-badge">DAO</span>
+				<img src="/space-logo.png" alt="Athena" class="logo-icon" />
+				<span class="logo-text">Athena</span>
 			</a>
 			
 			<button class="mobile-menu-toggle" onclick={toggleMobileMenu} aria-label="Toggle menu">
@@ -69,7 +68,7 @@
 							{#if $user.discordUsername}
 								{$user.discordUsername.charAt(0).toUpperCase()}
 							{:else}
-								✦
+								<img src="/space-logo.png" alt="" class="avatar-logo" />
 							{/if}
 						</div>
 						<span class="user-name">{$user.discordUsername || 'Connected'}</span>
@@ -86,7 +85,7 @@
 	<footer>
 		<div class="footer-content">
 			<div class="footer-brand">
-				<span class="logo-icon">✦</span>
+				<img src="/space-logo.png" alt="*Space" class="logo-icon" />
 				<span>*Space DAO</span>
 			</div>
 			<p>Decentralized governance for the future</p>
@@ -307,11 +306,9 @@
 	}
 
 	.logo-icon {
-		font-size: 1.75rem;
-		background: var(--gradient-primary);
-		-webkit-background-clip: text;
-		-webkit-text-fill-color: transparent;
-		background-clip: text;
+		width: 32px;
+		height: 32px;
+		object-fit: contain;
 		animation: pulse 3s ease-in-out infinite;
 	}
 
@@ -452,6 +449,12 @@
 		font-size: 0.875rem;
 	}
 
+	.user-avatar .avatar-logo {
+		width: 20px;
+		height: 20px;
+		object-fit: contain;
+	}
+
 	.user-name {
 		font-weight: 500;
 		font-size: 0.875rem;
@@ -497,7 +500,8 @@
 	}
 
 	.footer-brand .logo-icon {
-		font-size: 1.25rem;
+		width: 24px;
+		height: 24px;
 	}
 
 	footer p {

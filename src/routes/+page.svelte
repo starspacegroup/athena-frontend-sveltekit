@@ -144,7 +144,7 @@
 				<div class="orbit orbit-3">
 					<div class="orbit-dot"></div>
 				</div>
-				<div class="center-logo">✦</div>
+				<img src="/space-logo.png" alt="*Space" class="center-logo" />
 			</div>
 		</div>
 	</section>
@@ -466,11 +466,9 @@
 		top: 50%;
 		left: 50%;
 		transform: translate(-50%, -50%);
-		font-size: 4rem;
-		background: var(--gradient-primary);
-		-webkit-background-clip: text;
-		-webkit-text-fill-color: transparent;
-		background-clip: text;
+		width: 80px;
+		height: 80px;
+		object-fit: contain;
 		animation: pulse 3s ease-in-out infinite;
 	}
 
