@@ -42,6 +42,7 @@
 	let currentDay = $state(0);
 	let simulationComplete = $state(false);
 	let simulationProgress = $state(0);
+	let configExpanded = $state(false);
 	
 	// Metrics State
 	let metrics = $state({
@@ -698,13 +699,15 @@
 
 	<div class="main-content">
 		<!-- Configuration Panel -->
-		<aside class="config-panel" class:collapsed={isRunning}>
-			<div class="panel-header">
+		<aside class="config-panel" class:collapsed={!configExpanded}>
+			<button class="panel-header" onclick={() => configExpanded = !configExpanded}>
 				<h2>
 					<span class="panel-icon">⚙️</span>
 					Configuration
 				</h2>
-			</div>
+				<span class="toggle-icon">{configExpanded ? '▲' : '▼'}</span>
+			</button>
+			<div class="panel-content" class:hidden={!configExpanded}>
 
 			<!-- Presets -->
 			<section class="config-section">
@@ -934,6 +937,7 @@
 					{/if}
 				</div>
 			</section>
+			</div>
 		</aside>
 
 		<!-- Results Panel -->
@@ -1561,15 +1565,9 @@
 
 	/* Main Layout */
 	.main-content {
-		display: grid;
-		grid-template-columns: 320px 1fr;
+		display: flex;
+		flex-direction: column;
 		gap: var(--space-xl);
-	}
-
-	@media (max-width: 1024px) {
-		.main-content {
-			grid-template-columns: 1fr;
-		}
 	}
 
 	/* Config Panel */
@@ -1578,19 +1576,27 @@
 		border: 1px solid var(--color-border);
 		border-radius: var(--radius-lg);
 		padding: var(--space-lg);
-		height: fit-content;
-		position: sticky;
-		top: 100px;
-		max-height: calc(100vh - 120px);
-		overflow-y: auto;
 	}
 
 	.config-panel.collapsed {
-		opacity: 0.7;
+		padding-bottom: var(--space-sm);
 	}
 
 	.panel-header {
-		margin-bottom: var(--space-lg);
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		width: 100%;
+		background: none;
+		border: none;
+		padding: 0;
+		cursor: pointer;
+		color: inherit;
+		text-align: left;
+	}
+
+	.panel-header:hover {
+		opacity: 0.8;
 	}
 
 	.panel-header h2 {
@@ -1602,16 +1608,28 @@
 		margin: 0;
 	}
 
-	.config-section {
-		margin-bottom: var(--space-lg);
-		padding-bottom: var(--space-lg);
-		border-bottom: 1px solid var(--color-border);
+	.toggle-icon {
+		font-size: 0.9rem;
+		color: var(--color-text-muted);
+		transition: transform 0.2s ease;
 	}
 
-	.config-section:last-child {
-		border-bottom: none;
-		margin-bottom: 0;
-		padding-bottom: 0;
+	.panel-content {
+		margin-top: var(--space-lg);
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+		gap: var(--space-lg);
+	}
+
+	.panel-content.hidden {
+		display: none;
+	}
+
+	.config-section {
+		background: var(--color-bg-tertiary);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-md);
+		padding: var(--space-md);
 	}
 
 	.config-section h3 {
