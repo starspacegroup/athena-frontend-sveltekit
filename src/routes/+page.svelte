@@ -245,6 +245,58 @@
 		</div>
 	</section>
 
+	<!-- Investments Section -->
+	<section class="investments-section" id="investments">
+		<div class="section-header">
+			<span class="section-badge">Investments</span>
+			<h2 class="section-title">Building & Acquiring the Future</h2>
+			<p class="section-subtitle">*Space operates as both an incubator for innovative projects and an acquirer of creative real estate.</p>
+		</div>
+		
+		<div class="investments-grid">
+			<div class="investment-card incubator" style="--delay: 0s">
+				<div class="investment-header">
+					<div class="investment-icon">🚀</div>
+					<span class="investment-label">Incubator</span>
+				</div>
+				<h3>Internal Projects</h3>
+				<p class="investment-description">
+					We develop and launch innovative products from within *Space. Our first incubated project is <strong>Ammoura</strong>—a next-generation website builder featuring eCommerce integration, AI-powered design tools, and much more.
+				</p>
+				<div class="investment-highlight">
+					<span class="highlight-icon">✨</span>
+					<span>Ammoura: Website Builder + eCommerce + AI</span>
+				</div>
+			</div>
+
+			<div class="investment-card real-estate" style="--delay: 0.15s">
+				<div class="investment-header">
+					<div class="investment-icon">🏢</div>
+					<span class="investment-label">Real Estate</span>
+				</div>
+				<h3>Creative Live/Work Spaces</h3>
+				<p class="investment-description">
+					We're acquiring mixed-use properties designed for creators to live and work in environments that support their craft. These spaces will accommodate as many creative disciplines as possible.
+				</p>
+				<div class="creative-disciplines">
+					<span class="discipline">🔧 Auto Mechanics</span>
+					<span class="discipline">🪵 Woodworking</span>
+					<span class="discipline">🔥 Glass Blowing</span>
+					<span class="discipline">💻 Software Engineering</span>
+					<span class="discipline">🎨 Graphic Design</span>
+					<span class="discipline">🗿 Sculpture</span>
+					<span class="discipline">🖼️ Painting</span>
+					<span class="discipline">🎭 And More...</span>
+				</div>
+			</div>
+		</div>
+
+		<div class="investments-vision">
+			<span class="vision-icon">🌌</span>
+			<p>Our vision: <strong>Foster creativity through ownership</strong>—both in the digital products we build and the physical spaces where creators thrive.</p>
+		</div>
+	</section>
+
 	<!-- Connect Section -->
 	<section class="connect-section" id="connect">
 		{#if !$user}
@@ -725,6 +777,162 @@
 		}
 	}
 
+	/* Investments Section */
+	.investments-section {
+		padding: var(--space-3xl) 0;
+	}
+
+	.investments-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+		gap: var(--space-xl);
+		margin-bottom: var(--space-xl);
+	}
+
+	.investment-card {
+		background: var(--color-bg-card);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-lg);
+		padding: var(--space-xl);
+		transition: all var(--transition-base);
+		animation: fadeInUp 0.6s ease-out backwards;
+		animation-delay: var(--delay);
+	}
+
+	.investment-card:hover {
+		background: var(--color-bg-card-hover);
+		border-color: var(--color-border-hover);
+		transform: translateY(-4px);
+		box-shadow: var(--shadow-lg);
+	}
+
+	.investment-card.incubator {
+		border-color: rgba(139, 92, 246, 0.3);
+		background: linear-gradient(135deg, rgba(139, 92, 246, 0.05), transparent);
+	}
+
+	.investment-card.incubator:hover {
+		border-color: var(--color-primary);
+	}
+
+	.investment-card.real-estate {
+		border-color: rgba(59, 130, 246, 0.3);
+		background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), transparent);
+	}
+
+	.investment-card.real-estate:hover {
+		border-color: var(--color-secondary);
+	}
+
+	.investment-header {
+		display: flex;
+		align-items: center;
+		gap: var(--space-md);
+		margin-bottom: var(--space-md);
+	}
+
+	.investment-icon {
+		font-size: 2rem;
+		line-height: 1;
+	}
+
+	.investment-label {
+		font-size: 0.6875rem;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		color: var(--color-text-muted);
+		background: var(--color-bg-tertiary);
+		padding: var(--space-2xs) var(--space-sm);
+		border-radius: var(--radius-sm);
+	}
+
+	.investment-card h3 {
+		font-family: var(--font-display);
+		font-size: 1.25rem;
+		margin: 0 0 var(--space-md);
+		color: var(--color-text-primary);
+	}
+
+	.investment-description {
+		color: var(--color-text-secondary);
+		font-size: 0.9375rem;
+		line-height: 1.6;
+		margin: 0 0 var(--space-md);
+	}
+
+	.investment-description strong {
+		color: var(--color-primary);
+	}
+
+	.investment-highlight {
+		display: flex;
+		align-items: center;
+		gap: var(--space-sm);
+		padding: var(--space-sm) var(--space-md);
+		background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(59, 130, 246, 0.1));
+		border: 1px solid rgba(139, 92, 246, 0.2);
+		border-radius: var(--radius-md);
+		font-size: 0.875rem;
+		font-weight: 500;
+		color: var(--color-text-primary);
+	}
+
+	.highlight-icon {
+		font-size: 1rem;
+	}
+
+	.creative-disciplines {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-sm);
+	}
+
+	.discipline {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-xs);
+		padding: var(--space-xs) var(--space-sm);
+		background: var(--color-bg-tertiary);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-sm);
+		font-size: 0.8125rem;
+		color: var(--color-text-secondary);
+		transition: all var(--transition-base);
+	}
+
+	.discipline:hover {
+		background: var(--color-bg-card-hover);
+		border-color: var(--color-border-hover);
+		color: var(--color-text-primary);
+	}
+
+	.investments-vision {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: var(--space-sm);
+		padding: var(--space-md) var(--space-lg);
+		background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(59, 130, 246, 0.1));
+		border: 1px solid rgba(139, 92, 246, 0.2);
+		border-radius: var(--radius-lg);
+		text-align: center;
+	}
+
+	.vision-icon {
+		font-size: 1.25rem;
+	}
+
+	.investments-vision p {
+		margin: 0;
+		font-size: 0.9375rem;
+		color: var(--color-text-secondary);
+	}
+
+	.investments-vision strong {
+		color: var(--color-text-primary);
+	}
+
 	/* Connect Section */
 	.connect-section {
 		padding: var(--space-3xl) 0;
@@ -1095,6 +1303,10 @@
 		.governance-timeline {
 			grid-template-columns: 1fr;
 		}
+
+		.investments-grid {
+			grid-template-columns: 1fr;
+		}
 	}
 
 	@media (max-width: 640px) {
@@ -1123,6 +1335,15 @@
 		.governance-note {
 			flex-direction: column;
 			text-align: center;
+		}
+
+		.investments-vision {
+			flex-direction: column;
+			text-align: center;
+		}
+
+		.creative-disciplines {
+			justify-content: center;
 		}
 	}
 </style>
