@@ -33,7 +33,18 @@
 		enableWhaleAttack: false,
 		whaleAttackDay: 180,
 		enableSybilAttack: false,
-		sybilAgentCount: 50
+		sybilAgentCount: 50,
+		
+		// Dynamic Voter Settings
+		sentimentDecayRate: 0.1, // Natural sentiment decay per day without engagement
+		disengagementThreshold: 25, // Sentiment below this = agent disengages
+		reengagementThreshold: 60, // Sentiment must reach this to re-engage
+		newAgentAttractionRate: 0.5, // Base rate of new agent attraction per day
+		maxAgentGrowth: 500, // Maximum total agents from organic growth
+		
+		// Sentiment Shock Events
+		enableSentimentShocks: true,
+		shockProbability: 2 // % chance of random shock event per day
 	});
 
 	// Simulation State
@@ -56,7 +67,13 @@
 		activeVoters: 0,
 		sunsetProgress: 0,
 		communitySentiment: 100, // 0-100, decreases with vetoes
-		ownerTrust: 100 // 0-100, decreases with vetoes
+		ownerTrust: 100, // 0-100, decreases with vetoes
+		
+		// Enhanced voter tracking
+		eligibleVoters: 0, // Agents meeting SpaceTime threshold
+		disengagedAgents: 0, // Agents who have "left" due to low sentiment
+		newAgentsAttracted: 0, // Cumulative new agents attracted
+		communityHealth: 100 // Combined sentiment + trust indicator
 	});
 
 	// Proposal tracking
@@ -88,6 +105,10 @@
 		proposalsFailed: number;
 		proposalsVetoed: number;
 		sunsetProgress: number;
+		eligibleVoters: number;
+		disengagedAgents: number;
+		totalAgents: number;
+		communityHealth: number;
 	}[]>([]);
 
 	// Agent Data
@@ -99,7 +120,13 @@
 		participationRate: number;
 		votingAccuracy: number;
 		sentiment: number; // Individual sentiment toward DAO (affected by vetoes)
+		isDisengaged: boolean; // Agent has "left" due to low sentiment
+		disengagedDay: number; // Day they disengaged (for hysteresis)
+		joinDay: number; // Day agent joined (0 = original, >0 = attracted later)
 	}[]>([]);
+
+	// Track new agent attraction for logging
+	let agentsAttractedToday = $state(0);
 
 	// Simulation Logs
 	let logs = $state<{
@@ -200,6 +227,63 @@
 				enableSybilAttack: true,
 				sybilAgentCount: 100
 			}
+		},
+		{
+			name: 'Community Exodus',
+			description: 'Test mass disengagement & recovery',
+			config: {
+				totalAgents: 200,
+				whalePercentage: 5,
+				activeParticipationRate: 65,
+				averageWealth: 600,
+				wealthDistribution: 'normal',
+				ownerVetoProbability: 50,
+				ownerVetoThreshold: 95,
+				sentimentDecayRate: 0.3,
+				disengagementThreshold: 35,
+				reengagementThreshold: 65,
+				enableSentimentShocks: true,
+				shockProbability: 5,
+				enableWhaleAttack: false,
+				enableSybilAttack: false
+			}
+		},
+		{
+			name: 'Thriving Ecosystem',
+			description: 'Organic growth through community health',
+			config: {
+				totalAgents: 100,
+				whalePercentage: 1,
+				activeParticipationRate: 80,
+				averageWealth: 400,
+				wealthDistribution: 'normal',
+				ownerVetoProbability: 2,
+				sentimentDecayRate: 0.05,
+				newAgentAttractionRate: 1.5,
+				maxAgentGrowth: 800,
+				enableSentimentShocks: true,
+				shockProbability: 3,
+				enableWhaleAttack: false,
+				enableSybilAttack: false
+			}
+		},
+		{
+			name: 'Volatile Market',
+			description: 'High frequency sentiment shocks',
+			config: {
+				totalAgents: 150,
+				whalePercentage: 8,
+				activeParticipationRate: 50,
+				averageWealth: 1200,
+				wealthDistribution: 'pareto',
+				ownerVetoProbability: 15,
+				sentimentDecayRate: 0.2,
+				enableSentimentShocks: true,
+				shockProbability: 10,
+				newAgentAttractionRate: 0.8,
+				enableWhaleAttack: false,
+				enableSybilAttack: false
+			}
 		}
 	];
 
@@ -280,9 +364,143 @@
 					? 0.9 + Math.random() * 0.1 // Whales are highly active
 					: config.activeParticipationRate / 100 * (0.5 + Math.random()),
 				votingAccuracy: 0.5 + Math.random() * 0.4, // 50-90% accuracy
-				sentiment: 100 // Start with full trust
+				sentiment: 100, // Start with full trust
+				isDisengaged: false,
+				disengagedDay: 0,
+				joinDay: 0 // Original agents
 			});
 		}
+	}
+
+	// Calculate dynamic active voters based on sentiment and trust
+	function calculateActiveVoters(): number {
+		// Get eligible agents (meet SpaceTime threshold and not disengaged)
+		const eligibleAgents = agents.filter(a => 
+			a.spaceTime >= config.proposalThreshold * 0.1 && !a.isDisengaged
+		);
+		
+		// Calculate expected active voters based on probability weighting
+		let expectedActiveVoters = 0;
+		for (const agent of eligibleAgents) {
+			// Individual sentiment factor (0-1)
+			const sentimentFactor = agent.sentiment / 100;
+			
+			// Community sentiment modifier (0.5-1.0) - low sentiment = fewer active
+			const communityFactor = 0.5 + (metrics.communitySentiment / 200);
+			
+			// Owner trust modifier (0.5-1.0) - low trust = people disengage
+			const trustFactor = 0.5 + (metrics.ownerTrust / 200);
+			
+			// Combined probability this agent is "actively voting"
+			const activeProbability = agent.participationRate 
+				* sentimentFactor 
+				* communityFactor 
+				* trustFactor;
+			
+			expectedActiveVoters += activeProbability;
+		}
+		
+		return Math.round(expectedActiveVoters);
+	}
+
+	// Process agent disengagement and re-engagement
+	function processAgentEngagement(day: number) {
+		for (const agent of agents) {
+			if (agent.isDisengaged) {
+				// Check for re-engagement (requires higher sentiment threshold + time)
+				const daysSinceDisengaged = day - agent.disengagedDay;
+				const cooldownPassed = daysSinceDisengaged >= 30; // 30 day cooldown
+				
+				if (cooldownPassed && agent.sentiment >= config.reengagementThreshold) {
+					// Probability of re-engagement scales with community health
+					const reengageChance = (metrics.communityHealth / 100) * 0.1; // Max 10% per day
+					if (Math.random() < reengageChance) {
+						agent.isDisengaged = false;
+						addLog(day, 'success', `🔄 Agent #${agent.id} re-engaged with the community`);
+					}
+				}
+			} else {
+				// Check for disengagement
+				if (agent.sentiment <= config.disengagementThreshold) {
+					// Low sentiment agents have chance to disengage
+					const disengageChance = (config.disengagementThreshold - agent.sentiment) / 100;
+					if (Math.random() < disengageChance) {
+						agent.isDisengaged = true;
+						agent.disengagedDay = day;
+						addLog(day, 'warning', `😞 Agent #${agent.id} disengaged (sentiment: ${agent.sentiment.toFixed(0)}%)`);
+					}
+				}
+			}
+		}
+	}
+
+	// Attract new agents based on community health
+	function attractNewAgents(day: number) {
+		agentsAttractedToday = 0;
+		
+		// Only attract if community is healthy and below max
+		if (agents.length >= config.maxAgentGrowth) return;
+		if (metrics.communityHealth < 50) return; // Unhealthy communities don't attract
+		
+		// Attraction rate scales with community health
+		const attractionMultiplier = (metrics.communityHealth - 50) / 50; // 0-1 based on health 50-100
+		const expectedNewAgents = config.newAgentAttractionRate * attractionMultiplier;
+		
+		// Poisson-like arrival (simplified)
+		const actualNew = Math.random() < expectedNewAgents ? 1 : 0;
+		
+		for (let i = 0; i < actualNew && agents.length < config.maxAgentGrowth; i++) {
+			const wealth = generateNormalRandom(config.averageWealth, config.averageWealth * 0.4);
+			agents.push({
+				id: agents.length,
+				spaceMoney: Math.floor(wealth),
+				spaceTime: 0, // New agents start fresh
+				isWhale: false,
+				participationRate: config.activeParticipationRate / 100 * (0.6 + Math.random() * 0.4),
+				votingAccuracy: 0.5 + Math.random() * 0.4,
+				sentiment: 70 + Math.random() * 30, // New agents are somewhat optimistic
+				isDisengaged: false,
+				disengagedDay: 0,
+				joinDay: day
+			});
+			agentsAttractedToday++;
+			metrics.newAgentsAttracted++;
+		}
+		
+		if (agentsAttractedToday > 0 && day % 50 === 0) {
+			addLog(day, 'info', `🌟 ${agentsAttractedToday} new agent(s) attracted to thriving community (total: ${agents.length})`);
+		}
+	}
+
+	// Random sentiment shock events
+	function processSentimentShock(day: number) {
+		if (!config.enableSentimentShocks) return;
+		if (Math.random() * 100 > config.shockProbability) return;
+		
+		const shockTypes = [
+			{ type: 'positive', name: 'Major Partnership Announced', impact: 15, trust: 10 },
+			{ type: 'positive', name: 'Community Achievement Unlocked', impact: 10, trust: 5 },
+			{ type: 'positive', name: 'Successful Security Audit', impact: 8, trust: 15 },
+			{ type: 'negative', name: 'Competitor Scandal Spillover', impact: -5, trust: -3 },
+			{ type: 'negative', name: 'Market Downturn Fears', impact: -10, trust: -5 },
+			{ type: 'negative', name: 'Social Media Controversy', impact: -12, trust: -8 },
+			{ type: 'negative', name: 'Key Contributor Departure', impact: -8, trust: -10 },
+			{ type: 'positive', name: 'Token Listing on Major Exchange', impact: 20, trust: 5 },
+		];
+		
+		const shock = shockTypes[Math.floor(Math.random() * shockTypes.length)];
+		
+		metrics.communitySentiment = Math.max(0, Math.min(100, metrics.communitySentiment + shock.impact));
+		metrics.ownerTrust = Math.max(0, Math.min(100, metrics.ownerTrust + shock.trust));
+		
+		// Affect individual agents too
+		for (const agent of agents) {
+			agent.sentiment = Math.max(10, Math.min(100, agent.sentiment + shock.impact * (0.5 + Math.random() * 0.5)));
+		}
+		
+		const emoji = shock.type === 'positive' ? '📈' : '📉';
+		const logType = shock.type === 'positive' ? 'success' : 'warning';
+		addLog(day, logType, `${emoji} SHOCK EVENT: ${shock.name} (Sentiment ${shock.impact > 0 ? '+' : ''}${shock.impact}%)`);
 	}
 
 	function simulateDay(day: number) {
@@ -291,15 +509,42 @@
 			agent.spaceTime *= Math.exp(-config.stDecayRate);
 		}
 		
+		// Natural sentiment decay (requires continuous healthy governance)
+		if (day % 10 === 0) { // Every 10 days
+			for (const agent of agents) {
+				if (!agent.isDisengaged) {
+					// Slow natural decay
+					agent.sentiment = Math.max(20, agent.sentiment - config.sentimentDecayRate);
+				}
+			}
+			// Global sentiment also decays slightly
+			metrics.communitySentiment = Math.max(10, metrics.communitySentiment - config.sentimentDecayRate * 0.5);
+		}
+		
+		// Process sentiment shock events
+		processSentimentShock(day);
+		
+		// Process agent engagement/disengagement
+		processAgentEngagement(day);
+		
+		// Attract new agents to healthy communities
+		attractNewAgents(day);
+		
 		// Participation and $PACETIME minting
 		let dailyParticipants = 0;
 		for (const agent of agents) {
+			// Disengaged agents don't participate
+			if (agent.isDisengaged) continue;
+			
 			// Participation affected by sentiment
 			const effectiveParticipation = agent.participationRate * (agent.sentiment / 100);
 			if (Math.random() < effectiveParticipation) {
 				const stEarned = config.stMintRate * (0.5 + Math.random());
 				agent.spaceTime += stEarned;
 				dailyParticipants++;
+				
+				// Participation slightly boosts individual sentiment
+				agent.sentiment = Math.min(100, agent.sentiment + 0.1);
 			}
 		}
 		
@@ -330,7 +575,10 @@
 					isWhale: false,
 					participationRate: 0.95, // Very active fake accounts
 					votingAccuracy: 0, // Always vote maliciously
-					sentiment: 100
+					sentiment: 100,
+					isDisengaged: false,
+					disengagedDay: 0,
+					joinDay: day
 				});
 			}
 			addLog(day, 'info', `Sybil agents must earn $PACETIME through participation to gain voting power`);
@@ -455,16 +703,27 @@
 	}
 
 	function updateMetrics(day: number) {
-		const stValues = agents.map(a => a.spaceTime);
-		const smValues = agents.map(a => a.spaceMoney);
+		// Filter to active (non-disengaged) agents for core metrics
+		const activeAgents = agents.filter(a => !a.isDisengaged);
+		const stValues = activeAgents.map(a => a.spaceTime);
+		const smValues = activeAgents.map(a => a.spaceMoney);
 		
 		metrics.totalSpaceTime = stValues.reduce((a, b) => a + b, 0);
 		metrics.totalSpaceMoney = smValues.reduce((a, b) => a + b, 0);
 		metrics.giniCoefficient = calculateGini(stValues);
-		metrics.activeVoters = agents.filter(a => a.spaceTime >= config.proposalThreshold * 0.1).length;
+		
+		// Dynamic active voters calculation based on sentiment and trust
+		metrics.eligibleVoters = agents.filter(a => 
+			a.spaceTime >= config.proposalThreshold * 0.1 && !a.isDisengaged
+		).length;
+		metrics.activeVoters = calculateActiveVoters();
+		metrics.disengagedAgents = agents.filter(a => a.isDisengaged).length;
+		
+		// Calculate community health (combined sentiment + trust)
+		metrics.communityHealth = (metrics.communitySentiment * 0.6 + metrics.ownerTrust * 0.4);
 		
 		// Calculate sunset progress (simplified)
-		const uniqueEarners = agents.filter(a => a.spaceTime > 0).length;
+		const uniqueEarners = activeAgents.filter(a => a.spaceTime > 0).length;
 		const acceptanceRate = proposals.length > 0 
 			? (metrics.proposalsPassed / proposals.length) * 100 
 			: 0;
@@ -486,7 +745,11 @@
 			proposalsPassed: metrics.proposalsPassed,
 			proposalsFailed: metrics.proposalsFailed,
 			proposalsVetoed: metrics.proposalsVetoed,
-			sunsetProgress: metrics.sunsetProgress
+			sunsetProgress: metrics.sunsetProgress,
+			eligibleVoters: metrics.eligibleVoters,
+			disengagedAgents: metrics.disengagedAgents,
+			totalAgents: agents.length,
+			communityHealth: metrics.communityHealth
 		});
 	}
 
@@ -565,6 +828,7 @@
 		logs = [];
 		proposals = [];
 		recentProposals = [];
+		agentsAttractedToday = 0;
 		metrics = {
 			totalSpaceMoney: 0,
 			totalSpaceTime: 0,
@@ -576,7 +840,11 @@
 			activeVoters: 0,
 			sunsetProgress: 0,
 			communitySentiment: 100,
-			ownerTrust: 100
+			ownerTrust: 100,
+			eligibleVoters: 0,
+			disengagedAgents: 0,
+			newAgentsAttracted: 0,
+			communityHealth: 100
 		};
 	}
 
@@ -707,237 +975,255 @@
 				</h2>
 				<span class="toggle-icon">{configExpanded ? '▲' : '▼'}</span>
 			</button>
-			<div class="panel-content" class:hidden={!configExpanded}>
-
-			<!-- Presets -->
-			<section class="config-section">
-				<h3>Quick Presets</h3>
-				<div class="presets-grid">
-					{#each presets as preset}
-						<button 
-							class="preset-card" 
-							onclick={() => applyPreset(preset)}
-							disabled={isRunning}
-						>
-							<div class="preset-name">{preset.name}</div>
-							<div class="preset-desc">{preset.description}</div>
-						</button>
-					{/each}
-				</div>
-			</section>
-
-			<!-- Agent Configuration -->
-			<section class="config-section">
-				<h3>Agent Configuration</h3>
-				<div class="config-grid">
-					<label class="config-item">
-						<span class="config-label">Total Agents</span>
-						<input 
-							type="number" 
-							bind:value={config.totalAgents} 
-							min="10" 
-							max="1000"
-							disabled={isRunning}
-						/>
-					</label>
-					<label class="config-item">
-						<span class="config-label">Whale %</span>
-						<input 
-							type="number" 
-							bind:value={config.whalePercentage} 
-							min="0" 
-							max="50"
-							disabled={isRunning}
-						/>
-					</label>
-					<label class="config-item">
-						<span class="config-label">Participation Rate %</span>
-						<input 
-							type="number" 
-							bind:value={config.activeParticipationRate} 
-							min="10" 
-							max="100"
-							disabled={isRunning}
-						/>
-					</label>
-					<label class="config-item">
-						<span class="config-label">Avg Wealth (SM)</span>
-						<input 
-							type="number" 
-							bind:value={config.averageWealth} 
-							min="100" 
-							max="100000"
-							disabled={isRunning}
-						/>
-					</label>
-					<label class="config-item full-width">
-						<span class="config-label">Wealth Distribution</span>
-						<select bind:value={config.wealthDistribution} disabled={isRunning}>
-							<option value="uniform">Uniform</option>
-							<option value="normal">Normal (Gaussian)</option>
-							<option value="pareto">Pareto (Power Law)</option>
-						</select>
-					</label>
-				</div>
-			</section>
-
-			<!-- Token Parameters -->
-			<section class="config-section">
-				<h3>Token Parameters</h3>
-				<div class="config-grid">
-					<label class="config-item">
-						<span class="config-label">ST Decay Rate</span>
-						<input 
-							type="number" 
-							bind:value={config.stDecayRate} 
-							min="0" 
-							max="0.01"
-							step="0.0001"
-							disabled={isRunning}
-						/>
-					</label>
-					<label class="config-item">
-						<span class="config-label">ST Mint Rate</span>
-						<input 
-							type="number" 
-							bind:value={config.stMintRate} 
-							min="1" 
-							max="100"
-							disabled={isRunning}
-						/>
-					</label>
-				</div>
-			</section>
-
-			<!-- Governance Parameters -->
-			<section class="config-section">
-				<h3>Governance Parameters</h3>
-				<div class="config-grid">
-					<label class="config-item">
-						<span class="config-label">Proposal Threshold</span>
-						<input 
-							type="number" 
-							bind:value={config.proposalThreshold} 
-							min="10" 
-							max="10000"
-							disabled={isRunning}
-						/>
-					</label>
-					<label class="config-item">
-						<span class="config-label">Quorum %</span>
-						<input 
-							type="number" 
-							bind:value={config.quorumPercentage} 
-							min="1" 
-							max="100"
-							disabled={isRunning}
-						/>
-					</label>
-				</div>
-			</section>
-
-			<!-- Owner/Founder Settings -->
-			<section class="config-section">
-				<h3>Owner Veto Settings</h3>
-				<div class="config-grid">
-					<label class="config-item">
-						<span class="config-label">Veto Probability %</span>
-						<input 
-							type="number" 
-							bind:value={config.ownerVetoProbability} 
-							min="0" 
-							max="100"
-							disabled={isRunning}
-						/>
-					</label>
-					<label class="config-item">
-						<span class="config-label">Veto Threshold %</span>
-						<input 
-							type="number" 
-							bind:value={config.ownerVetoThreshold} 
-							min="50" 
-							max="100"
-							disabled={isRunning}
-						/>
-					</label>
-				</div>
-				<p class="config-hint-text">Higher veto probability = more vetoes. Owner more likely to veto proposals below threshold.</p>
-			</section>
-
-			<!-- Simulation Settings -->
-			<section class="config-section">
-				<h3>Simulation Settings</h3>
-				<div class="config-grid">
-					<label class="config-item">
-						<span class="config-label">Days to Simulate</span>
-						<input 
-							type="number" 
-							bind:value={config.simulationDays} 
-							min="30" 
-							max="3650"
-							disabled={isRunning}
-						/>
-					</label>
-					<label class="config-item">
-						<span class="config-label">Speed (steps/sec)</span>
-						<input 
-							type="range" 
-							bind:value={config.simulationSpeed} 
-							min="10" 
-							max="500"
-						/>
-						<span class="range-value">{config.simulationSpeed}</span>
-					</label>
-				</div>
-			</section>
-
-			<!-- Attack Scenarios -->
-			<section class="config-section">
-				<h3>Attack Scenarios</h3>
-				<div class="config-grid">
-					<label class="config-item toggle-item">
-						<span class="config-label">Enable Whale Attack</span>
-						<input 
-							type="checkbox" 
-							bind:checked={config.enableWhaleAttack}
-							disabled={isRunning}
-						/>
-					</label>
-					{#if config.enableWhaleAttack}
-						<label class="config-item">
-							<span class="config-label">Attack Day</span>
-							<input 
-								type="number" 
-								bind:value={config.whaleAttackDay} 
-								min="1" 
-								max={config.simulationDays}
+			
+			{#if configExpanded}
+			<div class="panel-content-redesign">
+				<!-- Quick Presets - Always visible at top -->
+				<section class="presets-hero">
+					<div class="presets-header">
+						<h3>🚀 Quick Start Scenarios</h3>
+						<p>Select a preset to instantly configure the simulation for different social dynamics</p>
+					</div>
+					<div class="presets-carousel">
+						{#each presets as preset, i}
+							<button 
+								class="preset-chip" 
+								class:preset-healthy={preset.name === 'Healthy Community' || preset.name === 'Thriving Ecosystem'}
+								class:preset-danger={preset.name === 'Authoritarian Owner' || preset.name === 'Community Exodus'}
+								class:preset-warning={preset.name === 'Whale Dominated' || preset.name === 'Volatile Market'}
+								class:preset-attack={preset.name === 'Sybil Attack'}
+								onclick={() => applyPreset(preset)}
 								disabled={isRunning}
-							/>
-						</label>
-					{/if}
-					<label class="config-item toggle-item">
-						<span class="config-label">Enable Sybil Attack</span>
-						<input 
-							type="checkbox" 
-							bind:checked={config.enableSybilAttack}
-							disabled={isRunning}
-						/>
-					</label>
-					{#if config.enableSybilAttack}
-						<label class="config-item">
-							<span class="config-label">Sybil Agents</span>
-							<input 
-								type="number" 
-								bind:value={config.sybilAgentCount} 
-								min="10" 
-								max="500"
-								disabled={isRunning}
-							/>
-						</label>
-					{/if}
+							>
+								<span class="preset-emoji">
+									{#if preset.name === 'Healthy Community'}💚
+									{:else if preset.name === 'Authoritarian Owner'}👑
+									{:else if preset.name === 'Whale Dominated'}🐋
+									{:else if preset.name === 'Sybil Attack'}👥
+									{:else if preset.name === 'Community Exodus'}🚪
+									{:else if preset.name === 'Thriving Ecosystem'}🌱
+									{:else if preset.name === 'Volatile Market'}📈
+									{:else}🎯
+									{/if}
+								</span>
+								<span class="preset-chip-name">{preset.name}</span>
+								<span class="preset-chip-desc">{preset.description}</span>
+							</button>
+						{/each}
+					</div>
+				</section>
+
+				<!-- Advanced Configuration Accordion -->
+				<div class="config-accordion">
+					<details class="config-details" open>
+						<summary class="config-summary">
+							<span class="summary-icon">👥</span>
+							<span class="summary-text">Agents & Economy</span>
+							<span class="summary-arrow">▼</span>
+						</summary>
+						<div class="config-details-content">
+							<div class="config-grid-compact">
+								<label class="config-item-compact">
+									<span class="config-label-compact">Total Agents</span>
+									<input type="number" bind:value={config.totalAgents} min="10" max="1000" disabled={isRunning} />
+								</label>
+								<label class="config-item-compact">
+									<span class="config-label-compact">Whale %</span>
+									<input type="number" bind:value={config.whalePercentage} min="0" max="50" disabled={isRunning} />
+								</label>
+								<label class="config-item-compact">
+									<span class="config-label-compact">Participation %</span>
+									<input type="number" bind:value={config.activeParticipationRate} min="10" max="100" disabled={isRunning} />
+								</label>
+								<label class="config-item-compact">
+									<span class="config-label-compact">Avg Wealth</span>
+									<input type="number" bind:value={config.averageWealth} min="100" max="100000" disabled={isRunning} />
+								</label>
+							</div>
+							<label class="config-item-compact full-width">
+								<span class="config-label-compact">Wealth Distribution</span>
+								<select bind:value={config.wealthDistribution} disabled={isRunning}>
+									<option value="uniform">Uniform - Equal distribution</option>
+									<option value="normal">Normal - Bell curve</option>
+									<option value="pareto">Pareto - 80/20 power law</option>
+								</select>
+							</label>
+						</div>
+					</details>
+
+					<details class="config-details">
+						<summary class="config-summary">
+							<span class="summary-icon">🪙</span>
+							<span class="summary-text">Token Mechanics</span>
+							<span class="summary-arrow">▼</span>
+						</summary>
+						<div class="config-details-content">
+							<div class="config-grid-compact">
+								<label class="config-item-compact">
+									<span class="config-label-compact">$PACETIME Decay</span>
+									<input type="number" bind:value={config.stDecayRate} min="0" max="0.01" step="0.0001" disabled={isRunning} />
+								</label>
+								<label class="config-item-compact">
+									<span class="config-label-compact">$PACETIME Mint Rate</span>
+									<input type="number" bind:value={config.stMintRate} min="1" max="100" disabled={isRunning} />
+								</label>
+							</div>
+						</div>
+					</details>
+
+					<details class="config-details">
+						<summary class="config-summary">
+							<span class="summary-icon">🗳️</span>
+							<span class="summary-text">Governance Rules</span>
+							<span class="summary-arrow">▼</span>
+						</summary>
+						<div class="config-details-content">
+							<div class="config-grid-compact">
+								<label class="config-item-compact">
+									<span class="config-label-compact">Proposal Threshold</span>
+									<input type="number" bind:value={config.proposalThreshold} min="10" max="10000" disabled={isRunning} />
+								</label>
+								<label class="config-item-compact">
+									<span class="config-label-compact">Quorum %</span>
+									<input type="number" bind:value={config.quorumPercentage} min="1" max="100" disabled={isRunning} />
+								</label>
+								<label class="config-item-compact">
+									<span class="config-label-compact">Proposal Frequency</span>
+									<input type="number" bind:value={config.proposalFrequency} min="1" max="30" disabled={isRunning} />
+									<span class="input-hint">days</span>
+								</label>
+							</div>
+						</div>
+					</details>
+
+					<details class="config-details">
+						<summary class="config-summary">
+							<span class="summary-icon">👑</span>
+							<span class="summary-text">Owner Power</span>
+							<span class="summary-arrow">▼</span>
+						</summary>
+						<div class="config-details-content">
+							<div class="config-grid-compact">
+								<label class="config-item-compact">
+									<span class="config-label-compact">Veto Probability %</span>
+									<input type="number" bind:value={config.ownerVetoProbability} min="0" max="100" disabled={isRunning} />
+								</label>
+								<label class="config-item-compact">
+									<span class="config-label-compact">Veto Threshold %</span>
+									<input type="number" bind:value={config.ownerVetoThreshold} min="50" max="100" disabled={isRunning} />
+								</label>
+							</div>
+							<p class="config-note">Higher veto probability = more vetoes. Owner vetoes proposals with approval below threshold.</p>
+						</div>
+					</details>
+
+					<details class="config-details">
+						<summary class="config-summary">
+							<span class="summary-icon">🧠</span>
+							<span class="summary-text">Social Dynamics</span>
+							<span class="summary-arrow">▼</span>
+						</summary>
+						<div class="config-details-content">
+							<div class="config-grid-compact">
+								<label class="config-item-compact">
+									<span class="config-label-compact">Sentiment Decay</span>
+									<input type="number" bind:value={config.sentimentDecayRate} min="0" max="2" step="0.1" disabled={isRunning} />
+									<span class="input-hint">per 10 days</span>
+								</label>
+								<label class="config-item-compact">
+									<span class="config-label-compact">Disengage At</span>
+									<input type="number" bind:value={config.disengagementThreshold} min="5" max="50" disabled={isRunning} />
+									<span class="input-hint">% sentiment</span>
+								</label>
+								<label class="config-item-compact">
+									<span class="config-label-compact">Re-engage At</span>
+									<input type="number" bind:value={config.reengagementThreshold} min="30" max="90" disabled={isRunning} />
+									<span class="input-hint">% sentiment</span>
+								</label>
+								<label class="config-item-compact">
+									<span class="config-label-compact">New Agent Rate</span>
+									<input type="number" bind:value={config.newAgentAttractionRate} min="0" max="5" step="0.1" disabled={isRunning} />
+									<span class="input-hint">per day</span>
+								</label>
+								<label class="config-item-compact">
+									<span class="config-label-compact">Max Agents</span>
+									<input type="number" bind:value={config.maxAgentGrowth} min="100" max="2000" disabled={isRunning} />
+								</label>
+							</div>
+							<div class="config-toggle-row">
+								<label class="toggle-label">
+									<input type="checkbox" bind:checked={config.enableSentimentShocks} disabled={isRunning} />
+									<span>Enable Random Events</span>
+								</label>
+								{#if config.enableSentimentShocks}
+									<label class="config-item-inline">
+										<span>Probability:</span>
+										<input type="number" bind:value={config.shockProbability} min="0" max="20" disabled={isRunning} />
+										<span>%/day</span>
+									</label>
+								{/if}
+							</div>
+						</div>
+					</details>
+
+					<details class="config-details config-details-danger">
+						<summary class="config-summary">
+							<span class="summary-icon">⚔️</span>
+							<span class="summary-text">Attack Scenarios</span>
+							<span class="summary-arrow">▼</span>
+						</summary>
+						<div class="config-details-content">
+							<div class="attack-toggles">
+								<div class="attack-option">
+									<label class="toggle-label">
+										<input type="checkbox" bind:checked={config.enableWhaleAttack} disabled={isRunning} />
+										<span>🐋 Whale Attack</span>
+									</label>
+									{#if config.enableWhaleAttack}
+										<label class="config-item-inline">
+											<span>On day:</span>
+											<input type="number" bind:value={config.whaleAttackDay} min="1" max={config.simulationDays} disabled={isRunning} />
+										</label>
+									{/if}
+								</div>
+								<div class="attack-option">
+									<label class="toggle-label">
+										<input type="checkbox" bind:checked={config.enableSybilAttack} disabled={isRunning} />
+										<span>👥 Sybil Attack</span>
+									</label>
+									{#if config.enableSybilAttack}
+										<label class="config-item-inline">
+											<span>Agents:</span>
+											<input type="number" bind:value={config.sybilAgentCount} min="10" max="500" disabled={isRunning} />
+										</label>
+									{/if}
+								</div>
+							</div>
+						</div>
+					</details>
+
+					<details class="config-details">
+						<summary class="config-summary">
+							<span class="summary-icon">⏱️</span>
+							<span class="summary-text">Simulation Settings</span>
+							<span class="summary-arrow">▼</span>
+						</summary>
+						<div class="config-details-content">
+							<div class="config-grid-compact">
+								<label class="config-item-compact">
+									<span class="config-label-compact">Days to Simulate</span>
+									<input type="number" bind:value={config.simulationDays} min="30" max="3650" disabled={isRunning} />
+								</label>
+							</div>
+							<label class="speed-slider">
+								<span class="config-label-compact">Speed: {config.simulationSpeed} steps/sec</span>
+								<input type="range" bind:value={config.simulationSpeed} min="10" max="500" />
+							</label>
+						</div>
+					</details>
 				</div>
-			</section>
 			</div>
+			{/if}
 		</aside>
 
 		<!-- Charts Section -->
@@ -1297,11 +1583,30 @@
 							<div class="metric-label">Voter Turnout</div>
 						</div>
 					</div>
-					<div class="metric-card amber">
+					<div class="metric-card" class:voter-healthy={metrics.activeVoters >= metrics.eligibleVoters * 0.6} class:voter-declining={metrics.activeVoters < metrics.eligibleVoters * 0.6 && metrics.activeVoters >= metrics.eligibleVoters * 0.3} class:voter-critical={metrics.activeVoters < metrics.eligibleVoters * 0.3}>
 						<div class="metric-icon">👥</div>
 						<div class="metric-content">
-							<div class="metric-value">{metrics.activeVoters}</div>
+							<div class="metric-value">{metrics.activeVoters}<span class="metric-subvalue">/{metrics.eligibleVoters}</span></div>
 							<div class="metric-label">Active Voters</div>
+							<div class="voter-breakdown">
+								<span class="voter-stat" title="Disengaged agents who left due to low sentiment">😞 {metrics.disengagedAgents}</span>
+								<span class="voter-stat" title="New agents attracted to healthy community">🌟 +{metrics.newAgentsAttracted}</span>
+							</div>
+							<div class="voter-bar">
+								<div class="voter-fill eligible" style="width: {metrics.eligibleVoters / agents.length * 100}%"></div>
+								<div class="voter-fill active" style="width: {metrics.activeVoters / agents.length * 100}%"></div>
+							</div>
+						</div>
+					</div>
+					<div class="metric-card" class:health-good={metrics.communityHealth >= 70} class:health-warn={metrics.communityHealth >= 40 && metrics.communityHealth < 70} class:health-bad={metrics.communityHealth < 40}>
+						<div class="metric-icon">💚</div>
+						<div class="metric-content">
+							<div class="metric-value">{metrics.communityHealth.toFixed(0)}%</div>
+							<div class="metric-label">Community Health</div>
+							<div class="health-breakdown">
+								<span title="Sentiment contributes 60%">😊 {metrics.communitySentiment.toFixed(0)}%</span>
+								<span title="Trust contributes 40%">🤝 {metrics.ownerTrust.toFixed(0)}%</span>
+							</div>
 						</div>
 					</div>
 					<div class="metric-card gradient">
@@ -1312,6 +1617,14 @@
 							<div class="sunset-bar">
 								<div class="sunset-fill" style="width: {metrics.sunsetProgress}%"></div>
 							</div>
+						</div>
+					</div>
+					<div class="metric-card cyan">
+						<div class="metric-icon">📊</div>
+						<div class="metric-content">
+							<div class="metric-value">{agents.length}</div>
+							<div class="metric-label">Total Agents</div>
+							<div class="metric-hint">{agents.length > config.totalAgents ? `+${agents.length - config.totalAgents} grown` : 'Original'}</div>
 						</div>
 					</div>
 				</div>
@@ -1576,6 +1889,7 @@
 		border: 1px solid var(--color-border);
 		border-radius: var(--radius-lg);
 		padding: var(--space-lg);
+		overflow: hidden;
 	}
 
 	.config-panel.collapsed {
@@ -1614,6 +1928,338 @@
 		transition: transform 0.2s ease;
 	}
 
+	/* Redesigned Panel Content */
+	.panel-content-redesign {
+		margin-top: var(--space-lg);
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-lg);
+	}
+
+	/* Presets Hero Section */
+	.presets-hero {
+		background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%);
+		border: 1px solid rgba(99, 102, 241, 0.2);
+		border-radius: var(--radius-lg);
+		padding: var(--space-lg);
+	}
+
+	.presets-header {
+		margin-bottom: var(--space-md);
+	}
+
+	.presets-header h3 {
+		font-size: 1.1rem;
+		font-weight: 700;
+		color: var(--color-text-primary);
+		margin: 0 0 4px;
+	}
+
+	.presets-header p {
+		font-size: 0.85rem;
+		color: var(--color-text-secondary);
+		margin: 0;
+	}
+
+	.presets-carousel {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-sm);
+	}
+
+	.preset-chip {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 2px;
+		padding: var(--space-sm) var(--space-md);
+		background: var(--color-bg-card);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-md);
+		cursor: pointer;
+		transition: all 0.2s ease;
+		flex: 1 1 calc(33.333% - var(--space-sm));
+		min-width: 180px;
+		max-width: 280px;
+	}
+
+	.preset-chip:hover:not(:disabled) {
+		transform: translateY(-2px);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+	}
+
+	.preset-chip:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+		transform: none;
+	}
+
+	.preset-chip.preset-healthy {
+		border-color: rgba(34, 197, 94, 0.4);
+		background: linear-gradient(135deg, rgba(34, 197, 94, 0.08) 0%, transparent 100%);
+	}
+	.preset-chip.preset-healthy:hover:not(:disabled) {
+		border-color: #22c55e;
+		box-shadow: 0 4px 12px rgba(34, 197, 94, 0.2);
+	}
+
+	.preset-chip.preset-danger {
+		border-color: rgba(239, 68, 68, 0.4);
+		background: linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, transparent 100%);
+	}
+	.preset-chip.preset-danger:hover:not(:disabled) {
+		border-color: #ef4444;
+		box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+	}
+
+	.preset-chip.preset-warning {
+		border-color: rgba(234, 179, 8, 0.4);
+		background: linear-gradient(135deg, rgba(234, 179, 8, 0.08) 0%, transparent 100%);
+	}
+	.preset-chip.preset-warning:hover:not(:disabled) {
+		border-color: #eab308;
+		box-shadow: 0 4px 12px rgba(234, 179, 8, 0.2);
+	}
+
+	.preset-chip.preset-attack {
+		border-color: rgba(168, 85, 247, 0.4);
+		background: linear-gradient(135deg, rgba(168, 85, 247, 0.08) 0%, transparent 100%);
+	}
+	.preset-chip.preset-attack:hover:not(:disabled) {
+		border-color: #a855f7;
+		box-shadow: 0 4px 12px rgba(168, 85, 247, 0.2);
+	}
+
+	.preset-emoji {
+		font-size: 1.2rem;
+	}
+
+	.preset-chip-name {
+		font-weight: 600;
+		font-size: 0.9rem;
+		color: var(--color-text-primary);
+	}
+
+	.preset-chip-desc {
+		font-size: 0.75rem;
+		color: var(--color-text-muted);
+		line-height: 1.3;
+	}
+
+	/* Config Accordion */
+	.config-accordion {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-xs);
+	}
+
+	.config-details {
+		background: var(--color-bg-tertiary);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-md);
+		overflow: hidden;
+	}
+
+	.config-details[open] {
+		border-color: rgba(99, 102, 241, 0.3);
+	}
+
+	.config-details-danger {
+		border-color: rgba(239, 68, 68, 0.3);
+	}
+
+	.config-summary {
+		display: flex;
+		align-items: center;
+		gap: var(--space-sm);
+		padding: var(--space-sm) var(--space-md);
+		cursor: pointer;
+		user-select: none;
+		list-style: none;
+		transition: background 0.2s ease;
+	}
+
+	.config-summary::-webkit-details-marker {
+		display: none;
+	}
+
+	.config-summary:hover {
+		background: var(--color-bg-card-hover);
+	}
+
+	.summary-icon {
+		font-size: 1rem;
+	}
+
+	.summary-text {
+		flex: 1;
+		font-weight: 600;
+		font-size: 0.9rem;
+		color: var(--color-text-primary);
+	}
+
+	.summary-arrow {
+		font-size: 0.7rem;
+		color: var(--color-text-muted);
+		transition: transform 0.2s ease;
+	}
+
+	.config-details[open] .summary-arrow {
+		transform: rotate(180deg);
+	}
+
+	.config-details-content {
+		padding: var(--space-md);
+		padding-top: var(--space-sm);
+		border-top: 1px solid var(--color-border);
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-sm);
+	}
+
+	/* Compact Config Grid */
+	.config-grid-compact {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+		gap: var(--space-sm);
+	}
+
+	.config-item-compact {
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+	}
+
+	.config-item-compact.full-width {
+		grid-column: 1 / -1;
+	}
+
+	.config-label-compact {
+		font-size: 0.75rem;
+		color: var(--color-text-muted);
+		font-weight: 500;
+	}
+
+	.config-item-compact input[type="number"],
+	.config-item-compact select {
+		padding: 6px 8px;
+		background: var(--color-bg-primary);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-sm);
+		color: var(--color-text-primary);
+		font-size: 0.85rem;
+		width: 100%;
+	}
+
+	.config-item-compact input:focus,
+	.config-item-compact select:focus {
+		outline: none;
+		border-color: var(--color-accent-primary);
+	}
+
+	.config-item-compact input:disabled,
+	.config-item-compact select:disabled {
+		opacity: 0.5;
+	}
+
+	.input-hint {
+		font-size: 0.7rem;
+		color: var(--color-text-muted);
+		margin-top: 1px;
+	}
+
+	.config-note {
+		font-size: 0.75rem;
+		color: var(--color-text-muted);
+		margin: 0;
+		padding: var(--space-xs) var(--space-sm);
+		background: rgba(99, 102, 241, 0.05);
+		border-radius: var(--radius-sm);
+		line-height: 1.4;
+	}
+
+	/* Toggle Rows */
+	.config-toggle-row {
+		display: flex;
+		align-items: center;
+		gap: var(--space-md);
+		flex-wrap: wrap;
+		padding-top: var(--space-xs);
+	}
+
+	.toggle-label {
+		display: flex;
+		align-items: center;
+		gap: var(--space-sm);
+		font-size: 0.85rem;
+		color: var(--color-text-secondary);
+		cursor: pointer;
+	}
+
+	.toggle-label input[type="checkbox"] {
+		width: 18px;
+		height: 18px;
+		accent-color: var(--color-accent-primary);
+	}
+
+	.config-item-inline {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		font-size: 0.8rem;
+		color: var(--color-text-muted);
+	}
+
+	.config-item-inline input[type="number"] {
+		width: 60px;
+		padding: 4px 6px;
+		background: var(--color-bg-primary);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-sm);
+		color: var(--color-text-primary);
+		font-size: 0.8rem;
+	}
+
+	/* Attack Options */
+	.attack-toggles {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-sm);
+	}
+
+	.attack-option {
+		display: flex;
+		align-items: center;
+		gap: var(--space-md);
+		flex-wrap: wrap;
+	}
+
+	/* Speed Slider */
+	.speed-slider {
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+	}
+
+	.speed-slider input[type="range"] {
+		width: 100%;
+		height: 6px;
+		background: var(--color-bg-primary);
+		border-radius: var(--radius-full);
+		appearance: none;
+		cursor: pointer;
+	}
+
+	.speed-slider input[type="range"]::-webkit-slider-thumb {
+		appearance: none;
+		width: 16px;
+		height: 16px;
+		background: var(--color-accent-primary);
+		border-radius: 50%;
+		cursor: pointer;
+	}
+
+	/* Keep old styles for backward compatibility */
 	.panel-content {
 		margin-top: var(--space-lg);
 		display: grid;
@@ -1623,132 +2269,6 @@
 
 	.panel-content.hidden {
 		display: none;
-	}
-
-	.config-section {
-		background: var(--color-bg-tertiary);
-		border: 1px solid var(--color-border);
-		border-radius: var(--radius-md);
-		padding: var(--space-md);
-	}
-
-	.config-section h3 {
-		font-size: 0.85rem;
-		font-weight: 700;
-		color: var(--color-text-primary);
-		margin: 0 0 var(--space-md);
-		text-transform: uppercase;
-		letter-spacing: 0.5px;
-		opacity: 0.9;
-	}
-
-	/* Presets */
-	.presets-grid {
-		display: grid;
-		gap: var(--space-sm);
-	}
-
-	.preset-card {
-		background: var(--color-bg-tertiary);
-		border: 1px solid var(--color-border);
-		border-radius: var(--radius-md);
-		padding: var(--space-md);
-		text-align: left;
-		cursor: pointer;
-		transition: all var(--transition-fast);
-	}
-
-	.preset-card:hover:not(:disabled) {
-		border-color: var(--color-accent-primary);
-		background: var(--color-bg-card-hover);
-	}
-
-	.preset-card:disabled {
-		opacity: 0.5;
-		cursor: not-allowed;
-	}
-
-	.preset-name {
-		font-weight: 600;
-		font-size: 0.95rem;
-		color: var(--color-text-primary);
-		margin-bottom: 4px;
-	}
-
-	.preset-desc {
-		font-size: 0.8rem;
-		color: var(--color-text-secondary);
-		line-height: 1.4;
-	}
-
-	/* Config Grid */
-	.config-grid {
-		display: grid;
-		grid-template-columns: repeat(2, 1fr);
-		gap: var(--space-sm);
-	}
-
-	.config-item {
-		display: flex;
-		flex-direction: column;
-		gap: 4px;
-	}
-
-	.config-item.full-width {
-		grid-column: 1 / -1;
-	}
-
-	.config-item.toggle-item {
-		flex-direction: row;
-		align-items: center;
-		justify-content: space-between;
-		grid-column: 1 / -1;
-	}
-
-	.config-label {
-		font-size: 0.85rem;
-		color: var(--color-text-secondary);
-		font-weight: 500;
-	}
-
-	.config-item input[type="number"],
-	.config-item input[type="text"],
-	.config-item select {
-		padding: var(--space-sm);
-		background: var(--color-bg-tertiary);
-		border: 1px solid var(--color-border);
-		border-radius: var(--radius-sm);
-		color: var(--color-text-primary);
-		font-size: 0.9rem;
-		width: 100%;
-	}
-
-	.config-item input:focus,
-	.config-item select:focus {
-		outline: none;
-		border-color: var(--color-accent-primary);
-	}
-
-	.config-item input:disabled,
-	.config-item select:disabled {
-		opacity: 0.5;
-	}
-
-	.config-item input[type="checkbox"] {
-		width: 20px;
-		height: 20px;
-		accent-color: var(--color-accent-primary);
-	}
-
-	.config-item input[type="range"] {
-		width: 100%;
-		accent-color: var(--color-accent-primary);
-	}
-
-	.range-value {
-		font-size: 0.8rem;
-		color: var(--color-accent-primary);
-		text-align: center;
 	}
 
 	/* Results Panel */
@@ -2129,6 +2649,80 @@
 	.sentiment-fill.good { background: var(--color-success); }
 	.sentiment-fill.warn { background: var(--color-warning); }
 	.sentiment-fill.bad { background: var(--color-error); }
+
+	/* Dynamic Active Voters Styles */
+	.metric-card.voter-healthy .metric-icon { background: rgba(34, 197, 94, 0.15); }
+	.metric-card.voter-healthy .metric-value { color: #22c55e; }
+	.metric-card.voter-declining .metric-icon { background: rgba(234, 179, 8, 0.15); }
+	.metric-card.voter-declining .metric-value { color: #eab308; }
+	.metric-card.voter-critical .metric-icon { background: rgba(239, 68, 68, 0.15); }
+	.metric-card.voter-critical .metric-value { color: #ef4444; }
+
+	.metric-subvalue {
+		font-size: 0.6em;
+		color: var(--color-text-muted);
+		font-weight: 400;
+	}
+
+	.voter-breakdown {
+		display: flex;
+		gap: var(--space-sm);
+		margin-top: 4px;
+		font-size: 0.7rem;
+	}
+
+	.voter-stat {
+		color: var(--color-text-muted);
+		cursor: help;
+	}
+
+	.voter-bar {
+		height: 6px;
+		background: var(--color-bg-primary);
+		border-radius: var(--radius-full);
+		margin-top: 8px;
+		overflow: hidden;
+		position: relative;
+	}
+
+	.voter-fill {
+		height: 100%;
+		position: absolute;
+		left: 0;
+		top: 0;
+		border-radius: var(--radius-full);
+		transition: width 0.3s ease;
+	}
+
+	.voter-fill.eligible {
+		background: rgba(99, 102, 241, 0.3);
+		z-index: 1;
+	}
+
+	.voter-fill.active {
+		background: linear-gradient(90deg, #6366f1, #8b5cf6);
+		z-index: 2;
+	}
+
+	/* Community Health Styles */
+	.metric-card.health-good .metric-icon { background: rgba(34, 197, 94, 0.15); }
+	.metric-card.health-good .metric-value { color: #22c55e; }
+	.metric-card.health-warn .metric-icon { background: rgba(234, 179, 8, 0.15); }
+	.metric-card.health-warn .metric-value { color: #eab308; }
+	.metric-card.health-bad .metric-icon { background: rgba(239, 68, 68, 0.15); }
+	.metric-card.health-bad .metric-value { color: #ef4444; }
+
+	.health-breakdown {
+		display: flex;
+		gap: var(--space-md);
+		margin-top: 4px;
+		font-size: 0.7rem;
+		color: var(--color-text-muted);
+	}
+
+	/* Cyan metric card for total agents */
+	.metric-card.cyan .metric-icon { background: rgba(6, 182, 212, 0.15); }
+	.metric-card.cyan .metric-value { color: #06b6d4; }
 
 	/* Config hint text */
 	.config-hint-text {
