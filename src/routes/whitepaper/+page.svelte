@@ -89,6 +89,13 @@
 			<li><a href="#empirical-evidence">Empirical Evidence</a></li>
 			<li><a href="#security-analysis">Security Analysis</a></li>
 			<li><a href="#conclusion">Conclusion</a></li>
+			<li><a href="#future-plans">Future Plans</a>
+				<ol>
+					<li><a href="#smart-contracts">Smart Contract Development</a></li>
+					<li><a href="#spacebot-integration">SpaceBot Integration</a></li>
+					<li><a href="#athena-development">Athena Platform Development</a></li>
+				</ol>
+			</li>
 			<li><a href="#references">References</a></li>
 		</ol>
 	</nav>
@@ -616,9 +623,74 @@
 			</p>
 		</section>
 
+		<!-- Section 8: Future Plans -->
+		<section id="future-plans">
+			<h2>8. Future Plans</h2>
+			<p>
+				The *Space DAO ecosystem is under active development, with several key initiatives 
+				planned to fully realize the vision outlined in this whitepaper. The following 
+				roadmap outlines our near-term development priorities:
+			</p>
+
+			<h3 id="smart-contracts">8.1 Smart Contract Development</h3>
+			<p>
+				The foundational infrastructure for *Space DAO is being built on the <strong>Polygon 
+				blockchain</strong> using <strong>Aragon</strong>, a battle-tested framework for DAO 
+				governance. Our immediate priorities include:
+			</p>
+			<ul>
+				<li>Completing the SpaceMoney (SM) and SpaceTime (ST) token smart contracts</li>
+				<li>Implementing the dual-token governance mechanism with proper separation of economic and voting power</li>
+				<li>Deploying the SpaceTime decay function on-chain</li>
+				<li>Configuring the sunset trigger conditions as immutable smart contract logic</li>
+				<li>Auditing and testing all contracts before mainnet deployment</li>
+			</ul>
+
+			<h3 id="spacebot-integration">8.2 SpaceBot Integration</h3>
+			<p>
+				<strong>SpaceBot</strong>, our Discord bot, will serve as the primary interface for 
+				community members to earn SpaceTime tokens through active participation. Planned 
+				functionality includes:
+			</p>
+			<ul>
+				<li>Connecting SpaceBot to the deployed smart contracts on Polygon</li>
+				<li>Automated SpaceTime token awards for time spent in voice chats</li>
+				<li>Tracking and rewarding community engagement activities</li>
+				<li>Integration with Discord roles for governance tier recognition</li>
+				<li>Real-time balance checking and activity dashboards</li>
+			</ul>
+			<p>
+				This integration ensures that governance power (SpaceTime) is earned through genuine 
+				community participation rather than capital investment, reinforcing our core principle 
+				of labor-based governance.
+			</p>
+
+			<h3 id="athena-development">8.3 Athena Platform Development</h3>
+			<p>
+				<strong>Athena</strong> is the web-based management platform for the *Space DAO ecosystem. 
+				The following features are under active development:
+			</p>
+			<ul>
+				<li><strong>SpaceMoney Purchase System:</strong> A secure, user-friendly interface for purchasing 
+					SpaceMoney tokens, including fiat on-ramps and cryptocurrency payment options</li>
+				<li><strong>Proposal Creation Interface:</strong> Tools for community members to draft, submit, 
+					and manage governance proposals with rich formatting and attachment support</li>
+				<li><strong>Voting System UI:</strong> An intuitive interface for casting votes, viewing active 
+					proposals, and tracking voting history</li>
+				<li><strong>Governance Dashboard:</strong> Real-time visualization of DAO metrics, sunset trigger 
+					progress, and token distribution statistics</li>
+				<li><strong>Member Profiles:</strong> Personal dashboards showing SpaceTime earnings, voting 
+					records, and contribution history</li>
+			</ul>
+			<p>
+				Upon completion, Athena will provide the complete front-end experience for participating 
+				in *Space DAO governance, from token acquisition to proposal voting and beyond.
+			</p>
+		</section>
+
 		<!-- References -->
 		<section id="references">
-			<h2>8. References</h2>
+			<h2>9. References</h2>
 			<ol class="references-list">
 				<li>
 					Ariely, D., &amp; Wertenbroch, K. (2002). Procrastination, deadlines, and performance. 
