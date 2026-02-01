@@ -1194,7 +1194,6 @@
 	/* Whitepaper Section */
 	.whitepaper-section {
 		padding: var(--space-3xl) 0;
-		background: linear-gradient(135deg, rgba(139, 92, 246, 0.03) 0%, rgba(59, 130, 246, 0.03) 100%);
 	}
 
 	.whitepaper-content {
