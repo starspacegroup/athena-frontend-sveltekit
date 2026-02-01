@@ -940,6 +940,291 @@
 			</div>
 		</aside>
 
+		<!-- Charts Section -->
+		<section class="charts-section">
+			<h2>
+				<span class="section-icon">📈</span>
+				Time Series
+			</h2>
+			<div class="charts-grid">
+				<!-- $PACETIME Supply Chart -->
+				<div class="chart-card">
+					<h3>$PACETIME Total</h3>
+					<div class="chart-container">
+						{#if history.length > 1}
+							<svg viewBox="0 0 400 150" class="chart-svg">
+								{#each [0, 25, 50, 75, 100] as y}
+									<line x1="40" y1={130 - y * 1.2} x2="390" y2={130 - y * 1.2} class="grid-line" />
+								{/each}
+								<path
+									d="M 40 130 {history.map((h, i) => `L ${40 + (i / (history.length - 1)) * 350} ${130 - (h.totalST / chartMaxST) * 120}`).join(' ')} L 390 130 Z"
+									class="chart-area purple"
+								/>
+								<path
+									d="M {history.map((h, i) => `${40 + (i / (history.length - 1)) * 350} ${130 - (h.totalST / chartMaxST) * 120}`).join(' L ')}"
+									class="chart-line purple" fill="none"
+								/>
+							</svg>
+						{:else}
+							<div class="chart-empty"><span>Start simulation to see data</span></div>
+						{/if}
+					</div>
+				</div>
+
+				<!-- $PACEMONEY Supply Chart -->
+				<div class="chart-card">
+					<h3>$PACEMONEY Total</h3>
+					<div class="chart-container">
+						{#if history.length > 1}
+							<svg viewBox="0 0 400 150" class="chart-svg">
+								{#each [0, 25, 50, 75, 100] as y}
+									<line x1="40" y1={130 - y * 1.2} x2="390" y2={130 - y * 1.2} class="grid-line" />
+								{/each}
+								<path
+									d="M 40 130 {history.map((h, i) => `L ${40 + (i / (history.length - 1)) * 350} ${130 - (h.totalSM / chartMaxSM) * 120}`).join(' ')} L 390 130 Z"
+									class="chart-area cyan"
+								/>
+								<path
+									d="M {history.map((h, i) => `${40 + (i / (history.length - 1)) * 350} ${130 - (h.totalSM / chartMaxSM) * 120}`).join(' L ')}"
+									class="chart-line cyan" fill="none"
+								/>
+							</svg>
+						{:else}
+							<div class="chart-empty"><span>Start simulation to see data</span></div>
+						{/if}
+					</div>
+				</div>
+
+				<!-- Proposals Chart (Stacked: Passed, Failed, Vetoed) -->
+				<div class="chart-card">
+					<h3>Proposals (Passed / Failed / Vetoed)</h3>
+					<div class="chart-container">
+						{#if history.length > 1}
+							<svg viewBox="0 0 400 150" class="chart-svg">
+								{#each [0, 25, 50, 75, 100] as y}
+									<line x1="40" y1={130 - y * 1.2} x2="390" y2={130 - y * 1.2} class="grid-line" />
+								{/each}
+								<!-- Passed (green) -->
+								<path
+									d="M {history.map((h, i) => `${40 + (i / (history.length - 1)) * 350} ${130 - (h.proposalsPassed / chartMaxProposals) * 120}`).join(' L ')}"
+									class="chart-line green" fill="none"
+								/>
+								<!-- Failed (red) -->
+								<path
+									d="M {history.map((h, i) => `${40 + (i / (history.length - 1)) * 350} ${130 - (h.proposalsFailed / chartMaxProposals) * 120}`).join(' L ')}"
+									class="chart-line red" fill="none"
+								/>
+								<!-- Vetoed (orange) -->
+								<path
+									d="M {history.map((h, i) => `${40 + (i / (history.length - 1)) * 350} ${130 - (h.proposalsVetoed / chartMaxProposals) * 120}`).join(' L ')}"
+									class="chart-line orange" fill="none"
+								/>
+							</svg>
+							<div class="chart-legend">
+								<span class="legend-item green">✅ Passed</span>
+								<span class="legend-item red">❌ Failed</span>
+								<span class="legend-item orange">🚫 Vetoed</span>
+							</div>
+						{:else}
+							<div class="chart-empty"><span>Start simulation to see data</span></div>
+						{/if}
+					</div>
+				</div>
+
+				<!-- Community Sentiment Chart -->
+				<div class="chart-card">
+					<h3>Community Sentiment</h3>
+					<div class="chart-container">
+						{#if history.length > 1}
+							<svg viewBox="0 0 400 150" class="chart-svg">
+								{#each [0, 25, 50, 75, 100] as y}
+									<line x1="40" y1={130 - y * 1.2} x2="390" y2={130 - y * 1.2} class="grid-line" />
+								{/each}
+								<line x1="40" y1={130 - 50 * 1.2} x2="390" y2={130 - 50 * 1.2} class="threshold-line warning" />
+								<path
+									d="M 40 130 {history.map((h, i) => `L ${40 + (i / (history.length - 1)) * 350} ${130 - (h.sentiment / 100) * 120}`).join(' ')} L 390 130 Z"
+									class="chart-area green"
+								/>
+								<path
+									d="M {history.map((h, i) => `${40 + (i / (history.length - 1)) * 350} ${130 - (h.sentiment / 100) * 120}`).join(' L ')}"
+									class="chart-line green" fill="none"
+								/>
+							</svg>
+						{:else}
+							<div class="chart-empty"><span>Start simulation to see data</span></div>
+						{/if}
+					</div>
+				</div>
+
+				<!-- Gini Coefficient Chart -->
+				<div class="chart-card">
+					<h3>Inequality (Gini)</h3>
+					<div class="chart-container">
+						{#if history.length > 1}
+							<svg viewBox="0 0 400 150" class="chart-svg">
+								{#each [0, 25, 50, 75, 100] as y}
+									<line x1="40" y1={130 - y * 1.2} x2="390" y2={130 - y * 1.2} class="grid-line" />
+								{/each}
+								<line x1="40" y1={130 - 0.5 * 120} x2="390" y2={130 - 0.5 * 120} class="threshold-line" />
+								<path
+									d="M 40 130 {history.map((h, i) => `L ${40 + (i / (history.length - 1)) * 350} ${130 - Math.min(h.gini, 1) * 120}`).join(' ')} L 390 130 Z"
+									class="chart-area pink"
+								/>
+								<path
+									d="M {history.map((h, i) => `${40 + (i / (history.length - 1)) * 350} ${130 - Math.min(h.gini, 1) * 120}`).join(' L ')}"
+									class="chart-line pink" fill="none"
+								/>
+							</svg>
+						{:else}
+							<div class="chart-empty"><span>Start simulation to see data</span></div>
+						{/if}
+					</div>
+				</div>
+
+				<!-- Voter Turnout Chart -->
+				<div class="chart-card">
+					<h3>Voter Turnout</h3>
+					<div class="chart-container">
+						{#if history.length > 1}
+							<svg viewBox="0 0 400 150" class="chart-svg">
+								{#each [0, 25, 50, 75, 100] as y}
+									<line x1="40" y1={130 - y * 1.2} x2="390" y2={130 - y * 1.2} class="grid-line" />
+								{/each}
+								<path
+									d="M 40 130 {history.map((h, i) => `L ${40 + (i / (history.length - 1)) * 350} ${130 - (h.turnout / 100) * 120}`).join(' ')} L 390 130 Z"
+									class="chart-area blue"
+								/>
+								<path
+									d="M {history.map((h, i) => `${40 + (i / (history.length - 1)) * 350} ${130 - (h.turnout / 100) * 120}`).join(' L ')}"
+									class="chart-line blue" fill="none"
+								/>
+							</svg>
+						{:else}
+							<div class="chart-empty"><span>Start simulation to see data</span></div>
+						{/if}
+					</div>
+				</div>
+
+				<!-- Active Voters Chart -->
+				<div class="chart-card">
+					<h3>Active Voters</h3>
+					<div class="chart-container">
+						{#if history.length > 1}
+							<svg viewBox="0 0 400 150" class="chart-svg">
+								{#each [0, 25, 50, 75, 100] as y}
+									<line x1="40" y1={130 - y * 1.2} x2="390" y2={130 - y * 1.2} class="grid-line" />
+								{/each}
+								<path
+									d="M 40 130 {history.map((h, i) => `L ${40 + (i / (history.length - 1)) * 350} ${130 - (h.activeVoters / chartMaxVoters) * 120}`).join(' ')} L 390 130 Z"
+									class="chart-area amber"
+								/>
+								<path
+									d="M {history.map((h, i) => `${40 + (i / (history.length - 1)) * 350} ${130 - (h.activeVoters / chartMaxVoters) * 120}`).join(' L ')}"
+									class="chart-line amber" fill="none"
+								/>
+							</svg>
+						{:else}
+							<div class="chart-empty"><span>Start simulation to see data</span></div>
+						{/if}
+					</div>
+				</div>
+
+				<!-- Sunset Progress Chart -->
+				<div class="chart-card">
+					<h3>Sunset Progress</h3>
+					<div class="chart-container">
+						{#if history.length > 1}
+							<svg viewBox="0 0 400 150" class="chart-svg">
+								{#each [0, 25, 50, 75, 100] as y}
+									<line x1="40" y1={130 - y * 1.2} x2="390" y2={130 - y * 1.2} class="grid-line" />
+								{/each}
+								<!-- Target line at 100% -->
+								<line x1="40" y1={130 - 100 * 1.2} x2="390" y2={130 - 100 * 1.2} class="threshold-line success" />
+								<path
+									d="M 40 130 {history.map((h, i) => `L ${40 + (i / (history.length - 1)) * 350} ${130 - (h.sunsetProgress / 100) * 120}`).join(' ')} L 390 130 Z"
+									class="chart-area gradient"
+								/>
+								<path
+									d="M {history.map((h, i) => `${40 + (i / (history.length - 1)) * 350} ${130 - (h.sunsetProgress / 100) * 120}`).join(' L ')}"
+									class="chart-line gradient" fill="none"
+								/>
+							</svg>
+						{:else}
+							<div class="chart-empty"><span>Start simulation to see data</span></div>
+						{/if}
+					</div>
+				</div>
+
+				<!-- Owner Trust Chart -->
+				<div class="chart-card">
+					<h3>Owner Trust</h3>
+					<div class="chart-container">
+						{#if history.length > 1}
+							<svg viewBox="0 0 400 150" class="chart-svg">
+								{#each [0, 25, 50, 75, 100] as y}
+									<line x1="40" y1={130 - y * 1.2} x2="390" y2={130 - y * 1.2} class="grid-line" />
+								{/each}
+								<line x1="40" y1={130 - 50 * 1.2} x2="390" y2={130 - 50 * 1.2} class="threshold-line warning" />
+								<path
+									d="M 40 130 {history.map((h, i) => `L ${40 + (i / (history.length - 1)) * 350} ${130 - (h.ownerTrust / 100) * 120}`).join(' ')} L 390 130 Z"
+									class="chart-area orange"
+								/>
+								<path
+									d="M {history.map((h, i) => `${40 + (i / (history.length - 1)) * 350} ${130 - (h.ownerTrust / 100) * 120}`).join(' L ')}"
+									class="chart-line orange" fill="none"
+								/>
+							</svg>
+						{:else}
+							<div class="chart-empty"><span>Start simulation to see data</span></div>
+						{/if}
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<!-- Agent Distribution -->
+		{#if agents.length > 0}
+			<section class="distribution-section">
+				<h2>
+					<span class="section-icon">👥</span>
+					Agent Distribution
+				</h2>
+				<div class="distribution-stats">
+					<div class="dist-stat">
+						<span class="dist-label">Total Agents</span>
+						<span class="dist-value">{agents.length}</span>
+					</div>
+					<div class="dist-stat">
+						<span class="dist-label">Whales</span>
+						<span class="dist-value whale">{agents.filter(a => a.isWhale).length}</span>
+					</div>
+					<div class="dist-stat">
+						<span class="dist-label">Regular Users</span>
+						<span class="dist-value">{agents.filter(a => !a.isWhale).length}</span>
+					</div>
+					<div class="dist-stat">
+						<span class="dist-label">Avg ST per Agent</span>
+						<span class="dist-value">{(metrics.totalSpaceTime / agents.length).toFixed(1)}</span>
+					</div>
+				</div>
+				
+				<!-- Visual distribution -->
+				<div class="agent-visualization">
+					{#each agents.slice(0, 100) as agent}
+						<div 
+							class="agent-dot" 
+							class:whale={agent.isWhale}
+							style="--size: {Math.min(20, 4 + agent.spaceTime / 50)}px; --opacity: {0.3 + agent.participationRate * 0.7}"
+							title="Agent #{agent.id}: ST={agent.spaceTime.toFixed(1)}, SM={agent.spaceMoney}"
+						></div>
+					{/each}
+					{#if agents.length > 100}
+						<div class="more-agents">+{agents.length - 100} more</div>
+					{/if}
+				</div>
+			</section>
+		{/if}
+
 		<!-- Results Panel -->
 		<div class="results-panel">
 			<!-- Real-time Metrics -->
@@ -1071,291 +1356,6 @@
 								</div>
 							</div>
 						{/each}
-					</div>
-				</section>
-			{/if}
-
-			<!-- Charts Section -->
-			<section class="charts-section">
-				<h2>
-					<span class="section-icon">📈</span>
-					Time Series
-				</h2>
-				<div class="charts-grid">
-					<!-- $PACETIME Supply Chart -->
-					<div class="chart-card">
-						<h3>$PACETIME Total</h3>
-						<div class="chart-container">
-							{#if history.length > 1}
-								<svg viewBox="0 0 400 150" class="chart-svg">
-									{#each [0, 25, 50, 75, 100] as y}
-										<line x1="40" y1={130 - y * 1.2} x2="390" y2={130 - y * 1.2} class="grid-line" />
-									{/each}
-									<path
-										d="M 40 130 {history.map((h, i) => `L ${40 + (i / (history.length - 1)) * 350} ${130 - (h.totalST / chartMaxST) * 120}`).join(' ')} L 390 130 Z"
-										class="chart-area purple"
-									/>
-									<path
-										d="M {history.map((h, i) => `${40 + (i / (history.length - 1)) * 350} ${130 - (h.totalST / chartMaxST) * 120}`).join(' L ')}"
-										class="chart-line purple" fill="none"
-									/>
-								</svg>
-							{:else}
-								<div class="chart-empty"><span>Start simulation to see data</span></div>
-							{/if}
-						</div>
-					</div>
-
-					<!-- $PACEMONEY Supply Chart -->
-					<div class="chart-card">
-						<h3>$PACEMONEY Total</h3>
-						<div class="chart-container">
-							{#if history.length > 1}
-								<svg viewBox="0 0 400 150" class="chart-svg">
-									{#each [0, 25, 50, 75, 100] as y}
-										<line x1="40" y1={130 - y * 1.2} x2="390" y2={130 - y * 1.2} class="grid-line" />
-									{/each}
-									<path
-										d="M 40 130 {history.map((h, i) => `L ${40 + (i / (history.length - 1)) * 350} ${130 - (h.totalSM / chartMaxSM) * 120}`).join(' ')} L 390 130 Z"
-										class="chart-area cyan"
-									/>
-									<path
-										d="M {history.map((h, i) => `${40 + (i / (history.length - 1)) * 350} ${130 - (h.totalSM / chartMaxSM) * 120}`).join(' L ')}"
-										class="chart-line cyan" fill="none"
-									/>
-								</svg>
-							{:else}
-								<div class="chart-empty"><span>Start simulation to see data</span></div>
-							{/if}
-						</div>
-					</div>
-
-					<!-- Proposals Chart (Stacked: Passed, Failed, Vetoed) -->
-					<div class="chart-card">
-						<h3>Proposals (Passed / Failed / Vetoed)</h3>
-						<div class="chart-container">
-							{#if history.length > 1}
-								<svg viewBox="0 0 400 150" class="chart-svg">
-									{#each [0, 25, 50, 75, 100] as y}
-										<line x1="40" y1={130 - y * 1.2} x2="390" y2={130 - y * 1.2} class="grid-line" />
-									{/each}
-									<!-- Passed (green) -->
-									<path
-										d="M {history.map((h, i) => `${40 + (i / (history.length - 1)) * 350} ${130 - (h.proposalsPassed / chartMaxProposals) * 120}`).join(' L ')}"
-										class="chart-line green" fill="none"
-									/>
-									<!-- Failed (red) -->
-									<path
-										d="M {history.map((h, i) => `${40 + (i / (history.length - 1)) * 350} ${130 - (h.proposalsFailed / chartMaxProposals) * 120}`).join(' L ')}"
-										class="chart-line red" fill="none"
-									/>
-									<!-- Vetoed (orange) -->
-									<path
-										d="M {history.map((h, i) => `${40 + (i / (history.length - 1)) * 350} ${130 - (h.proposalsVetoed / chartMaxProposals) * 120}`).join(' L ')}"
-										class="chart-line orange" fill="none"
-									/>
-								</svg>
-								<div class="chart-legend">
-									<span class="legend-item green">✅ Passed</span>
-									<span class="legend-item red">❌ Failed</span>
-									<span class="legend-item orange">🚫 Vetoed</span>
-								</div>
-							{:else}
-								<div class="chart-empty"><span>Start simulation to see data</span></div>
-							{/if}
-						</div>
-					</div>
-
-					<!-- Community Sentiment Chart -->
-					<div class="chart-card">
-						<h3>Community Sentiment</h3>
-						<div class="chart-container">
-							{#if history.length > 1}
-								<svg viewBox="0 0 400 150" class="chart-svg">
-									{#each [0, 25, 50, 75, 100] as y}
-										<line x1="40" y1={130 - y * 1.2} x2="390" y2={130 - y * 1.2} class="grid-line" />
-									{/each}
-									<line x1="40" y1={130 - 50 * 1.2} x2="390" y2={130 - 50 * 1.2} class="threshold-line warning" />
-									<path
-										d="M 40 130 {history.map((h, i) => `L ${40 + (i / (history.length - 1)) * 350} ${130 - (h.sentiment / 100) * 120}`).join(' ')} L 390 130 Z"
-										class="chart-area green"
-									/>
-									<path
-										d="M {history.map((h, i) => `${40 + (i / (history.length - 1)) * 350} ${130 - (h.sentiment / 100) * 120}`).join(' L ')}"
-										class="chart-line green" fill="none"
-									/>
-								</svg>
-							{:else}
-								<div class="chart-empty"><span>Start simulation to see data</span></div>
-							{/if}
-						</div>
-					</div>
-
-					<!-- Gini Coefficient Chart -->
-					<div class="chart-card">
-						<h3>Inequality (Gini)</h3>
-						<div class="chart-container">
-							{#if history.length > 1}
-								<svg viewBox="0 0 400 150" class="chart-svg">
-									{#each [0, 25, 50, 75, 100] as y}
-										<line x1="40" y1={130 - y * 1.2} x2="390" y2={130 - y * 1.2} class="grid-line" />
-									{/each}
-									<line x1="40" y1={130 - 0.5 * 120} x2="390" y2={130 - 0.5 * 120} class="threshold-line" />
-									<path
-										d="M 40 130 {history.map((h, i) => `L ${40 + (i / (history.length - 1)) * 350} ${130 - Math.min(h.gini, 1) * 120}`).join(' ')} L 390 130 Z"
-										class="chart-area pink"
-									/>
-									<path
-										d="M {history.map((h, i) => `${40 + (i / (history.length - 1)) * 350} ${130 - Math.min(h.gini, 1) * 120}`).join(' L ')}"
-										class="chart-line pink" fill="none"
-									/>
-								</svg>
-							{:else}
-								<div class="chart-empty"><span>Start simulation to see data</span></div>
-							{/if}
-						</div>
-					</div>
-
-					<!-- Voter Turnout Chart -->
-					<div class="chart-card">
-						<h3>Voter Turnout</h3>
-						<div class="chart-container">
-							{#if history.length > 1}
-								<svg viewBox="0 0 400 150" class="chart-svg">
-									{#each [0, 25, 50, 75, 100] as y}
-										<line x1="40" y1={130 - y * 1.2} x2="390" y2={130 - y * 1.2} class="grid-line" />
-									{/each}
-									<path
-										d="M 40 130 {history.map((h, i) => `L ${40 + (i / (history.length - 1)) * 350} ${130 - (h.turnout / 100) * 120}`).join(' ')} L 390 130 Z"
-										class="chart-area blue"
-									/>
-									<path
-										d="M {history.map((h, i) => `${40 + (i / (history.length - 1)) * 350} ${130 - (h.turnout / 100) * 120}`).join(' L ')}"
-										class="chart-line blue" fill="none"
-									/>
-								</svg>
-							{:else}
-								<div class="chart-empty"><span>Start simulation to see data</span></div>
-							{/if}
-						</div>
-					</div>
-
-					<!-- Active Voters Chart -->
-					<div class="chart-card">
-						<h3>Active Voters</h3>
-						<div class="chart-container">
-							{#if history.length > 1}
-								<svg viewBox="0 0 400 150" class="chart-svg">
-									{#each [0, 25, 50, 75, 100] as y}
-										<line x1="40" y1={130 - y * 1.2} x2="390" y2={130 - y * 1.2} class="grid-line" />
-									{/each}
-									<path
-										d="M 40 130 {history.map((h, i) => `L ${40 + (i / (history.length - 1)) * 350} ${130 - (h.activeVoters / chartMaxVoters) * 120}`).join(' ')} L 390 130 Z"
-										class="chart-area amber"
-									/>
-									<path
-										d="M {history.map((h, i) => `${40 + (i / (history.length - 1)) * 350} ${130 - (h.activeVoters / chartMaxVoters) * 120}`).join(' L ')}"
-										class="chart-line amber" fill="none"
-									/>
-								</svg>
-							{:else}
-								<div class="chart-empty"><span>Start simulation to see data</span></div>
-							{/if}
-						</div>
-					</div>
-
-					<!-- Sunset Progress Chart -->
-					<div class="chart-card">
-						<h3>Sunset Progress</h3>
-						<div class="chart-container">
-							{#if history.length > 1}
-								<svg viewBox="0 0 400 150" class="chart-svg">
-									{#each [0, 25, 50, 75, 100] as y}
-										<line x1="40" y1={130 - y * 1.2} x2="390" y2={130 - y * 1.2} class="grid-line" />
-									{/each}
-									<!-- Target line at 100% -->
-									<line x1="40" y1={130 - 100 * 1.2} x2="390" y2={130 - 100 * 1.2} class="threshold-line success" />
-									<path
-										d="M 40 130 {history.map((h, i) => `L ${40 + (i / (history.length - 1)) * 350} ${130 - (h.sunsetProgress / 100) * 120}`).join(' ')} L 390 130 Z"
-										class="chart-area gradient"
-									/>
-									<path
-										d="M {history.map((h, i) => `${40 + (i / (history.length - 1)) * 350} ${130 - (h.sunsetProgress / 100) * 120}`).join(' L ')}"
-										class="chart-line gradient" fill="none"
-									/>
-								</svg>
-							{:else}
-								<div class="chart-empty"><span>Start simulation to see data</span></div>
-							{/if}
-						</div>
-					</div>
-
-					<!-- Owner Trust Chart -->
-					<div class="chart-card">
-						<h3>Owner Trust</h3>
-						<div class="chart-container">
-							{#if history.length > 1}
-								<svg viewBox="0 0 400 150" class="chart-svg">
-									{#each [0, 25, 50, 75, 100] as y}
-										<line x1="40" y1={130 - y * 1.2} x2="390" y2={130 - y * 1.2} class="grid-line" />
-									{/each}
-									<line x1="40" y1={130 - 50 * 1.2} x2="390" y2={130 - 50 * 1.2} class="threshold-line warning" />
-									<path
-										d="M 40 130 {history.map((h, i) => `L ${40 + (i / (history.length - 1)) * 350} ${130 - (h.ownerTrust / 100) * 120}`).join(' ')} L 390 130 Z"
-										class="chart-area orange"
-									/>
-									<path
-										d="M {history.map((h, i) => `${40 + (i / (history.length - 1)) * 350} ${130 - (h.ownerTrust / 100) * 120}`).join(' L ')}"
-										class="chart-line orange" fill="none"
-									/>
-								</svg>
-							{:else}
-								<div class="chart-empty"><span>Start simulation to see data</span></div>
-							{/if}
-						</div>
-					</div>
-				</div>
-			</section>
-
-			<!-- Agent Distribution -->
-			{#if agents.length > 0}
-				<section class="distribution-section">
-					<h2>
-						<span class="section-icon">👥</span>
-						Agent Distribution
-					</h2>
-					<div class="distribution-stats">
-						<div class="dist-stat">
-							<span class="dist-label">Total Agents</span>
-							<span class="dist-value">{agents.length}</span>
-						</div>
-						<div class="dist-stat">
-							<span class="dist-label">Whales</span>
-							<span class="dist-value whale">{agents.filter(a => a.isWhale).length}</span>
-						</div>
-						<div class="dist-stat">
-							<span class="dist-label">Regular Users</span>
-							<span class="dist-value">{agents.filter(a => !a.isWhale).length}</span>
-						</div>
-						<div class="dist-stat">
-							<span class="dist-label">Avg ST per Agent</span>
-							<span class="dist-value">{(metrics.totalSpaceTime / agents.length).toFixed(1)}</span>
-						</div>
-					</div>
-					
-					<!-- Visual distribution -->
-					<div class="agent-visualization">
-						{#each agents.slice(0, 100) as agent}
-							<div 
-								class="agent-dot" 
-								class:whale={agent.isWhale}
-								style="--size: {Math.min(20, 4 + agent.spaceTime / 50)}px; --opacity: {0.3 + agent.participationRate * 0.7}"
-								title="Agent #{agent.id}: ST={agent.spaceTime.toFixed(1)}, SM={agent.spaceMoney}"
-							></div>
-						{/each}
-						{#if agents.length > 100}
-							<div class="more-agents">+{agents.length - 100} more</div>
-						{/if}
 					</div>
 				</section>
 			{/if}
