@@ -243,6 +243,51 @@
 			<span class="note-icon">🔐</span>
 			<p>These transitions are <strong>hardcoded in smart contracts</strong>—not promises, but guarantees.</p>
 		</div>
+
+		<!-- Vision & Legal Foundation -->
+		<div class="governance-vision">
+			<div class="vision-header">
+				<span class="vision-badge">🏛️ Wyoming DAO LLC</span>
+				<h3>A Blueprint for Future Governance</h3>
+				<p>*Space isn't just a DAO—it's a prototype for self-governing organizations that could reshape how societies organize.</p>
+			</div>
+
+			<div class="vision-grid">
+				<div class="vision-card">
+					<div class="vision-card-icon">⚖️</div>
+					<h4>Legal Recognition</h4>
+					<p>Wyoming was the first U.S. state to legally recognize DAOs. Our LLC structure means token holders are <strong>legal members</strong>, smart contracts are the <strong>operating agreement</strong>, and on-chain decisions are <strong>legally binding</strong>.</p>
+				</div>
+
+				<div class="vision-card">
+					<div class="vision-card-icon">🧠</div>
+					<h4>Meritocratic Voting</h4>
+					<p>Voting power isn't bought—it's <strong>earned</strong>. SpaceTime rewards those who contribute value and make good decisions. Your governance weight correlates with your <strong>demonstrated judgment</strong>, not your wealth.</p>
+				</div>
+
+				<div class="vision-card">
+					<div class="vision-card-icon">🌐</div>
+					<h4>Federated Autonomy</h4>
+					<p>Sub-DAOs can operate with full autonomy over their domains—their own rules, treasuries, and decisions—so long as they don't violate the root DAO's core principle: <strong>reduced harm and increased freedom</strong>, balanced through research and consensus.</p>
+				</div>
+
+				<div class="vision-card">
+					<div class="vision-card-icon">🔮</div>
+					<h4>The Roadmap</h4>
+					<p>Traditional governments lack mechanisms for automatic power dissolution, transparent decision-making, and federated autonomy. *Space proves these concepts work in code—a template for <strong>cities, cooperatives, and future digital nations</strong>.</p>
+				</div>
+			</div>
+
+			<div class="vision-principle">
+				<div class="principle-content">
+					<span class="principle-icon">🎯</span>
+					<div>
+						<h4>The Core Principle</h4>
+						<p>All governance decisions must balance <strong>reduced harm</strong> with <strong>increased freedom</strong>—researched and agreed upon by voters who have earned the right through proven good judgment. This is the immutable foundation that all sub-organizations must respect.</p>
+					</div>
+				</div>
+			</div>
+		</div>
 	</section>
 
 	<!-- Investments Section -->
@@ -764,6 +809,124 @@
 
 	.governance-note strong {
 		color: var(--color-text-primary);
+	}
+
+	/* Governance Vision */
+	.governance-vision {
+		margin-top: var(--space-2xl);
+		padding-top: var(--space-2xl);
+		border-top: 1px solid var(--color-border);
+	}
+
+	.vision-header {
+		text-align: center;
+		margin-bottom: var(--space-xl);
+	}
+
+	.vision-badge {
+		display: inline-block;
+		padding: var(--space-xs) var(--space-md);
+		background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(59, 130, 246, 0.15));
+		border: 1px solid rgba(139, 92, 246, 0.3);
+		border-radius: var(--radius-full);
+		font-size: 0.875rem;
+		font-weight: 600;
+		color: var(--color-primary);
+		margin-bottom: var(--space-md);
+	}
+
+	.vision-header h3 {
+		font-size: 1.75rem;
+		font-weight: 700;
+		margin: 0 0 var(--space-sm) 0;
+		color: var(--color-text-primary);
+	}
+
+	.vision-header p {
+		font-size: 1.0625rem;
+		color: var(--color-text-secondary);
+		max-width: 600px;
+		margin: 0 auto;
+	}
+
+	.vision-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+		gap: var(--space-lg);
+		margin-bottom: var(--space-xl);
+	}
+
+	.vision-card {
+		background: var(--color-bg-card);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-lg);
+		padding: var(--space-lg);
+		transition: all var(--transition-base);
+	}
+
+	.vision-card:hover {
+		background: var(--color-bg-card-hover);
+		border-color: var(--color-border-hover);
+		transform: translateY(-2px);
+	}
+
+	.vision-card-icon {
+		font-size: 1.75rem;
+		margin-bottom: var(--space-sm);
+	}
+
+	.vision-card h4 {
+		font-size: 1.125rem;
+		font-weight: 600;
+		margin: 0 0 var(--space-sm) 0;
+		color: var(--color-text-primary);
+	}
+
+	.vision-card p {
+		font-size: 0.9375rem;
+		line-height: 1.6;
+		color: var(--color-text-secondary);
+		margin: 0;
+	}
+
+	.vision-card strong {
+		color: var(--color-text-primary);
+	}
+
+	.vision-principle {
+		background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(59, 130, 246, 0.1));
+		border: 1px solid rgba(139, 92, 246, 0.25);
+		border-radius: var(--radius-lg);
+		padding: var(--space-lg);
+	}
+
+	.principle-content {
+		display: flex;
+		align-items: flex-start;
+		gap: var(--space-md);
+	}
+
+	.principle-icon {
+		font-size: 1.5rem;
+		flex-shrink: 0;
+	}
+
+	.principle-content h4 {
+		font-size: 1rem;
+		font-weight: 600;
+		margin: 0 0 var(--space-xs) 0;
+		color: var(--color-text-primary);
+	}
+
+	.principle-content p {
+		font-size: 0.9375rem;
+		line-height: 1.6;
+		color: var(--color-text-secondary);
+		margin: 0;
+	}
+
+	.principle-content strong {
+		color: var(--color-primary);
 	}
 
 	@keyframes fadeInUp {
@@ -1333,6 +1496,19 @@
 		}
 
 		.governance-note {
+			flex-direction: column;
+			text-align: center;
+		}
+
+		.vision-grid {
+			grid-template-columns: 1fr;
+		}
+
+		.vision-header h3 {
+			font-size: 1.5rem;
+		}
+
+		.principle-content {
 			flex-direction: column;
 			text-align: center;
 		}

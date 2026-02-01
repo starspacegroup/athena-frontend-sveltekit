@@ -58,6 +58,10 @@
 					<span class="nav-icon">🏠</span>
 					Home
 				</a>
+				<a href="/whitepaper" class:active={$page.url.pathname === '/whitepaper'}>
+					<span class="nav-icon">📄</span>
+					Whitepaper
+				</a>
 				{#if $user}
 					<a href="/dashboard" class:active={$page.url.pathname === '/dashboard'}>
 						<span class="nav-icon">📊</span>
@@ -103,6 +107,8 @@
 			<p>Decentralized governance for the future</p>
 			<div class="footer-links">
 				<a href="/">Home</a>
+				<span class="divider">•</span>
+				<a href="/whitepaper">Whitepaper</a>
 				<span class="divider">•</span>
 				<a href="/dashboard">Dashboard</a>
 				<span class="divider">•</span>
