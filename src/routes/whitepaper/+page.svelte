@@ -94,6 +94,7 @@
 					<li><a href="#smart-contracts">Smart Contract Development</a></li>
 					<li><a href="#spacebot-integration">SpaceBot Integration</a></li>
 					<li><a href="#athena-development">Athena Platform Development</a></li>
+					<li><a href="#simulation-framework">Simulation Testing Framework</a></li>
 				</ol>
 			</li>
 			<li><a href="#references">References</a></li>
@@ -685,6 +686,46 @@
 			<p>
 				Upon completion, Athena will provide the complete front-end experience for participating 
 				in *Space DAO governance, from token acquisition to proposal voting and beyond.
+			</p>
+
+			<h3 id="simulation-framework">8.4 Simulation Testing Framework</h3>
+			<p>
+				A key component of our development strategy is the creation of a comprehensive 
+				<strong>Simulation Testing Framework</strong> that enables users, researchers, and 
+				developers to model and validate governance scenarios before real-world deployment.
+			</p>
+			<p>
+				The simulation framework addresses a critical gap in DAO development: the inability to 
+				test governance mechanisms under realistic conditions without risking real assets or 
+				community trust. Our approach provides:
+			</p>
+			<ul>
+				<li><strong>Agent-Based Modeling:</strong> Configure virtual participants with customizable 
+					behaviors, wealth distributions, and voting strategies to simulate diverse community compositions</li>
+				<li><strong>Governance Scenario Testing:</strong> Run simulations of proposal voting, token 
+					decay dynamics, and sunset trigger conditions over extended virtual time periods</li>
+				<li><strong>Attack Vector Analysis:</strong> Test the resilience of governance mechanisms 
+					against simulated whale attacks, Sybil attacks, and voter coordination attempts</li>
+				<li><strong>Economic Modeling:</strong> Project token economics, treasury growth, and 
+					SpaceTime distribution under various market and participation scenarios</li>
+				<li><strong>Visual Analytics:</strong> Real-time visualization of simulation results with 
+					interactive charts, network graphs, and statistical summaries</li>
+			</ul>
+			<p>
+				The simulation framework will be accessible through the Athena platform at 
+				<a href="/simulate">/simulate</a>, providing an intuitive graphical interface for:
+			</p>
+			<ul>
+				<li>Creating and saving custom simulation configurations</li>
+				<li>Running parallel simulations with varying parameters</li>
+				<li>Comparing outcomes across different governance scenarios</li>
+				<li>Exporting simulation data for academic research and auditing</li>
+				<li>Stress-testing proposed governance changes before implementation</li>
+			</ul>
+			<p>
+				This tool embodies our commitment to <strong>evidence-based governance design</strong>—ensuring 
+				that every mechanism in *Space DAO is validated through rigorous simulation before 
+				affecting real community assets and decisions.
 			</p>
 		</section>
 

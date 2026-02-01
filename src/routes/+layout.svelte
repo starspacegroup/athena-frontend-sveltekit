@@ -62,6 +62,10 @@
 					<span class="nav-icon">📄</span>
 					Whitepaper
 				</a>
+				<a href="/simulate" class:active={$page.url.pathname === '/simulate'}>
+					<span class="nav-icon">🧪</span>
+					Simulate
+				</a>
 				{#if $user}
 					<a href="/dashboard" class:active={$page.url.pathname === '/dashboard'}>
 						<span class="nav-icon">📊</span>
@@ -109,6 +113,8 @@
 				<a href="/">Home</a>
 				<span class="divider">•</span>
 				<a href="/whitepaper">Whitepaper</a>
+				<span class="divider">•</span>
+				<a href="/simulate">Simulate</a>
 				<span class="divider">•</span>
 				<a href="/dashboard">Dashboard</a>
 				<span class="divider">•</span>
