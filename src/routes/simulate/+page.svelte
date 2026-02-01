@@ -1232,6 +1232,35 @@
 				<span class="section-icon">📈</span>
 				Time Series
 			</h2>
+			
+			<!-- Sunset Progress - Full Width at Top -->
+			<div class="sunset-progress-bar">
+				<div class="sunset-header">
+					<h3>🌅 Sunset Progress</h3>
+					<span class="sunset-value">{(history.length > 0 ? history[history.length - 1].sunsetProgress : 0).toFixed(1)}%</span>
+				</div>
+				<div class="sunset-track">
+					<div class="sunset-fill" style="width: {history.length > 0 ? Math.min(100, history[history.length - 1].sunsetProgress) : 0}%"></div>
+					<div class="sunset-target"></div>
+				</div>
+				{#if history.length > 1}
+					<div class="sunset-mini-chart">
+						<svg viewBox="0 0 800 60" class="sunset-svg" preserveAspectRatio="none">
+							<!-- Target line at 100% -->
+							<line x1="0" y1="5" x2="800" y2="5" class="sunset-target-line" />
+							<path
+								d="M 0 55 {history.map((h, i) => `L ${(i / (history.length - 1)) * 800} ${55 - (h.sunsetProgress / 100) * 50}`).join(' ')} L 800 55 Z"
+								class="sunset-area"
+							/>
+							<path
+								d="M {history.map((h, i) => `${(i / (history.length - 1)) * 800} ${55 - (h.sunsetProgress / 100) * 50}`).join(' L ')}"
+								class="sunset-line" fill="none"
+							/>
+						</svg>
+					</div>
+				{/if}
+			</div>
+
 			<div class="charts-grid">
 				<!-- $PACETIME Supply Chart -->
 				<div class="chart-card">
@@ -1407,32 +1436,6 @@
 								<path
 									d="M {history.map((h, i) => `${40 + (i / (history.length - 1)) * 350} ${130 - (h.activeVoters / chartMaxVoters) * 120}`).join(' L ')}"
 									class="chart-line amber" fill="none"
-								/>
-							</svg>
-						{:else}
-							<div class="chart-empty"><span>Start simulation to see data</span></div>
-						{/if}
-					</div>
-				</div>
-
-				<!-- Sunset Progress Chart -->
-				<div class="chart-card">
-					<h3>Sunset Progress</h3>
-					<div class="chart-container">
-						{#if history.length > 1}
-							<svg viewBox="0 0 400 150" class="chart-svg">
-								{#each [0, 25, 50, 75, 100] as y}
-									<line x1="40" y1={130 - y * 1.2} x2="390" y2={130 - y * 1.2} class="grid-line" />
-								{/each}
-								<!-- Target line at 100% -->
-								<line x1="40" y1={130 - 100 * 1.2} x2="390" y2={130 - 100 * 1.2} class="threshold-line success" />
-								<path
-									d="M 40 130 {history.map((h, i) => `L ${40 + (i / (history.length - 1)) * 350} ${130 - (h.sunsetProgress / 100) * 120}`).join(' ')} L 390 130 Z"
-									class="chart-area gradient"
-								/>
-								<path
-									d="M {history.map((h, i) => `${40 + (i / (history.length - 1)) * 350} ${130 - (h.sunsetProgress / 100) * 120}`).join(' L ')}"
-									class="chart-line gradient" fill="none"
 								/>
 							</svg>
 						{:else}
@@ -2397,6 +2400,93 @@
 		background: var(--gradient-primary);
 		border-radius: var(--radius-full);
 		transition: width 0.3s ease;
+	}
+
+	/* Full-width Sunset Progress Bar */
+	.sunset-progress-bar {
+		background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(236, 72, 153, 0.1));
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-lg);
+		padding: var(--space-md);
+		margin-bottom: var(--space-lg);
+	}
+
+	.sunset-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: var(--space-sm);
+	}
+
+	.sunset-header h3 {
+		font-size: 1rem;
+		font-weight: 600;
+		margin: 0;
+		color: var(--color-text-primary);
+	}
+
+	.sunset-value {
+		font-size: 1.25rem;
+		font-weight: 700;
+		background: var(--gradient-primary);
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;
+		background-clip: text;
+	}
+
+	.sunset-track {
+		position: relative;
+		height: 12px;
+		background: var(--color-bg-primary);
+		border-radius: var(--radius-full);
+		overflow: hidden;
+		margin-bottom: var(--space-sm);
+	}
+
+	.sunset-progress-bar .sunset-fill {
+		height: 100%;
+		background: var(--gradient-primary);
+		border-radius: var(--radius-full);
+		transition: width 0.3s ease;
+	}
+
+	.sunset-target {
+		position: absolute;
+		right: 0;
+		top: 0;
+		bottom: 0;
+		width: 2px;
+		background: var(--color-success);
+		box-shadow: 0 0 8px var(--color-success);
+	}
+
+	.sunset-mini-chart {
+		height: 60px;
+		margin-top: var(--space-xs);
+	}
+
+	.sunset-svg {
+		width: 100%;
+		height: 100%;
+	}
+
+	.sunset-target-line {
+		stroke: var(--color-success);
+		stroke-width: 1;
+		stroke-dasharray: 4 4;
+		opacity: 0.5;
+	}
+
+	.sunset-area {
+		fill: url(#gradientFill);
+		opacity: 0.3;
+	}
+
+	.sunset-line {
+		stroke: var(--color-accent-primary);
+		stroke-width: 2;
+		stroke-linecap: round;
+		stroke-linejoin: round;
 	}
 
 	/* Charts */
