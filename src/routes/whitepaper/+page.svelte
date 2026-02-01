@@ -681,11 +681,12 @@
 
 		.whitepaper-container {
 			background: white !important;
-			color: black !important;
+			color: #1a1a1a !important;
 			padding: 0 !important;
 			max-width: 100% !important;
 		}
 
+		/* Header styles */
 		.paper-header {
 			background: none !important;
 			border: none !important;
@@ -693,68 +694,197 @@
 		}
 
 		.paper-header h1 {
-			color: black !important;
+			color: #1a1a1a !important;
 			background: none !important;
 			-webkit-background-clip: unset !important;
 			background-clip: unset !important;
-			-webkit-text-fill-color: black !important;
+			-webkit-text-fill-color: #1a1a1a !important;
+			font-size: 2rem !important;
 		}
 
-		.paper-header .subtitle,
-		.paper-header .meta {
+		.paper-header .subtitle {
 			color: #333 !important;
 		}
 
+		.paper-header .meta {
+			color: #555 !important;
+		}
+
+		/* Content sections */
 		.abstract, .toc, section {
 			background: none !important;
-			border: 1px solid #ddd !important;
+			border: 1px solid #ccc !important;
 			page-break-inside: avoid;
 		}
 
+		.abstract {
+			border-left: 4px solid #333 !important;
+		}
+
+		.abstract h2 {
+			color: #1a1a1a !important;
+		}
+
+		.abstract p {
+			color: #333 !important;
+		}
+
+		/* TOC */
+		.toc h2 {
+			color: #1a1a1a !important;
+		}
+
+		.toc a {
+			color: #1a1a1a !important;
+			text-decoration: none !important;
+		}
+
+		/* Main content typography */
+		.paper-content h2 {
+			color: #1a1a1a !important;
+		}
+
+		.paper-content h3 {
+			color: #333 !important;
+		}
+
+		.paper-content h4 {
+			color: #1a1a1a !important;
+		}
+
+		.paper-content p {
+			color: #333 !important;
+		}
+
+		.paper-content ul, .paper-content ol {
+			color: #333 !important;
+		}
+
+		.paper-content li {
+			color: #333 !important;
+		}
+
+		/* Cards */
 		.token-card, .evidence-card, .stat-card {
-			background: #f5f5f5 !important;
-			border: 1px solid #ddd !important;
-			color: black !important;
+			background: #f8f8f8 !important;
+			border: 1px solid #ccc !important;
 		}
 
 		.token-card h4, .evidence-card h4 {
-			color: black !important;
+			color: #1a1a1a !important;
 		}
 
+		.token-card p, .evidence-card p, .stat-card p {
+			color: #333 !important;
+		}
+
+		.token-type {
+			color: #555 !important;
+		}
+
+		.stat-value {
+			color: #1a1a1a !important;
+			background: none !important;
+			-webkit-background-clip: unset !important;
+			background-clip: unset !important;
+			-webkit-text-fill-color: #1a1a1a !important;
+		}
+
+		.stat-label {
+			color: #1a1a1a !important;
+		}
+
+		/* Equations */
 		.equation-block {
-			background: #f9f9f9 !important;
-			border: 1px solid #ddd !important;
+			background: #f8f8f8 !important;
+			border: 1px solid #ccc !important;
 		}
 
+		.equation {
+			color: #1a1a1a !important;
+		}
+
+		.equation-label {
+			color: #555 !important;
+		}
+
+		/* Theorem and proof */
+		.theorem, .proof {
+			background: #f8f8f8 !important;
+			border-left: 3px solid #333 !important;
+		}
+
+		.theorem p, .proof p {
+			color: #333 !important;
+		}
+
+		/* Tables */
 		table {
 			border-collapse: collapse !important;
 		}
 
 		th, td {
 			border: 1px solid #333 !important;
-			color: black !important;
+			color: #1a1a1a !important;
 			background: white !important;
 		}
 
 		th {
 			background: #f0f0f0 !important;
+			font-weight: 600 !important;
 		}
 
 		.vulnerable {
-			background: #fee !important;
+			color: #b91c1c !important;
+			background: #fef2f2 !important;
 		}
 
 		.protected {
-			background: #efe !important;
+			color: #047857 !important;
+			background: #ecfdf5 !important;
 		}
 
+		.partial {
+			color: #b45309 !important;
+			background: #fffbeb !important;
+		}
+
+		/* Links */
 		a {
-			color: black !important;
+			color: #1a1a1a !important;
 			text-decoration: underline !important;
 		}
 
+		/* References */
+		.references-list li {
+			color: #333 !important;
+		}
+
+		.references-list em {
+			color: #555 !important;
+		}
+
+		/* Footer */
+		.paper-footer p {
+			color: #333 !important;
+		}
+
+		.paper-footer .copyright {
+			color: #555 !important;
+		}
+
+		.footer-line {
+			background: #ccc !important;
+		}
+
+		/* Logo */
 		.paper-logo {
 			filter: grayscale(100%);
+		}
+
+		/* Definition list */
+		.definition-list li::before {
+			color: #333 !important;
 		}
 	}
 
@@ -821,9 +951,9 @@
 	}
 
 	.paper-logo {
-		width: 80px;
-		height: 80px;
-		margin-bottom: var(--space-lg);
+		width: 48px;
+		height: 48px;
+		margin-bottom: var(--space-md);
 	}
 
 	.paper-header h1 {

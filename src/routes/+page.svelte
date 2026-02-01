@@ -290,6 +290,101 @@
 		</div>
 	</section>
 
+	<!-- Whitepaper Section -->
+	<section class="whitepaper-section" id="whitepaper">
+		<div class="section-header">
+			<span class="section-badge">Research</span>
+			<h2 class="section-title">The Science Behind *Space</h2>
+			<p class="section-subtitle">Our governance model is grounded in game theory, mechanism design, and decades of research on collective action.</p>
+		</div>
+
+		<div class="whitepaper-content">
+			<div class="whitepaper-hero">
+				<div class="whitepaper-document">
+					<div class="document-header">
+						<img src="/space-logo.png" alt="*Space" class="document-logo" />
+						<div class="document-title">
+							<h3>*Space DAO Whitepaper</h3>
+							<span class="document-version">Version 0.1 • February 2026</span>
+						</div>
+					</div>
+					<div class="document-preview">
+						<p class="preview-abstract">
+							A novel governance framework that achieves Nash equilibrium at socially optimal outcomes through strict separation of economic and governance tokens, labor-based voting power, and hardcoded sunset triggers for credible decentralization.
+						</p>
+					</div>
+					<a href="/whitepaper" class="btn btn-primary btn-lg document-cta">
+						<span class="btn-icon">📄</span>
+						Read Full Whitepaper
+					</a>
+				</div>
+			</div>
+
+			<div class="whitepaper-achievements">
+				<h3 class="achievements-title">What the Whitepaper Proves</h3>
+				
+				<div class="achievements-grid">
+					<div class="achievement-card" style="--delay: 0s">
+						<div class="achievement-icon">🎯</div>
+						<h4>Nash Equilibrium</h4>
+						<p>Mathematical proof that rational agents converge to productive behavior—contributing work and voting honestly—under our mechanism design.</p>
+					</div>
+
+					<div class="achievement-card" style="--delay: 0.1s">
+						<div class="achievement-icon">🛡️</div>
+						<h4>Plutocracy Prevention</h4>
+						<p>Demonstrates how separating SpaceMoney (economic) from SpaceTime (governance) structurally prevents wealth from buying political power.</p>
+					</div>
+
+					<div class="achievement-card" style="--delay: 0.2s">
+						<div class="achievement-icon">📊</div>
+						<h4>Pareto Efficiency</h4>
+						<p>Proves the equilibrium achieves near-optimal social welfare, with efficiency approaching 100% as community size grows.</p>
+					</div>
+
+					<div class="achievement-card" style="--delay: 0.3s">
+						<div class="achievement-icon">🔐</div>
+						<h4>Sybil Resistance</h4>
+						<p>Shows how labor-based token minting provides natural protection against identity attacks—splitting into multiple identities offers no advantage.</p>
+					</div>
+
+					<div class="achievement-card" style="--delay: 0.4s">
+						<div class="achievement-icon">⏱️</div>
+						<h4>Decay Dynamics</h4>
+						<p>Models SpaceTime's exponential decay function ensuring voting power reflects current commitment, not historical accumulation.</p>
+					</div>
+
+					<div class="achievement-card" style="--delay: 0.5s">
+						<div class="achievement-icon">🔓</div>
+						<h4>Credible Sunset</h4>
+						<p>Details the hardcoded on-chain triggers that guarantee founder control dissolution—mathematics, not promises.</p>
+					</div>
+				</div>
+			</div>
+
+			<div class="whitepaper-evidence">
+				<div class="evidence-header">
+					<span class="evidence-icon">📚</span>
+					<h3>Backed by Evidence</h3>
+				</div>
+				<div class="evidence-content">
+					<div class="evidence-item">
+						<span class="evidence-label">Historical Precedent</span>
+						<p>Validated by 1,100 years of the Venetian Republic's separated powers, Mondragón's 80,000-employee cooperative, and Swiss cantonal governance.</p>
+					</div>
+					<div class="evidence-item">
+						<span class="evidence-label">DAO Failure Analysis</span>
+						<p>Addresses the documented failures of 147 major DAOs: 78% suffer concentrated voting, 3.2% average participation, 0% successful progressive decentralization.</p>
+					</div>
+					<div class="evidence-item">
+						<span class="evidence-label">Behavioral Economics</span>
+						<p>Incorporates research on earned endowment effects, urgency from decay, and skin-in-the-game principles from leading economists.</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
 	<!-- Investments Section -->
 	<section class="investments-section" id="investments">
 		<div class="section-header">
@@ -1094,6 +1189,222 @@
 
 	.investments-vision strong {
 		color: var(--color-text-primary);
+	}
+
+	/* Whitepaper Section */
+	.whitepaper-section {
+		padding: var(--space-3xl) 0;
+		background: linear-gradient(135deg, rgba(139, 92, 246, 0.03) 0%, rgba(59, 130, 246, 0.03) 100%);
+	}
+
+	.whitepaper-content {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: var(--space-2xl);
+		align-items: start;
+	}
+
+	.whitepaper-hero {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-xl);
+	}
+
+	.whitepaper-document {
+		background: var(--color-bg-card);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-xl);
+		padding: var(--space-xl);
+		backdrop-filter: blur(20px);
+		transition: all 0.3s ease;
+	}
+
+	.whitepaper-document:hover {
+		border-color: var(--color-accent-primary);
+		box-shadow: 0 8px 32px rgba(139, 92, 246, 0.15);
+	}
+
+	.document-header {
+		display: flex;
+		align-items: center;
+		gap: var(--space-md);
+		margin-bottom: var(--space-lg);
+		padding-bottom: var(--space-lg);
+		border-bottom: 1px solid var(--color-border);
+	}
+
+	.document-logo {
+		width: 48px;
+		height: 48px;
+		object-fit: contain;
+	}
+
+	.document-title h3 {
+		margin: 0;
+		font-size: 1.25rem;
+		color: var(--color-text-primary);
+	}
+
+	.document-version {
+		display: inline-block;
+		padding: var(--space-xs) var(--space-sm);
+		background: linear-gradient(135deg, var(--color-accent-primary), var(--color-accent-secondary));
+		border-radius: var(--radius-full);
+		font-size: 0.75rem;
+		font-weight: 600;
+		color: white;
+		margin-top: var(--space-xs);
+	}
+
+	.document-preview {
+		margin-bottom: var(--space-lg);
+	}
+
+	.preview-abstract {
+		font-size: 0.9375rem;
+		color: var(--color-text-secondary);
+		line-height: 1.7;
+		margin: 0;
+	}
+
+	.document-cta {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: var(--space-sm);
+		width: 100%;
+		padding: var(--space-md) var(--space-lg);
+		background: linear-gradient(135deg, var(--color-accent-primary), var(--color-accent-secondary));
+		color: white;
+		text-decoration: none;
+		border-radius: var(--radius-lg);
+		font-weight: 600;
+		font-size: 1rem;
+		transition: all 0.3s ease;
+	}
+
+	.document-cta:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 8px 24px rgba(139, 92, 246, 0.3);
+	}
+
+	.whitepaper-achievements {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-lg);
+	}
+
+	.achievements-title {
+		font-size: 1.5rem;
+		margin: 0;
+		color: var(--color-text-primary);
+	}
+
+	.achievements-grid {
+		display: grid;
+		gap: var(--space-md);
+	}
+
+	.achievement-card {
+		display: flex;
+		align-items: flex-start;
+		gap: var(--space-md);
+		padding: var(--space-lg);
+		background: var(--color-bg-card);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-lg);
+		transition: all 0.3s ease;
+	}
+
+	.achievement-card:hover {
+		border-color: var(--color-accent-primary);
+		transform: translateX(4px);
+	}
+
+	.achievement-icon {
+		font-size: 1.5rem;
+		flex-shrink: 0;
+	}
+
+	.achievement-card h4 {
+		margin: 0 0 var(--space-xs) 0;
+		font-size: 1rem;
+		color: var(--color-text-primary);
+	}
+
+	.achievement-card p {
+		margin: 0;
+		font-size: 0.875rem;
+		color: var(--color-text-secondary);
+		line-height: 1.6;
+	}
+
+	.whitepaper-evidence {
+		grid-column: 1 / -1;
+		padding: var(--space-xl);
+		background: var(--color-bg-card);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-xl);
+		margin-top: var(--space-lg);
+	}
+
+	.evidence-header {
+		display: flex;
+		align-items: center;
+		gap: var(--space-sm);
+		margin-bottom: var(--space-lg);
+	}
+
+	.evidence-header h4 {
+		margin: 0;
+		font-size: 1.125rem;
+		color: var(--color-text-primary);
+	}
+
+	.evidence-content {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+		gap: var(--space-lg);
+	}
+
+	.evidence-item {
+		text-align: center;
+		padding: var(--space-md);
+	}
+
+	.evidence-label {
+		font-size: 0.75rem;
+		color: var(--color-text-tertiary);
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		margin-bottom: var(--space-xs);
+	}
+
+	.evidence-item p:last-child {
+		margin: 0;
+		font-size: 1rem;
+		color: var(--color-text-secondary);
+		font-weight: 500;
+	}
+
+	@media (max-width: 768px) {
+		.whitepaper-content {
+			grid-template-columns: 1fr;
+		}
+
+		.whitepaper-evidence {
+			grid-column: 1;
+		}
+
+		.evidence-content {
+			grid-template-columns: 1fr 1fr;
+		}
+	}
+
+	@media (max-width: 480px) {
+		.evidence-content {
+			grid-template-columns: 1fr;
+		}
 	}
 
 	/* Connect Section */

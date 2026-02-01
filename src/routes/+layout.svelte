@@ -686,4 +686,30 @@
 			padding: var(--space-xl) var(--space-md);
 		}
 	}
+
+	/* Print styles - hide navigation and decorative elements */
+	@media print {
+		header,
+		footer,
+		.alpha-banner,
+		.bg-gradient,
+		.bg-grid,
+		.bg-glow {
+			display: none !important;
+		}
+
+		.app {
+			background: white !important;
+		}
+
+		main {
+			padding: 0 !important;
+			margin: 0 !important;
+		}
+
+		:global(body) {
+			background: white !important;
+			color: black !important;
+		}
+	}
 </style>
