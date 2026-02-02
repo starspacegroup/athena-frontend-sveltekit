@@ -1843,19 +1843,84 @@
 					</div>
 				</div>
 				
-				<!-- Visual distribution -->
-				<div class="agent-visualization">
-					{#each agents.slice(0, 100) as agent}
-						<div 
-							class="agent-dot" 
-							class:whale={agent.isWhale}
-							style="--size: {Math.min(20, 4 + agent.spaceTime / 50)}px; --opacity: {0.3 + agent.participationRate * 0.7}"
-							title="Agent #{agent.id}: ST={agent.spaceTime.toFixed(1)}, SM={agent.spaceMoney}"
-						></div>
-					{/each}
-					{#if agents.length > 100}
-						<div class="more-agents">+{agents.length - 100} more</div>
-					{/if}
+				<!-- Pie Chart Distribution -->
+				<div class="pie-charts-container">
+					<!-- Agent Type Distribution Pie -->
+					<div class="pie-chart-wrapper">
+						<h4>Agent Types</h4>
+						<svg viewBox="0 0 100 100" class="pie-chart">
+							{#if true}
+								{@const whaleCount = agents.filter(a => a.isWhale).length}
+								{@const total = agents.length}
+								{@const whalePercent = (whaleCount / total) * 100}
+								{@const whaleAngle = (whalePercent / 100) * 360}
+								<!-- Background circle -->
+								<circle cx="50" cy="50" r="40" fill="#3b2d5a" />
+								<!-- Whale slice -->
+								{#if whaleCount > 0}
+									<path
+										d="M50,50 L50,10 A40,40 0 {whaleAngle > 180 ? 1 : 0},1 {50 + 40 * Math.sin(whaleAngle * Math.PI / 180)},{50 - 40 * Math.cos(whaleAngle * Math.PI / 180)} Z"
+										fill="#f59e0b"
+										class="pie-slice whale-slice"
+									/>
+								{/if}
+								<!-- Center circle for donut effect -->
+								<circle cx="50" cy="50" r="25" fill="#1a1625" />
+								<!-- Center text -->
+								<text x="50" y="47" text-anchor="middle" fill="white" font-size="8" font-weight="bold">{total}</text>
+								<text x="50" y="56" text-anchor="middle" fill="#a0a0a0" font-size="4">agents</text>
+							{/if}
+						</svg>
+						<div class="pie-legend">
+							<div class="legend-item">
+								<span class="legend-color whale"></span>
+								<span class="legend-label">Whales ({agents.filter(a => a.isWhale).length})</span>
+							</div>
+							<div class="legend-item">
+								<span class="legend-color regular"></span>
+								<span class="legend-label">Regular ({agents.filter(a => !a.isWhale).length})</span>
+							</div>
+						</div>
+					</div>
+					
+					<!-- Token Distribution Pie -->
+					<div class="pie-chart-wrapper">
+						<h4>$PACETIME Distribution</h4>
+						<svg viewBox="0 0 100 100" class="pie-chart">
+							{#if true}
+								{@const whaleST = agents.filter(a => a.isWhale).reduce((sum, a) => sum + a.spaceTime, 0)}
+								{@const regularST = agents.filter(a => !a.isWhale).reduce((sum, a) => sum + a.spaceTime, 0)}
+								{@const totalST = whaleST + regularST}
+								{@const whaleSTPercent = totalST > 0 ? (whaleST / totalST) * 100 : 0}
+								{@const whaleSTAngle = (whaleSTPercent / 100) * 360}
+								<!-- Background circle -->
+								<circle cx="50" cy="50" r="40" fill="#3b2d5a" />
+								<!-- Whale ST slice -->
+								{#if whaleST > 0 && totalST > 0}
+									<path
+										d="M50,50 L50,10 A40,40 0 {whaleSTAngle > 180 ? 1 : 0},1 {50 + 40 * Math.sin(whaleSTAngle * Math.PI / 180)},{50 - 40 * Math.cos(whaleSTAngle * Math.PI / 180)} Z"
+										fill="#f59e0b"
+										class="pie-slice whale-slice"
+									/>
+								{/if}
+								<!-- Center circle for donut effect -->
+								<circle cx="50" cy="50" r="25" fill="#1a1625" />
+								<!-- Center text -->
+								<text x="50" y="47" text-anchor="middle" fill="white" font-size="6" font-weight="bold">{(totalST / 1000).toFixed(1)}k</text>
+								<text x="50" y="56" text-anchor="middle" fill="#a0a0a0" font-size="4">$PACETIME</text>
+							{/if}
+						</svg>
+						<div class="pie-legend">
+							<div class="legend-item">
+								<span class="legend-color whale"></span>
+								<span class="legend-label">Whales ({((agents.filter(a => a.isWhale).reduce((sum, a) => sum + a.spaceTime, 0) / metrics.totalSpaceTime) * 100).toFixed(1)}%)</span>
+							</div>
+							<div class="legend-item">
+								<span class="legend-color regular"></span>
+								<span class="legend-label">Regular ({((agents.filter(a => !a.isWhale).reduce((sum, a) => sum + a.spaceTime, 0) / metrics.totalSpaceTime) * 100).toFixed(1)}%)</span>
+							</div>
+						</div>
+					</div>
 				</div>
 			</section>
 		{/if}
@@ -3123,38 +3188,72 @@
 		color: var(--color-warning);
 	}
 
-	.agent-visualization {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 4px;
+	/* Pie Charts */
+	.pie-charts-container {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+		gap: var(--space-lg);
 		padding: var(--space-md);
 		background: var(--color-bg-tertiary);
 		border-radius: var(--radius-md);
-		min-height: 60px;
+	}
+
+	.pie-chart-wrapper {
+		display: flex;
+		flex-direction: column;
 		align-items: center;
+		gap: var(--space-sm);
 	}
 
-	.agent-dot {
-		width: var(--size, 8px);
-		height: var(--size, 8px);
-		border-radius: 50%;
-		background: var(--color-accent-primary);
-		opacity: var(--opacity, 0.5);
-		transition: transform 0.1s ease;
+	.pie-chart-wrapper h4 {
+		margin: 0;
+		font-size: 0.9rem;
+		color: var(--color-text-secondary);
+		font-weight: 500;
 	}
 
-	.agent-dot:hover {
-		transform: scale(1.5);
+	.pie-chart {
+		width: 150px;
+		height: 150px;
 	}
 
-	.agent-dot.whale {
-		background: var(--color-warning);
+	.pie-slice {
+		transition: opacity 0.2s ease;
 	}
 
-	.more-agents {
+	.pie-slice:hover {
+		opacity: 0.8;
+	}
+
+	.pie-legend {
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
 		font-size: 0.8rem;
-		color: var(--color-text-muted);
-		margin-left: var(--space-sm);
+	}
+
+	.pie-legend .legend-item {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+	}
+
+	.pie-legend .legend-color {
+		width: 12px;
+		height: 12px;
+		border-radius: 2px;
+	}
+
+	.pie-legend .legend-color.whale {
+		background: #f59e0b;
+	}
+
+	.pie-legend .legend-color.regular {
+		background: #3b2d5a;
+	}
+
+	.pie-legend .legend-label {
+		color: var(--color-text-secondary);
 	}
 
 	/* Event Log */
