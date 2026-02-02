@@ -15,6 +15,7 @@
 		initialSpaceTime: 0,
 		stDecayRate: 0.0001,
 		stMintRate: 10,
+		pricePerPacemoney: 0.01, // USD per $PACEMONEY token
 		
 		// Governance Parameters
 		proposalThreshold: 100,
@@ -896,6 +897,7 @@
 	// Computed values for chart rendering
 	let chartMaxST = $derived(Math.max(...history.map(h => h.totalST), 1));
 	let chartMaxSM = $derived(Math.max(...history.map(h => h.totalSM), 1));
+	let chartMaxUSD = $derived(Math.max(...history.map(h => h.totalSM * config.pricePerPacemoney), 1));
 	let chartMaxVoters = $derived(Math.max(...history.map(h => h.activeVoters), 1));
 	let chartMaxProposals = $derived(Math.max(
 		...history.map(h => h.proposalsPassed + h.proposalsFailed + h.proposalsVetoed), 
@@ -1066,6 +1068,10 @@
 								<label class="config-item-compact">
 									<span class="config-label-compact">$PACETIME Mint Rate</span>
 									<input type="number" bind:value={config.stMintRate} min="1" max="100" disabled={isRunning} />
+								</label>
+								<label class="config-item-compact">
+									<span class="config-label-compact">$PACEMONEY Price (USD)</span>
+									<input type="number" bind:value={config.pricePerPacemoney} min="0.001" max="1000" step="0.001" disabled={isRunning} />
 								</label>
 							</div>
 						</div>
@@ -1310,6 +1316,31 @@
 					</div>
 				</div>
 
+				<!-- $PACEMONEY USD Value Chart -->
+				<div class="chart-card">
+					<h3>$PACEMONEY Value (USD)</h3>
+					<div class="chart-container">
+						{#if history.length > 1}
+							<svg viewBox="0 0 400 150" class="chart-svg">
+								{#each [0, 25, 50, 75, 100] as y}
+									<line x1="40" y1={130 - y * 1.2} x2="390" y2={130 - y * 1.2} class="grid-line" />
+								{/each}
+								<path
+									d="M 40 130 {history.map((h, i) => `L ${40 + (i / (history.length - 1)) * 350} ${130 - ((h.totalSM * config.pricePerPacemoney) / chartMaxUSD) * 120}`).join(' ')} L 390 130 Z"
+									class="chart-area green"
+								/>
+								<path
+									d="M {history.map((h, i) => `${40 + (i / (history.length - 1)) * 350} ${130 - ((h.totalSM * config.pricePerPacemoney) / chartMaxUSD) * 120}`).join(' L ')}"
+									class="chart-line green" fill="none"
+								/>
+							</svg>
+							<div class="chart-value-label">${(history[history.length - 1]?.totalSM * config.pricePerPacemoney || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+						{:else}
+							<div class="chart-empty"><span>Start simulation to see data</span></div>
+						{/if}
+					</div>
+				</div>
+
 				<!-- Proposals Chart (Stacked: Passed, Failed, Vetoed) -->
 				<div class="chart-card">
 					<h3>Proposals (Passed / Failed / Vetoed)</h3>
@@ -1536,7 +1567,8 @@
 						<div class="metric-content">
 							<div class="metric-value">{metrics.totalSpaceMoney.toLocaleString()}</div>
 							<div class="metric-label">$PACEMONEY Total</div>
-							<div class="metric-hint">Purchasable tokens</div>
+							<div class="metric-usd">${(metrics.totalSpaceMoney * config.pricePerPacemoney).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD</div>
+							<div class="metric-hint">@ ${config.pricePerPacemoney}/token</div>
 						</div>
 					</div>
 					<div class="metric-card green">
@@ -2376,6 +2408,13 @@
 		margin-top: 2px;
 	}
 
+	.metric-usd {
+		font-size: 1rem;
+		font-weight: 600;
+		color: #10b981;
+		margin-top: 4px;
+	}
+
 	.metric-hint {
 		font-size: 0.75rem;
 		color: var(--color-text-primary);
@@ -2512,6 +2551,18 @@
 	.chart-container {
 		height: 150px;
 		position: relative;
+	}
+
+	.chart-value-label {
+		position: absolute;
+		bottom: 8px;
+		right: 12px;
+		font-size: 0.9rem;
+		font-weight: 600;
+		color: var(--color-success);
+		background: rgba(0, 0, 0, 0.6);
+		padding: 4px 8px;
+		border-radius: var(--radius-sm);
 	}
 
 	.chart-svg {
