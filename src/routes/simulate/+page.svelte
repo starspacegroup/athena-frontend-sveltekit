@@ -45,7 +45,14 @@
 		
 		// Sentiment Shock Events
 		enableSentimentShocks: true,
-		shockProbability: 2 // % chance of random shock event per day
+		shockProbability: 2, // % chance of random shock event per day
+		
+		// Asset Investment Settings
+		enableAssetInvestments: true,
+		assetProposalFrequency: 20, // days between asset proposals
+		maxAssetAllocation: 30, // max % of treasury for single asset
+		assetVolatility: 0.15, // annual volatility (0.15 = 15%)
+		assetAppreciationBias: 0.05 // slight positive bias (5% annual)
 	});
 
 	// Simulation State
@@ -74,8 +81,34 @@
 		eligibleVoters: 0, // Agents meeting SpaceTime threshold
 		disengagedAgents: 0, // Agents who have "left" due to low sentiment
 		newAgentsAttracted: 0, // Cumulative new agents attracted
-		communityHealth: 100 // Combined sentiment + trust indicator
+		communityHealth: 100, // Combined sentiment + trust indicator
+		
+		// Asset Investment metrics
+		totalAssetValue: 0, // Current market value of all assets
+		totalAssetCost: 0, // Total purchase cost of all assets
+		totalAssetPnL: 0, // Total profit/loss (unrealized)
+		totalAssetPnLPercent: 0, // P&L as percentage
+		assetCount: 0 // Number of assets held
 	});
+
+	// Asset Portfolio
+	let assets = $state<{
+		id: number;
+		name: string;
+		type: 'real-estate' | 'equipment' | 'intellectual-property' | 'infrastructure' | 'art-collectibles';
+		purchaseDay: number;
+		purchasePrice: number; // in $PACEMONEY
+		purchasePriceUSD: number;
+		currentValue: number; // current value in $PACEMONEY
+		currentValueUSD: number;
+		pnl: number; // profit/loss in $PACEMONEY
+		pnlPercent: number;
+		volatility: number; // individual asset volatility
+		appreciationRate: number; // base annual appreciation
+		status: 'held' | 'sold';
+		soldDay?: number;
+		soldPrice?: number;
+	}[]>([]);
 
 	// Proposal tracking
 	let proposals = $state<{
@@ -110,6 +143,11 @@
 		disengagedAgents: number;
 		totalAgents: number;
 		communityHealth: number;
+		// Asset tracking
+		totalAssetValue: number;
+		totalAssetCost: number;
+		totalAssetPnL: number;
+		assetCount: number;
 	}[]>([]);
 
 	// Agent Data
@@ -162,6 +200,29 @@
 		{ title: 'Infrastructure Upgrade', type: 'time-heavy' as const, timeWeight: 0.8, moneyWeight: 0.2 },
 		{ title: 'Ecosystem Fund Allocation', type: 'money-heavy' as const, timeWeight: 0.15, moneyWeight: 0.85 },
 		{ title: 'Contributor Compensation', type: 'balanced' as const, timeWeight: 0.6, moneyWeight: 0.4 },
+	];
+
+	// Asset purchase proposal templates
+	const assetProposalTemplates = [
+		{ name: 'Downtown Commercial Property', type: 'real-estate' as const, basePrice: 50000, volatility: 0.12, appreciation: 0.06 },
+		{ name: 'Suburban Office Complex', type: 'real-estate' as const, basePrice: 35000, volatility: 0.10, appreciation: 0.04 },
+		{ name: 'Mixed-Use Development Land', type: 'real-estate' as const, basePrice: 80000, volatility: 0.18, appreciation: 0.08 },
+		{ name: 'Industrial Warehouse', type: 'real-estate' as const, basePrice: 25000, volatility: 0.08, appreciation: 0.03 },
+		{ name: 'Co-Working Space Building', type: 'real-estate' as const, basePrice: 40000, volatility: 0.15, appreciation: 0.05 },
+		{ name: 'Residential Rental Portfolio', type: 'real-estate' as const, basePrice: 60000, volatility: 0.10, appreciation: 0.05 },
+		{ name: 'High-Performance Computing Cluster', type: 'equipment' as const, basePrice: 15000, volatility: 0.25, appreciation: -0.15 },
+		{ name: 'Mining/Staking Infrastructure', type: 'equipment' as const, basePrice: 20000, volatility: 0.30, appreciation: -0.10 },
+		{ name: '3D Printing Farm', type: 'equipment' as const, basePrice: 8000, volatility: 0.20, appreciation: -0.12 },
+		{ name: 'Broadcasting Equipment Suite', type: 'equipment' as const, basePrice: 12000, volatility: 0.15, appreciation: -0.08 },
+		{ name: 'Patent Portfolio Acquisition', type: 'intellectual-property' as const, basePrice: 30000, volatility: 0.35, appreciation: 0.10 },
+		{ name: 'Software IP Licensing Rights', type: 'intellectual-property' as const, basePrice: 25000, volatility: 0.40, appreciation: 0.15 },
+		{ name: 'Trademark Bundle', type: 'intellectual-property' as const, basePrice: 10000, volatility: 0.20, appreciation: 0.02 },
+		{ name: 'Community Data Center', type: 'infrastructure' as const, basePrice: 45000, volatility: 0.12, appreciation: 0.02 },
+		{ name: 'Fiber Network Stake', type: 'infrastructure' as const, basePrice: 35000, volatility: 0.15, appreciation: 0.04 },
+		{ name: 'Renewable Energy Farm Share', type: 'infrastructure' as const, basePrice: 55000, volatility: 0.18, appreciation: 0.06 },
+		{ name: 'Digital Art Collection (NFTs)', type: 'art-collectibles' as const, basePrice: 5000, volatility: 0.60, appreciation: 0.0 },
+		{ name: 'Rare Collectible Acquisition', type: 'art-collectibles' as const, basePrice: 15000, volatility: 0.45, appreciation: 0.08 },
+		{ name: 'Fine Art Investment', type: 'art-collectibles' as const, basePrice: 25000, volatility: 0.30, appreciation: 0.07 },
 	];
 
 	// Animation frame ID for cleanup
@@ -282,6 +343,28 @@
 				enableSentimentShocks: true,
 				shockProbability: 10,
 				newAgentAttractionRate: 0.8,
+				enableWhaleAttack: false,
+				enableSybilAttack: false
+			}
+		},
+		{
+			name: 'Asset Investor DAO',
+			description: 'Active real estate & asset portfolio',
+			config: {
+				totalAgents: 200,
+				whalePercentage: 5,
+				activeParticipationRate: 70,
+				averageWealth: 2000,
+				wealthDistribution: 'normal',
+				ownerVetoProbability: 8,
+				sentimentDecayRate: 0.1,
+				enableSentimentShocks: true,
+				shockProbability: 5,
+				enableAssetInvestments: true,
+				assetProposalFrequency: 15,
+				maxAssetAllocation: 25,
+				assetVolatility: 0.12,
+				assetAppreciationBias: 0.06,
 				enableWhaleAttack: false,
 				enableSybilAttack: false
 			}
@@ -504,6 +587,168 @@
 		addLog(day, logType, `${emoji} SHOCK EVENT: ${shock.name} (Sentiment ${shock.impact > 0 ? '+' : ''}${shock.impact}%)`);
 	}
 
+	// Simulate daily asset value changes
+	function updateAssetValues(day: number) {
+		if (!config.enableAssetInvestments) return;
+		
+		for (const asset of assets) {
+			if (asset.status !== 'held') continue;
+			
+			// Calculate daily volatility (annual / sqrt(365))
+			const dailyVol = asset.volatility / Math.sqrt(365);
+			// Calculate daily appreciation rate
+			const dailyAppreciation = asset.appreciationRate / 365;
+			
+			// Generate random return with appreciation bias
+			// Using geometric Brownian motion approximation
+			const randomShock = (Math.random() - 0.5) * 2 * dailyVol;
+			const dailyReturn = dailyAppreciation + randomShock;
+			
+			// Apply return to current value
+			asset.currentValue = asset.currentValue * (1 + dailyReturn);
+			asset.currentValueUSD = asset.currentValue * config.pricePerPacemoney;
+			
+			// Update P&L
+			asset.pnl = asset.currentValue - asset.purchasePrice;
+			asset.pnlPercent = ((asset.currentValue / asset.purchasePrice) - 1) * 100;
+		}
+		
+		// Update aggregate metrics
+		updateAssetMetrics();
+	}
+
+	// Update aggregate asset metrics
+	function updateAssetMetrics() {
+		const heldAssets = assets.filter(a => a.status === 'held');
+		
+		metrics.assetCount = heldAssets.length;
+		metrics.totalAssetCost = heldAssets.reduce((sum, a) => sum + a.purchasePrice, 0);
+		metrics.totalAssetValue = heldAssets.reduce((sum, a) => sum + a.currentValue, 0);
+		metrics.totalAssetPnL = metrics.totalAssetValue - metrics.totalAssetCost;
+		metrics.totalAssetPnLPercent = metrics.totalAssetCost > 0 
+			? ((metrics.totalAssetValue / metrics.totalAssetCost) - 1) * 100 
+			: 0;
+	}
+
+	// Simulate asset purchase proposal
+	function simulateAssetProposal(day: number) {
+		if (!config.enableAssetInvestments) return;
+		
+		// Pick a random asset template
+		const template = assetProposalTemplates[Math.floor(Math.random() * assetProposalTemplates.length)];
+		
+		// Randomize price within 70-130% of base
+		const priceMultiplier = 0.7 + Math.random() * 0.6;
+		const purchasePrice = Math.floor(template.basePrice * priceMultiplier);
+		const purchasePriceUSD = purchasePrice * config.pricePerPacemoney;
+		
+		// Check if this exceeds max allocation
+		const currentTreasuryValue = metrics.totalSpaceMoney;
+		const allocationPercent = (purchasePrice / currentTreasuryValue) * 100;
+		
+		if (allocationPercent > config.maxAssetAllocation) {
+			addLog(day, 'info', `🏠 Asset proposal "${template.name}" skipped - exceeds ${config.maxAssetAllocation}% allocation limit`);
+			return;
+		}
+		
+		// Asset proposals use balanced voting (50/50 time/money)
+		const timeWeight = 0.5;
+		const moneyWeight = 0.5;
+		
+		// Calculate total voting power for quorum
+		const totalVotingPower = agents.reduce((sum, a) => 
+			sum + calculateVotingPower(a, timeWeight, moneyWeight), 0);
+		const quorumNeeded = totalVotingPower * config.quorumPercentage / 100;
+		
+		let votesFor = 0;
+		let votesAgainst = 0;
+		let votersCount = 0;
+		
+		for (const agent of agents) {
+			const votingPower = calculateVotingPower(agent, timeWeight, moneyWeight);
+			
+			const effectiveParticipation = agent.participationRate * (agent.sentiment / 100);
+			if (votingPower >= config.proposalThreshold * 0.1 && Math.random() < effectiveParticipation) {
+				votersCount++;
+				
+				// Agent voting based on risk tolerance (whales more cautious, newer agents more optimistic)
+				const riskAppetite = agent.isWhale ? 0.4 : 0.6;
+				const sentimentBonus = (agent.sentiment - 50) / 100;
+				const voteYes = Math.random() < (riskAppetite + sentimentBonus);
+				
+				if (voteYes) {
+					votesFor += votingPower;
+				} else {
+					votesAgainst += votingPower;
+				}
+			}
+		}
+		
+		const totalVotes = votesFor + votesAgainst;
+		const approvalRate = totalVotes > 0 ? (votesFor / totalVotes) * 100 : 0;
+		const reachedQuorum = totalVotes >= quorumNeeded;
+		const wouldPass = votesFor > votesAgainst && reachedQuorum;
+		
+		// Owner veto logic (owners may be cautious about large purchases)
+		let vetoed = false;
+		if (wouldPass) {
+			const vetoChance = config.ownerVetoProbability * (1 + (config.ownerVetoThreshold - approvalRate) / 100);
+			vetoed = Math.random() * 100 < vetoChance * 1.2; // Slightly higher veto rate for assets
+		}
+		
+		const passed = wouldPass && !vetoed;
+		const assetTypeEmoji = {
+			'real-estate': '🏢',
+			'equipment': '⚙️',
+			'intellectual-property': '📜',
+			'infrastructure': '🌐',
+			'art-collectibles': '🎨'
+		}[template.type];
+		
+		if (passed) {
+			// Create the asset
+			assets.push({
+				id: assets.length + 1,
+				name: template.name,
+				type: template.type,
+				purchaseDay: day,
+				purchasePrice,
+				purchasePriceUSD,
+				currentValue: purchasePrice,
+				currentValueUSD: purchasePriceUSD,
+				pnl: 0,
+				pnlPercent: 0,
+				volatility: template.volatility * (0.8 + Math.random() * 0.4), // Some variance
+				appreciationRate: template.appreciation + config.assetAppreciationBias,
+				status: 'held'
+			});
+			
+			metrics.proposalsPassed++;
+			addLog(day, 'success', `${assetTypeEmoji} ASSET ACQUIRED: "${template.name}" for ${purchasePrice.toLocaleString()} $PACEMONEY ($${purchasePriceUSD.toLocaleString()})`);
+			
+			// Asset acquisitions boost community confidence
+			metrics.communitySentiment = Math.min(100, metrics.communitySentiment + 2);
+			updateAssetMetrics();
+		} else if (vetoed) {
+			metrics.proposalsVetoed++;
+			addLog(day, 'veto', `${assetTypeEmoji} VETO: Asset purchase "${template.name}" blocked by owner (${approvalRate.toFixed(1)}% approved)`);
+			
+			// Vetoes hurt sentiment
+			const sentimentDrop = 5 + Math.random() * 10;
+			metrics.communitySentiment = Math.max(0, metrics.communitySentiment - sentimentDrop);
+			metrics.ownerTrust = Math.max(0, metrics.ownerTrust - sentimentDrop * 1.5);
+		} else {
+			metrics.proposalsFailed++;
+			if (!reachedQuorum) {
+				addLog(day, 'warning', `${assetTypeEmoji} Asset "${template.name}" proposal failed - quorum not reached`);
+			} else {
+				addLog(day, 'warning', `${assetTypeEmoji} Asset "${template.name}" proposal rejected (${approvalRate.toFixed(1)}% approval)`);
+			}
+		}
+		
+		metrics.voterTurnout = votersCount / agents.length * 100;
+	}
+
 	function simulateDay(day: number) {
 		// SpaceTime ($PACETIME) decay
 		for (const agent of agents) {
@@ -553,6 +798,14 @@
 		if (day % config.proposalFrequency === 0 && day > 0) {
 			simulateProposal(day);
 		}
+		
+		// Asset purchase proposals (every assetProposalFrequency days)
+		if (config.enableAssetInvestments && day % config.assetProposalFrequency === 0 && day > 0) {
+			simulateAssetProposal(day);
+		}
+		
+		// Update asset values daily
+		updateAssetValues(day);
 		
 		// Whale Attack Simulation
 		if (config.enableWhaleAttack && day === config.whaleAttackDay) {
@@ -750,7 +1003,12 @@
 			eligibleVoters: metrics.eligibleVoters,
 			disengagedAgents: metrics.disengagedAgents,
 			totalAgents: agents.length,
-			communityHealth: metrics.communityHealth
+			communityHealth: metrics.communityHealth,
+			// Asset tracking
+			totalAssetValue: metrics.totalAssetValue,
+			totalAssetCost: metrics.totalAssetCost,
+			totalAssetPnL: metrics.totalAssetPnL,
+			assetCount: metrics.assetCount
 		});
 	}
 
@@ -829,6 +1087,7 @@
 		logs = [];
 		proposals = [];
 		recentProposals = [];
+		assets = [];
 		agentsAttractedToday = 0;
 		metrics = {
 			totalSpaceMoney: 0,
@@ -845,7 +1104,12 @@
 			eligibleVoters: 0,
 			disengagedAgents: 0,
 			newAgentsAttracted: 0,
-			communityHealth: 100
+			communityHealth: 100,
+			totalAssetValue: 0,
+			totalAssetCost: 0,
+			totalAssetPnL: 0,
+			totalAssetPnLPercent: 0,
+			assetCount: 0
 		};
 	}
 
@@ -867,6 +1131,7 @@
 			metrics,
 			history,
 			proposals,
+			assets,
 			agents: agents.map(a => ({
 				id: a.id,
 				spaceMoney: Math.round(a.spaceMoney),
@@ -903,6 +1168,8 @@
 		...history.map(h => h.proposalsPassed + h.proposalsFailed + h.proposalsVetoed), 
 		1
 	));
+	let chartMaxAssetValue = $derived(Math.max(...history.map(h => h.totalAssetValue), 1));
+	let chartMaxAssetPnL = $derived(Math.max(...history.map(h => Math.abs(h.totalAssetPnL)), 1));
 </script>
 
 <svelte:head>
@@ -994,6 +1261,7 @@
 								class:preset-danger={preset.name === 'Authoritarian Owner' || preset.name === 'Community Exodus'}
 								class:preset-warning={preset.name === 'Whale Dominated' || preset.name === 'Volatile Market'}
 								class:preset-attack={preset.name === 'Sybil Attack'}
+								class:preset-asset={preset.name === 'Asset Investor DAO'}
 								onclick={() => applyPreset(preset)}
 								disabled={isRunning}
 							>
@@ -1005,6 +1273,7 @@
 									{:else if preset.name === 'Community Exodus'}🚪
 									{:else if preset.name === 'Thriving Ecosystem'}🌱
 									{:else if preset.name === 'Volatile Market'}📈
+									{:else if preset.name === 'Asset Investor DAO'}🏢
 									{:else}🎯
 									{/if}
 								</span>
@@ -1205,6 +1474,46 @@
 									{/if}
 								</div>
 							</div>
+						</div>
+					</details>
+
+					<details class="config-details">
+						<summary class="config-summary">
+							<span class="summary-icon">🏢</span>
+							<span class="summary-text">Asset Investments</span>
+							<span class="summary-arrow">▼</span>
+						</summary>
+						<div class="config-details-content">
+							<div class="config-toggle-row">
+								<label class="toggle-label">
+									<input type="checkbox" bind:checked={config.enableAssetInvestments} disabled={isRunning} />
+									<span>Enable Asset Purchases</span>
+								</label>
+							</div>
+							{#if config.enableAssetInvestments}
+								<div class="config-grid-compact">
+									<label class="config-item-compact">
+										<span class="config-label-compact">Proposal Frequency</span>
+										<input type="number" bind:value={config.assetProposalFrequency} min="5" max="100" disabled={isRunning} />
+										<span class="input-hint">days</span>
+									</label>
+									<label class="config-item-compact">
+										<span class="config-label-compact">Max Allocation</span>
+										<input type="number" bind:value={config.maxAssetAllocation} min="5" max="50" disabled={isRunning} />
+										<span class="input-hint">% of treasury</span>
+									</label>
+									<label class="config-item-compact">
+										<span class="config-label-compact">Volatility</span>
+										<input type="number" bind:value={config.assetVolatility} min="0.05" max="0.5" step="0.05" disabled={isRunning} />
+										<span class="input-hint">annual</span>
+									</label>
+									<label class="config-item-compact">
+										<span class="config-label-compact">Appreciation Bias</span>
+										<input type="number" bind:value={config.assetAppreciationBias} min="-0.1" max="0.2" step="0.01" disabled={isRunning} />
+										<span class="input-hint">annual</span>
+									</label>
+								</div>
+							{/if}
 						</div>
 					</details>
 
@@ -1665,6 +1974,124 @@
 				</div>
 			</section>
 
+			<!-- Asset Portfolio Section -->
+			{#if config.enableAssetInvestments}
+				<section class="assets-section">
+					<h2>
+						<span class="section-icon">🏢</span>
+						Asset Portfolio
+					</h2>
+					
+					<!-- Portfolio Summary -->
+					<div class="portfolio-summary">
+						<div class="portfolio-stat">
+							<span class="portfolio-label">Total Assets</span>
+							<span class="portfolio-value">{metrics.assetCount}</span>
+						</div>
+						<div class="portfolio-stat">
+							<span class="portfolio-label">Total Cost</span>
+							<span class="portfolio-value">{metrics.totalAssetCost.toLocaleString()} $PM</span>
+							<span class="portfolio-usd">${(metrics.totalAssetCost * config.pricePerPacemoney).toLocaleString()}</span>
+						</div>
+						<div class="portfolio-stat">
+							<span class="portfolio-label">Current Value</span>
+							<span class="portfolio-value">{metrics.totalAssetValue.toLocaleString()} $PM</span>
+							<span class="portfolio-usd">${(metrics.totalAssetValue * config.pricePerPacemoney).toLocaleString()}</span>
+						</div>
+						<div class="portfolio-stat" class:profit={metrics.totalAssetPnL >= 0} class:loss={metrics.totalAssetPnL < 0}>
+							<span class="portfolio-label">Total P&L</span>
+							<span class="portfolio-value pnl">
+								{metrics.totalAssetPnL >= 0 ? '+' : ''}{metrics.totalAssetPnL.toLocaleString()} $PM
+							</span>
+							<span class="portfolio-percent">
+								({metrics.totalAssetPnLPercent >= 0 ? '+' : ''}{metrics.totalAssetPnLPercent.toFixed(2)}%)
+							</span>
+						</div>
+					</div>
+
+					<!-- Asset Portfolio Chart -->
+					{#if history.length > 1 && assets.length > 0}
+						<div class="chart-card asset-chart">
+							<h3>📈 Portfolio Value Over Time</h3>
+							<div class="chart-container">
+								<svg viewBox="0 0 400 150" class="chart-svg">
+									{#each [0, 25, 50, 75, 100] as y}
+										<line x1="40" y1={130 - y * 1.2} x2="390" y2={130 - y * 1.2} class="grid-line" />
+									{/each}
+									<!-- Cost baseline -->
+									<path
+										d="M {history.map((h, i) => `${40 + (i / (history.length - 1)) * 350} ${130 - (h.totalAssetCost / chartMaxAssetValue) * 120}`).join(' L ')}"
+										class="chart-line orange" fill="none" stroke-dasharray="5,5"
+									/>
+									<!-- Current value -->
+									<path
+										d="M 40 130 {history.map((h, i) => `L ${40 + (i / (history.length - 1)) * 350} ${130 - (h.totalAssetValue / chartMaxAssetValue) * 120}`).join(' ')} L 390 130 Z"
+										class="chart-area green"
+									/>
+									<path
+										d="M {history.map((h, i) => `${40 + (i / (history.length - 1)) * 350} ${130 - (h.totalAssetValue / chartMaxAssetValue) * 120}`).join(' L ')}"
+										class="chart-line green" fill="none"
+									/>
+								</svg>
+								<div class="chart-legend">
+									<span class="legend-item green">📈 Value</span>
+									<span class="legend-item orange">📉 Cost Basis</span>
+								</div>
+							</div>
+						</div>
+					{/if}
+
+					<!-- Individual Assets -->
+					{#if assets.length > 0}
+						<div class="assets-list">
+							{#each assets.filter(a => a.status === 'held').slice(-8).reverse() as asset}
+								<div class="asset-card" class:profit={asset.pnl >= 0} class:loss={asset.pnl < 0}>
+									<div class="asset-header">
+										<span class="asset-type-icon">
+											{#if asset.type === 'real-estate'}🏢
+											{:else if asset.type === 'equipment'}⚙️
+											{:else if asset.type === 'intellectual-property'}📜
+											{:else if asset.type === 'infrastructure'}🌐
+											{:else if asset.type === 'art-collectibles'}🎨
+											{/if}
+										</span>
+										<span class="asset-name">{asset.name}</span>
+										<span class="asset-day">Day {asset.purchaseDay}</span>
+									</div>
+									<div class="asset-values">
+										<div class="asset-value-item">
+											<span class="asset-value-label">Cost</span>
+											<span class="asset-value-amount">{asset.purchasePrice.toLocaleString()} $PM</span>
+										</div>
+										<div class="asset-value-item">
+											<span class="asset-value-label">Current</span>
+											<span class="asset-value-amount">{asset.currentValue.toLocaleString()} $PM</span>
+										</div>
+										<div class="asset-value-item pnl-item">
+											<span class="asset-value-label">P&L</span>
+											<span class="asset-value-amount" class:positive={asset.pnl >= 0} class:negative={asset.pnl < 0}>
+												{asset.pnl >= 0 ? '+' : ''}{asset.pnl.toLocaleString()} ({asset.pnlPercent >= 0 ? '+' : ''}{asset.pnlPercent.toFixed(1)}%)
+											</span>
+										</div>
+									</div>
+									<div class="asset-pnl-bar">
+										{#if asset.pnl >= 0}
+											<div class="pnl-fill profit" style="width: {Math.min(100, asset.pnlPercent)}%"></div>
+										{:else}
+											<div class="pnl-fill loss" style="width: {Math.min(100, Math.abs(asset.pnlPercent))}%"></div>
+										{/if}
+									</div>
+								</div>
+							{/each}
+						</div>
+					{:else}
+						<div class="assets-empty">
+							<span>🏗️ No assets acquired yet. Asset purchase proposals will appear during simulation.</span>
+						</div>
+					{/if}
+				</section>
+			{/if}
+
 			<!-- Recent Proposals -->
 			{#if proposals.length > 0}
 				<section class="proposals-section">
@@ -2063,6 +2490,15 @@
 	.preset-chip.preset-attack:hover:not(:disabled) {
 		border-color: #a855f7;
 		box-shadow: 0 4px 12px rgba(168, 85, 247, 0.2);
+	}
+
+	.preset-chip.preset-asset {
+		border-color: rgba(6, 182, 212, 0.4);
+		background: linear-gradient(135deg, rgba(6, 182, 212, 0.08) 0%, transparent 100%);
+	}
+	.preset-chip.preset-asset:hover:not(:disabled) {
+		border-color: #06b6d4;
+		box-shadow: 0 4px 12px rgba(6, 182, 212, 0.2);
 	}
 
 	.preset-emoji {
@@ -2998,6 +3434,226 @@
 
 		.charts-grid {
 			grid-template-columns: 1fr;
+		}
+	}
+
+	/* Asset Portfolio Styles */
+	.assets-section {
+		margin-top: var(--space-xl);
+		padding: var(--space-lg);
+		background: var(--color-bg-card);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-xl);
+	}
+
+	.assets-section h2 {
+		display: flex;
+		align-items: center;
+		gap: var(--space-sm);
+		font-family: var(--font-display);
+		font-size: 1.25rem;
+		margin-bottom: var(--space-lg);
+	}
+
+	.portfolio-summary {
+		display: grid;
+		grid-template-columns: repeat(4, 1fr);
+		gap: var(--space-md);
+		margin-bottom: var(--space-lg);
+		padding: var(--space-md);
+		background: var(--color-bg-tertiary);
+		border-radius: var(--radius-lg);
+	}
+
+	.portfolio-stat {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		text-align: center;
+		padding: var(--space-sm);
+	}
+
+	.portfolio-label {
+		font-size: 0.75rem;
+		color: var(--color-text-muted);
+		margin-bottom: var(--space-xs);
+	}
+
+	.portfolio-value {
+		font-size: 1.1rem;
+		font-weight: 700;
+		color: var(--color-text-primary);
+	}
+
+	.portfolio-value.pnl {
+		font-size: 1.2rem;
+	}
+
+	.portfolio-stat.profit .portfolio-value {
+		color: var(--color-success);
+	}
+
+	.portfolio-stat.loss .portfolio-value {
+		color: var(--color-error);
+	}
+
+	.portfolio-usd {
+		font-size: 0.8rem;
+		color: var(--color-text-secondary);
+	}
+
+	.portfolio-percent {
+		font-size: 0.85rem;
+		color: var(--color-text-secondary);
+	}
+
+	.portfolio-stat.profit .portfolio-percent {
+		color: var(--color-success);
+	}
+
+	.portfolio-stat.loss .portfolio-percent {
+		color: var(--color-error);
+	}
+
+	.asset-chart {
+		margin-bottom: var(--space-lg);
+	}
+
+	.assets-list {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+		gap: var(--space-md);
+	}
+
+	.asset-card {
+		background: var(--color-bg-tertiary);
+		border-radius: var(--radius-lg);
+		padding: var(--space-md);
+		border: 1px solid var(--color-border);
+		transition: all var(--transition-fast);
+	}
+
+	.asset-card:hover {
+		border-color: var(--color-accent-primary);
+		transform: translateY(-2px);
+	}
+
+	.asset-card.profit {
+		border-left: 3px solid var(--color-success);
+	}
+
+	.asset-card.loss {
+		border-left: 3px solid var(--color-error);
+	}
+
+	.asset-header {
+		display: flex;
+		align-items: center;
+		gap: var(--space-sm);
+		margin-bottom: var(--space-md);
+	}
+
+	.asset-type-icon {
+		font-size: 1.5rem;
+	}
+
+	.asset-name {
+		flex: 1;
+		font-weight: 600;
+		font-size: 0.9rem;
+		color: var(--color-text-primary);
+	}
+
+	.asset-day {
+		font-size: 0.75rem;
+		color: var(--color-text-muted);
+		padding: 2px 8px;
+		background: var(--color-bg-secondary);
+		border-radius: var(--radius-full);
+	}
+
+	.asset-values {
+		display: grid;
+		grid-template-columns: 1fr 1fr 1fr;
+		gap: var(--space-sm);
+		margin-bottom: var(--space-sm);
+	}
+
+	.asset-value-item {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+
+	.asset-value-label {
+		font-size: 0.7rem;
+		color: var(--color-text-muted);
+		text-transform: uppercase;
+	}
+
+	.asset-value-amount {
+		font-size: 0.85rem;
+		font-weight: 600;
+		color: var(--color-text-primary);
+	}
+
+	.asset-value-amount.positive {
+		color: var(--color-success);
+	}
+
+	.asset-value-amount.negative {
+		color: var(--color-error);
+	}
+
+	.pnl-item .asset-value-amount {
+		font-weight: 700;
+	}
+
+	.asset-pnl-bar {
+		height: 4px;
+		background: var(--color-bg-secondary);
+		border-radius: 2px;
+		overflow: hidden;
+	}
+
+	.pnl-fill {
+		height: 100%;
+		border-radius: 2px;
+		transition: width 0.3s ease;
+	}
+
+	.pnl-fill.profit {
+		background: linear-gradient(90deg, var(--color-success), #34d399);
+	}
+
+	.pnl-fill.loss {
+		background: linear-gradient(90deg, var(--color-error), #f87171);
+	}
+
+	.assets-empty {
+		text-align: center;
+		padding: var(--space-xl);
+		color: var(--color-text-muted);
+		font-size: 0.9rem;
+	}
+
+	@media (max-width: 768px) {
+		.portfolio-summary {
+			grid-template-columns: repeat(2, 1fr);
+		}
+
+		.assets-list {
+			grid-template-columns: 1fr;
+		}
+
+		.asset-values {
+			grid-template-columns: 1fr;
+			gap: var(--space-xs);
+		}
+
+		.asset-value-item {
+			flex-direction: row;
+			justify-content: space-between;
 		}
 	}
 </style>
