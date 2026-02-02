@@ -61,7 +61,8 @@
 	let currentDay = $state(0);
 	let simulationComplete = $state(false);
 	let simulationProgress = $state(0);
-	let configExpanded = $state(false);
+	let configExpanded = $state(true);
+	let hasSimulationStarted = $state(false);
 	
 	// Metrics State
 	let metrics = $state({
@@ -1024,6 +1025,8 @@
 		
 		isRunning = true;
 		isPaused = false;
+		hasSimulationStarted = true;
+		configExpanded = false;
 		
 		if (currentDay === 0) {
 			initializeAgents();
@@ -1082,6 +1085,8 @@
 		currentDay = 0;
 		simulationProgress = 0;
 		simulationComplete = false;
+		hasSimulationStarted = false;
+		configExpanded = true;
 		agents = [];
 		history = [];
 		logs = [];
@@ -1541,6 +1546,7 @@
 			{/if}
 		</aside>
 
+		{#if hasSimulationStarted}
 		<!-- Charts Section -->
 		<section class="charts-section">
 			<h2>
@@ -1812,7 +1818,7 @@
 		</section>
 
 		<!-- Agent Distribution -->
-		{#if agents.length > 0}
+		{#if hasSimulationStarted && agents.length > 0}
 			<section class="distribution-section">
 				<h2>
 					<span class="section-icon">👥</span>
@@ -1855,7 +1861,7 @@
 		{/if}
 
 		<!-- Results Panel -->
-		<div class="results-panel">
+		<div class="results-panel" class:hidden={!hasSimulationStarted}>
 			<!-- Real-time Metrics -->
 			<section class="metrics-section">
 				<h2>
@@ -2196,10 +2202,16 @@
 				</div>
 			</section>
 		</div>
+		{/if}
 	</div>
 </div>
 
 <style>
+	/* Utility Classes */
+	.hidden {
+		display: none !important;
+	}
+
 	.simulate-page {
 		max-width: 1600px;
 		margin: 0 auto;
@@ -3517,6 +3529,8 @@
 
 	.asset-chart {
 		margin-bottom: var(--space-lg);
+		grid-column: 1 / -1;
+		width: 100%;
 	}
 
 	.assets-list {
