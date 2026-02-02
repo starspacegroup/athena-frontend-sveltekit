@@ -1270,7 +1270,7 @@
 			<div class="charts-grid">
 				<!-- $PACETIME Supply Chart -->
 				<div class="chart-card">
-					<h3>$PACETIME Total</h3>
+					<h3>$PACETIME Supply</h3>
 					<div class="chart-container">
 						{#if history.length > 1}
 							<svg viewBox="0 0 400 150" class="chart-svg">
@@ -1294,7 +1294,7 @@
 
 				<!-- $PACEMONEY Supply Chart -->
 				<div class="chart-card">
-					<h3>$PACEMONEY Total</h3>
+					<h3>$PACEMONEY Supply</h3>
 					<div class="chart-container">
 						{#if history.length > 1}
 							<svg viewBox="0 0 400 150" class="chart-svg">
@@ -1318,7 +1318,7 @@
 
 				<!-- $PACEMONEY USD Value Chart -->
 				<div class="chart-card">
-					<h3>$PACEMONEY Value (USD)</h3>
+					<h3>$PACEMONEY Market Cap (USD)</h3>
 					<div class="chart-container">
 						{#if history.length > 1}
 							<svg viewBox="0 0 400 150" class="chart-svg">
@@ -1558,7 +1558,7 @@
 						<div class="metric-icon">⏰</div>
 						<div class="metric-content">
 							<div class="metric-value">{metrics.totalSpaceTime.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
-							<div class="metric-label">$PACETIME Total</div>
+							<div class="metric-label">$PACETIME Supply</div>
 							<div class="metric-hint">Earned through participation</div>
 						</div>
 					</div>
@@ -1566,7 +1566,7 @@
 						<div class="metric-icon">💵</div>
 						<div class="metric-content">
 							<div class="metric-value">{metrics.totalSpaceMoney.toLocaleString()}</div>
-							<div class="metric-label">$PACEMONEY Total</div>
+							<div class="metric-label">$PACEMONEY Supply</div>
 							<div class="metric-usd">${(metrics.totalSpaceMoney * config.pricePerPacemoney).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD</div>
 							<div class="metric-hint">@ ${config.pricePerPacemoney}/token</div>
 						</div>
