@@ -727,7 +727,7 @@
 
 	.features-grid {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+		grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
 		gap: var(--space-lg);
 	}
 
@@ -946,7 +946,7 @@
 
 	.vision-grid {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+		grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
 		gap: var(--space-lg);
 		margin-bottom: var(--space-xl);
 	}
@@ -1042,7 +1042,7 @@
 
 	.investments-grid {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+		grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
 		gap: var(--space-xl);
 		margin-bottom: var(--space-xl);
 	}
@@ -1198,9 +1198,15 @@
 
 	.whitepaper-content {
 		display: grid;
-		grid-template-columns: 1fr 1fr;
+		grid-template-columns: 1fr;
 		gap: var(--space-2xl);
 		align-items: start;
+	}
+
+	@media (min-width: 768px) {
+		.whitepaper-content {
+			grid-template-columns: 1fr 1fr;
+		}
 	}
 
 	.whitepaper-hero {
@@ -1362,7 +1368,7 @@
 
 	.evidence-content {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+		grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
 		gap: var(--space-lg);
 	}
 
@@ -1387,22 +1393,8 @@
 	}
 
 	@media (max-width: 768px) {
-		.whitepaper-content {
-			grid-template-columns: 1fr;
-		}
-
 		.whitepaper-evidence {
 			grid-column: 1;
-		}
-
-		.evidence-content {
-			grid-template-columns: 1fr 1fr;
-		}
-	}
-
-	@media (max-width: 480px) {
-		.evidence-content {
-			grid-template-columns: 1fr;
 		}
 	}
 

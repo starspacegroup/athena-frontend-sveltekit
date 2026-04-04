@@ -258,8 +258,14 @@
 
 	.content-grid {
 		display: grid;
-		grid-template-columns: 1fr 360px;
+		grid-template-columns: 1fr;
 		gap: var(--space-xl);
+	}
+
+	@media (min-width: 900px) {
+		.content-grid {
+			grid-template-columns: 1fr 360px;
+		}
 	}
 
 	/* Form Card */
@@ -572,10 +578,6 @@
 
 	/* Responsive */
 	@media (max-width: 900px) {
-		.content-grid {
-			grid-template-columns: 1fr;
-		}
-
 		.info-card {
 			position: static;
 		}

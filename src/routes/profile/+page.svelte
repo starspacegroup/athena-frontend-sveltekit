@@ -312,6 +312,8 @@
 	.connection-value {
 		font-size: 0.9375rem;
 		color: var(--color-text-primary);
+		word-break: break-all;
+		overflow-wrap: break-word;
 	}
 
 	.connection-value.mono {

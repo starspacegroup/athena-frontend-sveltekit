@@ -2281,6 +2281,7 @@
 		max-width: 1600px;
 		margin: 0 auto;
 		padding: var(--space-sm);
+		overflow-x: hidden;
 	}
 
 	/* Page Header */
@@ -2303,8 +2304,9 @@
 		align-items: center;
 		gap: var(--space-sm);
 		font-family: var(--font-display);
-		font-size: 1.25rem;
+		font-size: clamp(1rem, 4vw, 1.25rem);
 		margin: 0 0 var(--space-xs);
+		flex-wrap: wrap;
 	}
 
 	.header-text h1 .icon {

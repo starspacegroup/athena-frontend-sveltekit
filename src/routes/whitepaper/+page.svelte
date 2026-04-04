@@ -1220,6 +1220,8 @@
 		padding: var(--space-lg);
 		margin: var(--space-lg) 0;
 		border: 1px solid var(--color-border);
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
 	}
 
 	.equation-block p {
@@ -1266,7 +1268,7 @@
 	/* Token Comparison */
 	.token-comparison {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+		grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
 		gap: var(--space-lg);
 		margin: var(--space-xl) 0;
 	}
@@ -1304,10 +1306,18 @@
 	}
 
 	/* Tables */
+	.earning-table,
+	.sunset-table,
+	.attack-table {
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+		margin: var(--space-lg) 0;
+	}
+
 	table {
 		width: 100%;
+		min-width: 500px;
 		border-collapse: collapse;
-		margin: var(--space-lg) 0;
 		font-size: 0.9rem;
 	}
 
@@ -1342,7 +1352,7 @@
 	/* Evidence Grid */
 	.evidence-grid {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+		grid-template-columns: repeat(auto-fit, minmax(min(230px, 100%), 1fr));
 		gap: var(--space-lg);
 		margin: var(--space-xl) 0;
 	}
@@ -1368,7 +1378,7 @@
 	/* Stats Grid */
 	.stats-grid {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+		grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
 		gap: var(--space-lg);
 		margin: var(--space-xl) 0;
 	}

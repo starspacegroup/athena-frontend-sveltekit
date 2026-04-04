@@ -440,6 +440,8 @@
 		padding: var(--space-xs) var(--space-sm);
 		background: var(--color-bg-secondary);
 		border-radius: var(--radius-sm);
+		word-break: break-all;
+		overflow-wrap: break-word;
 	}
 
 	.copy-btn {
@@ -467,7 +469,7 @@
 	/* Balance Cards */
 	.balance-cards {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+		grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
 		gap: var(--space-lg);
 		margin-bottom: var(--space-lg);
 	}
@@ -648,7 +650,7 @@
 	/* Quick Actions */
 	.actions-grid {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+		grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
 		gap: var(--space-md);
 	}
 
