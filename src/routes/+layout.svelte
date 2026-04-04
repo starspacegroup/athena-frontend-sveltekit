@@ -14,7 +14,7 @@
 		mobileMenuOpen = false;
 	});
 
-	// Lock body scroll when mobile menu is open
+	// Lock body scroll when mobile menu is open (iOS-compatible approach)
 	$effect(() => {
 		if (typeof document === 'undefined') return;
 		
@@ -22,13 +22,16 @@
 			// Save current scroll position before locking
 			savedScrollY = window.scrollY;
 			document.body.classList.add('menu-open');
-			document.body.style.top = `-${savedScrollY}px`;
+			// Use transform instead of top for better iOS support
+			document.body.style.setProperty('--scroll-y', `-${savedScrollY}px`);
+			document.documentElement.classList.add('menu-open');
 		} else {
 			document.body.classList.remove('menu-open');
-			document.body.style.top = '';
+			document.documentElement.classList.remove('menu-open');
+			document.body.style.removeProperty('--scroll-y');
 			// Restore scroll position
 			if (savedScrollY > 0) {
-				window.scrollTo(0, savedScrollY);
+				window.scrollTo({ top: savedScrollY, behavior: 'instant' });
 			}
 		}
 	});
@@ -228,11 +231,17 @@
 		overflow-x: hidden;
 	}
 
+	:global(html.menu-open),
+	:global(body.menu-open) {
+		overflow: hidden;
+		touch-action: none;
+		-webkit-overflow-scrolling: none;
+	}
+
 	:global(body.menu-open) {
 		position: fixed;
-		left: 0;
-		right: 0;
-		overflow: hidden;
+		inset: 0;
+		transform: translateY(var(--scroll-y, 0));
 	}
 
 	/* Desktop font scaling - 120% larger */
@@ -480,9 +489,20 @@
 		background: none;
 		border: none;
 		cursor: pointer;
-		padding: var(--space-sm);
+		padding: var(--space-md);
 		z-index: 1001;
 		position: relative;
+		/* iOS touch optimizations */
+		-webkit-tap-highlight-color: transparent;
+		touch-action: manipulation;
+		user-select: none;
+		-webkit-user-select: none;
+		/* Ensure proper touch target size (min 44x44px for iOS) */
+		min-width: 44px;
+		min-height: 44px;
+		display: none;
+		align-items: center;
+		justify-content: center;
 	}
 
 	.hamburger {
@@ -716,7 +736,7 @@
 	/* Mobile Responsive */
 	@media (max-width: 768px) {
 		.mobile-menu-toggle {
-			display: block;
+			display: flex;
 		}
 
 		nav {
@@ -724,10 +744,13 @@
 			top: 0;
 			left: 0;
 			right: 0;
-			bottom: 0;
+			/* Use dvh for iOS dynamic viewport, fallback to 100vh */
+			height: 100vh;
+			height: 100dvh;
 			z-index: 1000;
 			background: rgba(10, 10, 15, 0.98);
 			backdrop-filter: blur(20px);
+			-webkit-backdrop-filter: blur(20px);
 			flex-direction: column;
 			justify-content: center;
 			align-items: center;
@@ -737,7 +760,10 @@
 			pointer-events: none;
 			transition: opacity var(--transition-base), visibility var(--transition-base);
 			overflow-y: auto;
+			overscroll-behavior: contain;
 			-webkit-overflow-scrolling: touch;
+			/* Prevent iOS scroll bounce on the nav itself */
+			padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 		}
 
 		nav.open {
@@ -749,10 +775,15 @@
 		nav a {
 			font-size: 1.25rem;
 			padding: var(--space-md) var(--space-xl);
+			/* iOS touch optimizations */
+			-webkit-tap-highlight-color: transparent;
+			touch-action: manipulation;
 		}
 
 		.user-pill {
 			margin: var(--space-lg) 0 0;
+			-webkit-tap-highlight-color: transparent;
+			touch-action: manipulation;
 		}
 
 		main {
