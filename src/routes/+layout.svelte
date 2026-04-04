@@ -370,7 +370,7 @@
 
 	@media (max-width: 600px) {
 		header {
-			top: 48px;
+			top: 60px;
 		}
 	}
 
