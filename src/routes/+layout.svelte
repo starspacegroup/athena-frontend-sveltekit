@@ -13,6 +13,27 @@
 		mobileMenuOpen = false;
 	});
 
+	// Lock body scroll when mobile menu is open
+	$effect(() => {
+		if (mobileMenuOpen) {
+			document.body.style.overflow = 'hidden';
+			document.body.style.position = 'fixed';
+			document.body.style.width = '100%';
+			document.body.style.top = `-${window.scrollY}px`;
+			document.documentElement.style.overflow = 'hidden';
+		} else {
+			const scrollY = document.body.style.top;
+			document.body.style.overflow = '';
+			document.body.style.position = '';
+			document.body.style.width = '';
+			document.body.style.top = '';
+			document.documentElement.style.overflow = '';
+			if (scrollY) {
+				window.scrollTo(0, parseInt(scrollY || '0') * -1);
+			}
+		}
+	});
+
 	onMount(() => {
 		// Check if user is logged in on mount
 		fetch('/api/auth/me').then(async (response) => {
@@ -206,6 +227,13 @@
 
 	:global(html) {
 		overflow-x: hidden;
+	}
+
+	/* Desktop font scaling - 120% larger */
+	@media (min-width: 1024px) {
+		:global(html) {
+			font-size: 120%;
+		}
 	}
 
 	:global(code) {
