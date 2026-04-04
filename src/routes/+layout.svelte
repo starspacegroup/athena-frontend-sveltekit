@@ -6,6 +6,7 @@
 	let { children } = $props();
 	let scrolled = $state(false);
 	let mobileMenuOpen = $state(false);
+	let savedScrollY = 0;
 
 	// Close mobile menu on navigation
 	$effect(() => {
@@ -18,17 +19,34 @@
 		if (typeof document === 'undefined') return;
 		
 		if (mobileMenuOpen) {
-			// iOS-compatible scroll lock
+			// Save scroll position and scroll to top for iOS fixed positioning
+			savedScrollY = window.scrollY;
+			
+			// iOS-compatible scroll lock - freeze the body at current position
+			document.body.style.position = 'fixed';
+			document.body.style.top = `-${savedScrollY}px`;
+			document.body.style.left = '0';
+			document.body.style.right = '0';
 			document.body.style.overflow = 'hidden';
-			document.documentElement.style.overflow = 'hidden';
 		} else {
+			// Restore scroll position
+			document.body.style.position = '';
+			document.body.style.top = '';
+			document.body.style.left = '';
+			document.body.style.right = '';
 			document.body.style.overflow = '';
-			document.documentElement.style.overflow = '';
+			
+			if (savedScrollY > 0) {
+				window.scrollTo(0, savedScrollY);
+			}
 		}
 		
 		return () => {
+			document.body.style.position = '';
+			document.body.style.top = '';
+			document.body.style.left = '';
+			document.body.style.right = '';
 			document.body.style.overflow = '';
-			document.documentElement.style.overflow = '';
 		};
 	});
 
@@ -785,8 +803,8 @@
 			position: fixed;
 			top: 0;
 			left: 0;
-			right: 0;
-			bottom: 0;
+			width: 100%;
+			height: 100%;
 			z-index: 1000;
 			background: var(--color-bg-primary);
 			display: flex;
@@ -799,20 +817,16 @@
 			padding-bottom: max(40px, env(safe-area-inset-bottom, 0px) + 20px);
 			padding-left: max(20px, env(safe-area-inset-left, 0px));
 			padding-right: max(20px, env(safe-area-inset-right, 0px));
-			transform: translateX(100%);
 			opacity: 0;
 			visibility: hidden;
 			pointer-events: none;
-			transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
-			            opacity 0.3s ease,
-			            visibility 0.3s ease;
+			transition: opacity 0.25s ease, visibility 0.25s ease;
 			overflow-y: auto;
 			overscroll-behavior: contain;
 			-webkit-overflow-scrolling: touch;
 		}
 
 		nav.open {
-			transform: translateX(0);
 			opacity: 1;
 			visibility: visible;
 			pointer-events: auto;
