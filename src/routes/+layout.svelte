@@ -103,6 +103,61 @@
 	}
 </script>
 
+<!-- Mobile nav overlay - OUTSIDE .app for iOS fixed positioning -->
+<div class="mobile-nav-overlay" class:open={mobileMenuOpen}>
+	<button 
+		class="mobile-close-btn" 
+		onclick={closeMobileMenu}
+		ontouchend={handleCloseTouch}
+		aria-label="Close menu"
+		type="button"
+	>
+		<span>✕</span>
+	</button>
+	<nav class="mobile-nav">
+		<a href="/" class:active={$page.url.pathname === '/'} onclick={closeMobileMenu}>
+			<span class="nav-icon">🏠</span>
+			Home
+		</a>
+		<a href="/whitepaper" class:active={$page.url.pathname === '/whitepaper'} onclick={closeMobileMenu}>
+			<span class="nav-icon">📄</span>
+			Whitepaper
+		</a>
+		<a href="/simulate" class:active={$page.url.pathname === '/simulate'} onclick={closeMobileMenu}>
+			<span class="nav-icon">🧪</span>
+			Simulate
+		</a>
+		{#if $user}
+			<a href="/dashboard" class:active={$page.url.pathname === '/dashboard'} onclick={closeMobileMenu}>
+				<span class="nav-icon">📊</span>
+				Dashboard
+			</a>
+			<a href="/tokens/purchase" class:active={$page.url.pathname.includes('/tokens')} onclick={closeMobileMenu}>
+				<span class="nav-icon">💎</span>
+				Tokens
+			</a>
+		{/if}
+		{#if $user}
+			<a href="/profile" class="user-pill" class:active={$page.url.pathname === '/profile'} onclick={closeMobileMenu}>
+				<div class="user-avatar">
+					{#if $user.discordAvatar && $user.discordId}
+						<img 
+							src="https://cdn.discordapp.com/avatars/{$user.discordId}/{$user.discordAvatar}.png?size=64" 
+							alt="{$user.discordUsername}'s avatar"
+							class="avatar-img"
+						/>
+					{:else if $user.discordUsername}
+						{$user.discordUsername.charAt(0).toUpperCase()}
+					{:else}
+						<img src="/space-logo.png" alt="" class="avatar-logo" />
+					{/if}
+				</div>
+				<span class="user-name">{$user.discordUsername || 'Connected'}</span>
+			</a>
+		{/if}
+	</nav>
+</div>
+
 <div class="app">
 	<!-- Alpha Preview Banner -->
 	<div class="alpha-banner">
@@ -138,16 +193,8 @@
 				</span>
 			</button>
 
-			<nav class:open={mobileMenuOpen}>
-				<button 
-					class="mobile-close-btn" 
-					onclick={closeMobileMenu}
-					ontouchend={handleCloseTouch}
-					aria-label="Close menu"
-					type="button"
-				>
-					<span>✕</span>
-				</button>
+			<!-- Desktop nav only -->
+			<nav class="desktop-nav">
 				<a href="/" class:active={$page.url.pathname === '/'}>
 					<span class="nav-icon">🏠</span>
 					Home
@@ -595,13 +642,13 @@
 		display: none;
 	}
 
-	nav {
+	.desktop-nav {
 		display: flex;
 		align-items: center;
 		gap: var(--space-sm);
 	}
 
-	nav a {
+	.desktop-nav a {
 		display: flex;
 		align-items: center;
 		gap: var(--space-sm);
@@ -614,22 +661,22 @@
 		position: relative;
 	}
 
-	nav a .nav-icon {
+	.desktop-nav a .nav-icon {
 		font-size: 1rem;
 		opacity: 0.8;
 	}
 
-	nav a:hover {
+	.desktop-nav a:hover {
 		color: var(--color-text-primary);
 		background: rgba(255, 255, 255, 0.05);
 	}
 
-	nav a.active {
+	.desktop-nav a.active {
 		color: var(--color-text-primary);
 		background: rgba(139, 92, 246, 0.15);
 	}
 
-	nav a.active::after {
+	.desktop-nav a.active::after {
 		content: '';
 		position: absolute;
 		bottom: 0;
@@ -787,111 +834,138 @@
 		}
 	}
 
+	/* Mobile Nav Overlay - positioned outside .app for iOS compatibility */
+	.mobile-nav-overlay {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		width: 100vw;
+		height: 100vh;
+		height: 100dvh;
+		z-index: 9999;
+		background: var(--color-bg-primary);
+		display: none;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		opacity: 0;
+		visibility: hidden;
+		pointer-events: none;
+		transition: opacity 0.25s ease, visibility 0.25s ease;
+		overflow-y: auto;
+		overscroll-behavior: contain;
+		-webkit-overflow-scrolling: touch;
+		padding: 80px 20px 40px;
+		padding-top: max(80px, env(safe-area-inset-top, 0px) + 60px);
+		padding-bottom: max(40px, env(safe-area-inset-bottom, 0px) + 20px);
+		padding-left: max(20px, env(safe-area-inset-left, 0px));
+		padding-right: max(20px, env(safe-area-inset-right, 0px));
+	}
+
+	.mobile-nav-overlay.open {
+		opacity: 1;
+		visibility: visible;
+		pointer-events: auto;
+	}
+
+	.mobile-nav {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 8px;
+	}
+
+	.mobile-nav a {
+		display: flex;
+		align-items: center;
+		gap: var(--space-sm);
+		color: var(--color-text-secondary);
+		text-decoration: none;
+		font-weight: 500;
+		font-size: 1.5rem;
+		padding: 16px 32px;
+		width: 100%;
+		max-width: 300px;
+		text-align: center;
+		justify-content: center;
+		border-radius: var(--radius-lg);
+		-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+		transition: all var(--transition-fast);
+	}
+
+	.mobile-nav a:hover,
+	.mobile-nav a:active {
+		color: var(--color-text-primary);
+		background: rgba(255, 255, 255, 0.08);
+	}
+
+	.mobile-nav a.active {
+		color: var(--color-text-primary);
+		background: rgba(139, 92, 246, 0.2);
+	}
+
+	.mobile-nav .user-pill {
+		margin-top: 24px;
+		padding: 12px 24px 12px 12px;
+		max-width: none;
+		width: auto;
+	}
+
+	/* Close button in mobile menu */
+	.mobile-close-btn {
+		display: none;
+		align-items: center;
+		justify-content: center;
+		position: absolute;
+		top: max(20px, env(safe-area-inset-top, 0px) + 10px);
+		right: max(20px, env(safe-area-inset-right, 0px) + 10px);
+		width: 44px;
+		height: 44px;
+		background: rgba(255, 255, 255, 0.1);
+		border: 1px solid rgba(255, 255, 255, 0.15);
+		border-radius: 50%;
+		color: var(--color-text-primary);
+		font-size: 20px;
+		cursor: pointer;
+		z-index: 10000;
+		-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+		-webkit-appearance: none;
+		appearance: none;
+		transition: background 0.2s ease, transform 0.2s ease;
+	}
+
+	.mobile-close-btn span {
+		pointer-events: none;
+	}
+
+	.mobile-close-btn:hover,
+	.mobile-close-btn:active {
+		background: rgba(255, 255, 255, 0.2);
+		transform: scale(1.05);
+	}
+
 	/* Mobile Responsive */
 	@media (max-width: 768px) {
 		.mobile-menu-toggle {
 			display: flex;
 			align-items: center;
 			justify-content: center;
-			/* Minimum 44x44 touch target for accessibility */
 			min-width: 44px;
 			min-height: 44px;
 		}
 
-		/* Mobile nav overlay */
-		nav {
-			position: fixed;
-			top: 0;
-			left: 0;
-			width: 100%;
-			height: 100%;
-			z-index: 1000;
-			background: var(--color-bg-primary);
-			display: flex;
-			flex-direction: column;
-			justify-content: center;
-			align-items: center;
-			gap: 8px;
-			padding: 80px 20px 40px;
-			padding-top: max(80px, env(safe-area-inset-top, 0px) + 60px);
-			padding-bottom: max(40px, env(safe-area-inset-bottom, 0px) + 20px);
-			padding-left: max(20px, env(safe-area-inset-left, 0px));
-			padding-right: max(20px, env(safe-area-inset-right, 0px));
-			opacity: 0;
-			visibility: hidden;
-			pointer-events: none;
-			transition: opacity 0.25s ease, visibility 0.25s ease;
-			overflow-y: auto;
-			overscroll-behavior: contain;
-			-webkit-overflow-scrolling: touch;
-		}
-
-		nav.open {
-			opacity: 1;
-			visibility: visible;
-			pointer-events: auto;
-		}
-
-		/* Close button in mobile menu */
-		.mobile-close-btn {
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			position: absolute;
-			top: max(20px, env(safe-area-inset-top, 0px) + 10px);
-			right: max(20px, env(safe-area-inset-right, 0px) + 10px);
-			width: 44px;
-			height: 44px;
-			background: rgba(255, 255, 255, 0.1);
-			border: 1px solid rgba(255, 255, 255, 0.15);
-			border-radius: 50%;
-			color: var(--color-text-primary);
-			font-size: 20px;
-			cursor: pointer;
-			z-index: 1002;
-			-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-			-webkit-appearance: none;
-			appearance: none;
-			transition: background 0.2s ease, transform 0.2s ease;
-		}
-
-		.mobile-close-btn span {
-			pointer-events: none;
-		}
-
-		.mobile-close-btn:hover,
-		.mobile-close-btn:active {
-			background: rgba(255, 255, 255, 0.2);
-			transform: scale(1.05);
-		}
-
-		nav a {
-			font-size: 1.5rem;
-			padding: 16px 32px;
-			width: 100%;
-			max-width: 300px;
-			text-align: center;
-			border-radius: var(--radius-lg);
-			-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-		}
-
-		nav a:hover,
-		nav a:active {
-			background: rgba(255, 255, 255, 0.08);
-		}
-
-		nav a.active {
-			background: rgba(139, 92, 246, 0.2);
-		}
-
-		nav a.active::after {
+		.desktop-nav {
 			display: none;
 		}
 
-		.user-pill {
-			margin-top: 24px;
-			padding: 12px 24px 12px 12px;
-			-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+		.mobile-nav-overlay {
+			display: flex;
+		}
+
+		.mobile-close-btn {
+			display: flex;
 		}
 
 		main {
@@ -909,7 +983,7 @@
 
 	/* Extra small screens */
 	@media (max-width: 400px) {
-		nav a {
+		.mobile-nav a {
 			font-size: 1.25rem;
 			padding: 14px 24px;
 		}
