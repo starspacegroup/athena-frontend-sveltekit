@@ -6,6 +6,7 @@
 	let { children } = $props();
 	let scrolled = $state(false);
 	let mobileMenuOpen = $state(false);
+	let savedScrollY = 0;
 
 	// Close mobile menu on navigation
 	$effect(() => {
@@ -15,21 +16,19 @@
 
 	// Lock body scroll when mobile menu is open
 	$effect(() => {
+		if (typeof document === 'undefined') return;
+		
 		if (mobileMenuOpen) {
-			document.body.style.overflow = 'hidden';
-			document.body.style.position = 'fixed';
-			document.body.style.width = '100%';
-			document.body.style.top = `-${window.scrollY}px`;
-			document.documentElement.style.overflow = 'hidden';
+			// Save current scroll position before locking
+			savedScrollY = window.scrollY;
+			document.body.classList.add('menu-open');
+			document.body.style.top = `-${savedScrollY}px`;
 		} else {
-			const scrollY = document.body.style.top;
-			document.body.style.overflow = '';
-			document.body.style.position = '';
-			document.body.style.width = '';
+			document.body.classList.remove('menu-open');
 			document.body.style.top = '';
-			document.documentElement.style.overflow = '';
-			if (scrollY) {
-				window.scrollTo(0, parseInt(scrollY || '0') * -1);
+			// Restore scroll position
+			if (savedScrollY > 0) {
+				window.scrollTo(0, savedScrollY);
 			}
 		}
 	});
@@ -227,6 +226,13 @@
 
 	:global(html) {
 		overflow-x: hidden;
+	}
+
+	:global(body.menu-open) {
+		position: fixed;
+		left: 0;
+		right: 0;
+		overflow: hidden;
 	}
 
 	/* Desktop font scaling - 120% larger */
@@ -475,7 +481,8 @@
 		border: none;
 		cursor: pointer;
 		padding: var(--space-sm);
-		z-index: 101;
+		z-index: 1001;
+		position: relative;
 	}
 
 	.hamburger {
@@ -718,19 +725,25 @@
 			left: 0;
 			right: 0;
 			bottom: 0;
+			z-index: 1000;
 			background: rgba(10, 10, 15, 0.98);
 			backdrop-filter: blur(20px);
 			flex-direction: column;
 			justify-content: center;
+			align-items: center;
 			gap: var(--space-lg);
 			opacity: 0;
 			visibility: hidden;
-			transition: all var(--transition-base);
+			pointer-events: none;
+			transition: opacity var(--transition-base), visibility var(--transition-base);
+			overflow-y: auto;
+			-webkit-overflow-scrolling: touch;
 		}
 
 		nav.open {
 			opacity: 1;
 			visibility: visible;
+			pointer-events: auto;
 		}
 
 		nav a {
