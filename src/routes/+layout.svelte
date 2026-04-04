@@ -7,6 +7,12 @@
 	let scrolled = $state(false);
 	let mobileMenuOpen = $state(false);
 
+	// Close mobile menu on navigation
+	$effect(() => {
+		$page.url.pathname;
+		mobileMenuOpen = false;
+	});
+
 	onMount(() => {
 		// Check if user is logged in on mount
 		fetch('/api/auth/me').then(async (response) => {
