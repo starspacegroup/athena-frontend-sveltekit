@@ -6,7 +6,7 @@
 	let { children } = $props();
 	let scrolled = $state(false);
 	let mobileMenuOpen = $state(false);
-	let savedScrollY = 0;
+	let navElement: HTMLElement;
 
 	// Close mobile menu on navigation
 	$effect(() => {
@@ -14,33 +14,52 @@
 		mobileMenuOpen = false;
 	});
 
-	// Lock body scroll when mobile menu is open (iOS-compatible approach)
+	// Lock body scroll when mobile menu is open
 	$effect(() => {
 		if (typeof document === 'undefined') return;
 		
 		if (mobileMenuOpen) {
-			// Save current scroll position before locking
-			savedScrollY = window.scrollY;
-			document.body.classList.add('menu-open');
-			// Use transform instead of top for better iOS support
-			document.body.style.setProperty('--scroll-y', `-${savedScrollY}px`);
-			document.documentElement.classList.add('menu-open');
+			// Simple scroll lock - works on all browsers including iOS
+			document.body.style.overflow = 'hidden';
+			document.body.style.position = 'fixed';
+			document.body.style.width = '100%';
+			document.body.style.height = '100%';
 		} else {
-			document.body.classList.remove('menu-open');
-			document.documentElement.classList.remove('menu-open');
-			document.body.style.removeProperty('--scroll-y');
-			// Restore scroll position
-			if (savedScrollY > 0) {
-				window.scrollTo({ top: savedScrollY, behavior: 'instant' });
-			}
+			document.body.style.overflow = '';
+			document.body.style.position = '';
+			document.body.style.width = '';
+			document.body.style.height = '';
 		}
+		
+		return () => {
+			document.body.style.overflow = '';
+			document.body.style.position = '';
+			document.body.style.width = '';
+			document.body.style.height = '';
+		};
 	});
+
+	// Close on escape key
+	function handleKeydown(e: KeyboardEvent) {
+		if (e.key === 'Escape' && mobileMenuOpen) {
+			mobileMenuOpen = false;
+		}
+	}
+
+	// Prevent scroll on nav overlay touch
+	function handleNavTouch(e: TouchEvent) {
+		// Allow scrolling if content overflows
+		if (navElement && navElement.scrollHeight > navElement.clientHeight) {
+			return;
+		}
+		e.preventDefault();
+	}
 
 	onMount(() => {
 		// Check if user is logged in on mount
 		fetch('/api/auth/me').then(async (response) => {
 			if (response.ok) {
-				const data = await response.json();
+				const data = await response.json() as { user: typeof $user };
 				user.set(data.user);
 			}
 		});
@@ -49,12 +68,21 @@
 		const handleScroll = () => {
 			scrolled = window.scrollY > 20;
 		};
-		window.addEventListener('scroll', handleScroll);
-		return () => window.removeEventListener('scroll', handleScroll);
+		window.addEventListener('scroll', handleScroll, { passive: true });
+		window.addEventListener('keydown', handleKeydown);
+		
+		return () => {
+			window.removeEventListener('scroll', handleScroll);
+			window.removeEventListener('keydown', handleKeydown);
+		};
 	});
 
 	function toggleMobileMenu() {
 		mobileMenuOpen = !mobileMenuOpen;
+	}
+
+	function closeMobileMenu() {
+		mobileMenuOpen = false;
 	}
 </script>
 
@@ -78,11 +106,28 @@
 				<span class="logo-text">Athena</span>
 			</a>
 			
-			<button class="mobile-menu-toggle" onclick={toggleMobileMenu} aria-label="Toggle menu">
-				<span class="hamburger" class:open={mobileMenuOpen}></span>
+			<button 
+				class="mobile-menu-toggle" 
+				onclick={toggleMobileMenu} 
+				aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+				aria-expanded={mobileMenuOpen}
+			>
+				<span class="hamburger" class:open={mobileMenuOpen}>
+					<span class="hamburger-line"></span>
+					<span class="hamburger-line"></span>
+					<span class="hamburger-line"></span>
+				</span>
 			</button>
 
-			<nav class:open={mobileMenuOpen}>
+			<!-- svelte-ignore a11y_no_static_element_interactions -->
+			<nav 
+				class:open={mobileMenuOpen} 
+				bind:this={navElement}
+				ontouchmove={handleNavTouch}
+			>
+				<button class="mobile-close-btn" onclick={closeMobileMenu} aria-label="Close menu">
+					<span>✕</span>
+				</button>
 				<a href="/" class:active={$page.url.pathname === '/'}>
 					<span class="nav-icon">🏠</span>
 					Home
@@ -229,19 +274,6 @@
 
 	:global(html) {
 		overflow-x: hidden;
-	}
-
-	:global(html.menu-open),
-	:global(body.menu-open) {
-		overflow: hidden;
-		touch-action: none;
-		-webkit-overflow-scrolling: none;
-	}
-
-	:global(body.menu-open) {
-		position: fixed;
-		inset: 0;
-		transform: translateY(var(--scroll-y, 0));
 	}
 
 	/* Desktop font scaling - 120% larger */
@@ -473,72 +505,69 @@
 		background-clip: text;
 	}
 
-	.logo-badge {
-		font-size: 0.65rem;
-		font-weight: 600;
-		padding: 0.15rem 0.5rem;
-		background: var(--gradient-primary);
-		border-radius: var(--radius-full);
-		color: white;
-		text-transform: uppercase;
-		letter-spacing: 0.5px;
-	}
-
+	/* Mobile Menu Toggle - Hidden on desktop */
 	.mobile-menu-toggle {
 		display: none;
-		background: none;
+		background: transparent;
 		border: none;
 		cursor: pointer;
-		padding: var(--space-md);
+		padding: 12px;
 		z-index: 1001;
 		position: relative;
-		/* iOS touch optimizations */
 		-webkit-tap-highlight-color: transparent;
 		touch-action: manipulation;
+		-webkit-touch-callout: none;
 		user-select: none;
 		-webkit-user-select: none;
-		/* Ensure proper touch target size (min 44x44px for iOS) */
-		min-width: 44px;
-		min-height: 44px;
-		display: none;
-		align-items: center;
-		justify-content: center;
 	}
 
 	.hamburger {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		width: 28px;
+		height: 28px;
+		position: relative;
+	}
+
+	.hamburger-line {
 		display: block;
 		width: 24px;
 		height: 2px;
 		background: var(--color-text-primary);
-		position: relative;
-		transition: all var(--transition-fast);
-	}
-
-	.hamburger::before,
-	.hamburger::after {
-		content: '';
+		border-radius: 2px;
+		transition: transform 0.3s ease, opacity 0.3s ease;
 		position: absolute;
-		width: 24px;
-		height: 2px;
-		background: var(--color-text-primary);
-		transition: all var(--transition-fast);
 	}
 
-	.hamburger::before { top: -8px; }
-	.hamburger::after { bottom: -8px; }
-
-	.hamburger.open {
-		background: transparent;
+	.hamburger-line:nth-child(1) {
+		top: 6px;
 	}
 
-	.hamburger.open::before {
-		transform: rotate(45deg);
-		top: 0;
+	.hamburger-line:nth-child(2) {
+		top: 13px;
 	}
 
-	.hamburger.open::after {
-		transform: rotate(-45deg);
-		bottom: 0;
+	.hamburger-line:nth-child(3) {
+		top: 20px;
+	}
+
+	.hamburger.open .hamburger-line:nth-child(1) {
+		transform: translateY(7px) rotate(45deg);
+	}
+
+	.hamburger.open .hamburger-line:nth-child(2) {
+		opacity: 0;
+	}
+
+	.hamburger.open .hamburger-line:nth-child(3) {
+		transform: translateY(-7px) rotate(-45deg);
+	}
+
+	/* Close button inside mobile nav */
+	.mobile-close-btn {
+		display: none;
 	}
 
 	nav {
@@ -737,51 +766,104 @@
 	@media (max-width: 768px) {
 		.mobile-menu-toggle {
 			display: flex;
+			align-items: center;
+			justify-content: center;
+			/* Minimum 44x44 touch target for accessibility */
+			min-width: 44px;
+			min-height: 44px;
 		}
 
+		/* Mobile nav overlay */
 		nav {
 			position: fixed;
 			top: 0;
 			left: 0;
 			right: 0;
-			/* Use dvh for iOS dynamic viewport, fallback to 100vh */
-			height: 100vh;
-			height: 100dvh;
+			bottom: 0;
 			z-index: 1000;
-			background: rgba(10, 10, 15, 0.98);
-			backdrop-filter: blur(20px);
-			-webkit-backdrop-filter: blur(20px);
+			background: var(--color-bg-primary);
+			display: flex;
 			flex-direction: column;
 			justify-content: center;
 			align-items: center;
-			gap: var(--space-lg);
+			gap: 8px;
+			padding: 80px 20px 40px;
+			padding-top: max(80px, env(safe-area-inset-top, 0px) + 60px);
+			padding-bottom: max(40px, env(safe-area-inset-bottom, 0px) + 20px);
+			padding-left: max(20px, env(safe-area-inset-left, 0px));
+			padding-right: max(20px, env(safe-area-inset-right, 0px));
+			transform: translateX(100%);
 			opacity: 0;
 			visibility: hidden;
-			pointer-events: none;
-			transition: opacity var(--transition-base), visibility var(--transition-base);
+			transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+			            opacity 0.3s ease,
+			            visibility 0.3s ease;
 			overflow-y: auto;
 			overscroll-behavior: contain;
 			-webkit-overflow-scrolling: touch;
-			/* Prevent iOS scroll bounce on the nav itself */
-			padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 		}
 
 		nav.open {
+			transform: translateX(0);
 			opacity: 1;
 			visibility: visible;
-			pointer-events: auto;
+		}
+
+		/* Close button in mobile menu */
+		.mobile-close-btn {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			position: absolute;
+			top: max(20px, env(safe-area-inset-top, 0px) + 10px);
+			right: max(20px, env(safe-area-inset-right, 0px) + 10px);
+			width: 44px;
+			height: 44px;
+			background: rgba(255, 255, 255, 0.1);
+			border: 1px solid rgba(255, 255, 255, 0.15);
+			border-radius: 50%;
+			color: var(--color-text-primary);
+			font-size: 20px;
+			cursor: pointer;
+			z-index: 1002;
+			-webkit-tap-highlight-color: transparent;
+			touch-action: manipulation;
+			transition: background 0.2s ease, transform 0.2s ease;
+		}
+
+		.mobile-close-btn:hover,
+		.mobile-close-btn:active {
+			background: rgba(255, 255, 255, 0.2);
+			transform: scale(1.05);
 		}
 
 		nav a {
-			font-size: 1.25rem;
-			padding: var(--space-md) var(--space-xl);
-			/* iOS touch optimizations */
+			font-size: 1.5rem;
+			padding: 16px 32px;
+			width: 100%;
+			max-width: 300px;
+			text-align: center;
+			border-radius: var(--radius-lg);
 			-webkit-tap-highlight-color: transparent;
 			touch-action: manipulation;
 		}
 
+		nav a:hover,
+		nav a:active {
+			background: rgba(255, 255, 255, 0.08);
+		}
+
+		nav a.active {
+			background: rgba(139, 92, 246, 0.2);
+		}
+
+		nav a.active::after {
+			display: none;
+		}
+
 		.user-pill {
-			margin: var(--space-lg) 0 0;
+			margin-top: 24px;
+			padding: 12px 24px 12px 12px;
 			-webkit-tap-highlight-color: transparent;
 			touch-action: manipulation;
 		}
@@ -796,6 +878,14 @@
 
 		footer {
 			padding: var(--space-xl) var(--space-md);
+		}
+	}
+
+	/* Extra small screens */
+	@media (max-width: 400px) {
+		nav a {
+			font-size: 1.25rem;
+			padding: 14px 24px;
 		}
 	}
 
