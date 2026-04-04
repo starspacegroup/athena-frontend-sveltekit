@@ -6,7 +6,6 @@
 	let { children } = $props();
 	let scrolled = $state(false);
 	let mobileMenuOpen = $state(false);
-	let navElement: HTMLElement;
 
 	// Close mobile menu on navigation
 	$effect(() => {
@@ -19,23 +18,17 @@
 		if (typeof document === 'undefined') return;
 		
 		if (mobileMenuOpen) {
-			// Simple scroll lock - works on all browsers including iOS
+			// iOS-compatible scroll lock
 			document.body.style.overflow = 'hidden';
-			document.body.style.position = 'fixed';
-			document.body.style.width = '100%';
-			document.body.style.height = '100%';
+			document.documentElement.style.overflow = 'hidden';
 		} else {
 			document.body.style.overflow = '';
-			document.body.style.position = '';
-			document.body.style.width = '';
-			document.body.style.height = '';
+			document.documentElement.style.overflow = '';
 		}
 		
 		return () => {
 			document.body.style.overflow = '';
-			document.body.style.position = '';
-			document.body.style.width = '';
-			document.body.style.height = '';
+			document.documentElement.style.overflow = '';
 		};
 	});
 
@@ -46,14 +39,6 @@
 		}
 	}
 
-	// Prevent scroll on nav overlay touch
-	function handleNavTouch(e: TouchEvent) {
-		// Allow scrolling if content overflows
-		if (navElement && navElement.scrollHeight > navElement.clientHeight) {
-			return;
-		}
-		e.preventDefault();
-	}
 
 	onMount(() => {
 		// Check if user is logged in on mount
@@ -84,6 +69,20 @@
 	function closeMobileMenu() {
 		mobileMenuOpen = false;
 	}
+
+	// iOS-specific touch handler for hamburger
+	function handleHamburgerTouch(e: TouchEvent) {
+		e.preventDefault();
+		e.stopPropagation();
+		mobileMenuOpen = !mobileMenuOpen;
+	}
+
+	// iOS-specific touch handler for close button
+	function handleCloseTouch(e: TouchEvent) {
+		e.preventDefault();
+		e.stopPropagation();
+		mobileMenuOpen = false;
+	}
 </script>
 
 <div class="app">
@@ -108,9 +107,11 @@
 			
 			<button 
 				class="mobile-menu-toggle" 
-				onclick={toggleMobileMenu} 
+				onclick={toggleMobileMenu}
+				ontouchend={handleHamburgerTouch}
 				aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
 				aria-expanded={mobileMenuOpen}
+				type="button"
 			>
 				<span class="hamburger" class:open={mobileMenuOpen}>
 					<span class="hamburger-line"></span>
@@ -119,13 +120,14 @@
 				</span>
 			</button>
 
-			<!-- svelte-ignore a11y_no_static_element_interactions -->
-			<nav 
-				class:open={mobileMenuOpen} 
-				bind:this={navElement}
-				ontouchmove={handleNavTouch}
-			>
-				<button class="mobile-close-btn" onclick={closeMobileMenu} aria-label="Close menu">
+			<nav class:open={mobileMenuOpen}>
+				<button 
+					class="mobile-close-btn" 
+					onclick={closeMobileMenu}
+					ontouchend={handleCloseTouch}
+					aria-label="Close menu"
+					type="button"
+				>
 					<span>✕</span>
 				</button>
 				<a href="/" class:active={$page.url.pathname === '/'}>
@@ -514,11 +516,14 @@
 		padding: 12px;
 		z-index: 1001;
 		position: relative;
-		-webkit-tap-highlight-color: transparent;
-		touch-action: manipulation;
+		-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 		-webkit-touch-callout: none;
 		user-select: none;
 		-webkit-user-select: none;
+		/* Ensure iOS recognizes as clickable */
+		-webkit-appearance: none;
+		appearance: none;
+		outline: none;
 	}
 
 	.hamburger {
@@ -529,6 +534,7 @@
 		width: 28px;
 		height: 28px;
 		position: relative;
+		pointer-events: none;
 	}
 
 	.hamburger-line {
@@ -536,6 +542,7 @@
 		width: 24px;
 		height: 2px;
 		background: var(--color-text-primary);
+		pointer-events: none;
 		border-radius: 2px;
 		transition: transform 0.3s ease, opacity 0.3s ease;
 		position: absolute;
@@ -795,6 +802,7 @@
 			transform: translateX(100%);
 			opacity: 0;
 			visibility: hidden;
+			pointer-events: none;
 			transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
 			            opacity 0.3s ease,
 			            visibility 0.3s ease;
@@ -807,6 +815,7 @@
 			transform: translateX(0);
 			opacity: 1;
 			visibility: visible;
+			pointer-events: auto;
 		}
 
 		/* Close button in mobile menu */
@@ -826,9 +835,14 @@
 			font-size: 20px;
 			cursor: pointer;
 			z-index: 1002;
-			-webkit-tap-highlight-color: transparent;
-			touch-action: manipulation;
+			-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+			-webkit-appearance: none;
+			appearance: none;
 			transition: background 0.2s ease, transform 0.2s ease;
+		}
+
+		.mobile-close-btn span {
+			pointer-events: none;
 		}
 
 		.mobile-close-btn:hover,
@@ -844,8 +858,7 @@
 			max-width: 300px;
 			text-align: center;
 			border-radius: var(--radius-lg);
-			-webkit-tap-highlight-color: transparent;
-			touch-action: manipulation;
+			-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 		}
 
 		nav a:hover,
@@ -864,8 +877,7 @@
 		.user-pill {
 			margin-top: 24px;
 			padding: 12px 24px 12px 12px;
-			-webkit-tap-highlight-color: transparent;
-			touch-action: manipulation;
+			-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 		}
 
 		main {
