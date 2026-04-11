@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 
 	const VERSION = '0.1';
-	const LAST_UPDATED = 'February 2026';
+	const LAST_UPDATED = 'April 2026';
 
 	function handlePrint() {
 		window.print();
@@ -76,6 +76,7 @@
 				<ol>
 					<li><a href="#two-token-model">The Two-Token Model</a></li>
 					<li><a href="#incentive-structures">Incentive Structures</a></li>
+					<li><a href="#governance">Governance</a></li>
 					<li><a href="#sunset-mechanism">Sunset Mechanism</a></li>
 				</ol>
 			</li>
@@ -187,9 +188,9 @@
 					<ul>
 						<li>Purchasable on open market</li>
 						<li>Represents treasury share claims</li>
-						<li><strong>Zero voting weight</strong></li>
+						<li><strong>No baseline voting weight</strong></li>
 						<li>Freely transferable</li>
-						<li>Used for: Proposal funding, staking, project access</li>
+						<li>Used for: Proposal funding, staking, project access, and conditional treasury-spend voting when staked</li>
 					</ul>
 				</div>
 				<div class="token-card spacetime">
@@ -263,7 +264,83 @@
 				rather than historical accumulation.
 			</p>
 
-			<h3 id="sunset-mechanism">3.3 Sunset Mechanism</h3>
+			<h3 id="governance">3.3 Governance</h3>
+			<p>
+				The governance system remains anchored in SpaceTime as the sole source of general voting power. 
+				However, proposals that authorize expenditures from the SpaceMoney treasury create a narrower class 
+				of decisions in which capital at risk has direct informational value. For this class alone, *Space 
+				permits a conditional voting supplement for SpaceMoney that has been voluntarily committed to the 
+				staking contract for a fixed duration.
+			</p>
+			<p>
+				This amendment improves treasury discipline in three ways. First, it gives long-term SpaceMoney 
+				participants a formal voice when communal reserves are being deployed. Second, by conditioning that 
+				voice on staking and lock-up, it filters for holders willing to bear opportunity cost rather than 
+				short-term speculators. Third, it strengthens budget scrutiny without extending capital-based power 
+				into constitutional, operational, or personnel decisions, which remain governed exclusively by 
+				SpaceTime.
+			</p>
+			<p>
+				The labor-over-capital principle is therefore preserved. SpaceTime continues to determine all 
+				ordinary governance outcomes and remains the only asset that can shape the protocol's general 
+				political direction. Staked SpaceMoney receives no standing franchise; it contributes only an 
+				additional, proposal-scoped weight when the community is deciding whether to spend SpaceMoney 
+				already held in treasury. Capital does not purchase governance in the general case; it only 
+				registers commitment where treasury allocation is the immediate object of decision.
+			</p>
+			<div class="earning-table">
+				<table>
+					<thead>
+						<tr>
+							<th>SM Lock-Up Period</th>
+							<th>Voting Multiplier m(L)</th>
+							<th>Interpretation</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>3 months</td>
+							<td>1.0x</td>
+							<td>Minimum treasury-aligned commitment</td>
+						</tr>
+						<tr>
+							<td>6 months</td>
+							<td>1.5x</td>
+							<td>Intermediate alignment horizon</td>
+						</tr>
+						<tr>
+							<td>1 year</td>
+							<td>2.0x</td>
+							<td>Long-term treasury stewardship</td>
+						</tr>
+						<tr>
+							<td>2 years</td>
+							<td>3.0x</td>
+							<td>Maximum capital commitment</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<p>
+				Formally, let 𝟙<sub>SM-spend</sub>(p) indicate whether proposal p authorizes the expenditure of 
+				SpaceMoney from treasury, let SM<sub>i</sub><sup>staked</sup>(L) denote the amount of SpaceMoney 
+				staked by agent i for lock-up period L, and let m(L) be the multiplier attached to that lock-up. 
+				Then the voting weight of agent i on proposal p is:
+			</p>
+			<div class="equation-block">
+				<div class="equation">
+					V<sub>i</sub>(p) = ST<sub>i</sub> + 𝟙<sub>SM-spend</sub>(p) · Σ<sub>L</sub>(m(L) · SM<sub>i</sub><sup>staked</sup>(L))
+				</div>
+				<p class="equation-label">[General governance weight] + [Conditional staked-SM treasury weight]</p>
+			</div>
+			<p>
+				For any proposal where 𝟙<sub>SM-spend</sub>(p) = 0, the second term disappears and voting reverts to 
+				pure SpaceTime weighting. Unstaked SpaceMoney never contributes to proposal outcomes. The result 
+				is a two-layer governance design: labor governs the system as a whole, while time-committed 
+				capital may participate only in decisions that directly allocate treasury SpaceMoney.
+			</p>
+
+			<h3 id="sunset-mechanism">3.4 Sunset Mechanism</h3>
 			<p>
 				The founder's special powers (veto, treasury keys, upgrade authority) are subject to 
 				<strong>hardcoded, on-chain sunset triggers</strong>:
@@ -305,7 +382,7 @@
 			<ol>
 				<li>Founder veto power burns permanently</li>
 				<li>Upgrade keys transfer to multi-sig DAO control</li>
-				<li>Pure ST-weighted democracy activates</li>
+				<li>ST-led governance activates permanently, with conditional staked-SM weight retained only for SM treasury expenditure proposals</li>
 			</ol>
 		</section>
 
@@ -389,6 +466,12 @@
 			<p>
 				Agents who contribute more than average see their share increase; those who contribute 
 				less see it decrease. This creates <strong>meritocratic convergence</strong>.
+			</p>
+			<p>
+				For proposal-specific treasury expenditures denominated in SpaceMoney, voting weight is extended 
+				to incorporate the conditional staking term defined in Section 3.3. Accordingly, the operative 
+				proposal share becomes ω<sub>i</sub>(p) = V<sub>i</sub>(p) / ΣV<sub>j</sub>(p), while all non-treasury proposals 
+				continue to satisfy ω<sub>i</sub>(p) = θ<sub>i</sub>.
 			</p>
 
 			<h3 id="equilibrium-analysis">4.3 Equilibrium Analysis</h3>
