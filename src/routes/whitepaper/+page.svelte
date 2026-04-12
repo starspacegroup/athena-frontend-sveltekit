@@ -273,20 +273,25 @@
 				staking contract for a fixed duration.
 			</p>
 			<p>
-				This amendment improves treasury discipline in three ways. First, it gives long-term SpaceMoney 
-				participants a formal voice when communal reserves are being deployed. Second, by conditioning that 
-				voice on staking and lock-up, it filters for holders willing to bear opportunity cost rather than 
-				short-term speculators. Third, it strengthens budget scrutiny without extending capital-based power 
-				into constitutional, operational, or personnel decisions, which remain governed exclusively by 
-				SpaceTime.
+				This refinement is intended to improve treasury stewardship without disturbing the constitutional 
+				logic of the dual-token model. It gives committed SpaceMoney participants a narrowly tailored voice 
+				when communal reserves are being allocated, while preserving SpaceTime as the sole determinant of the 
+				protocol's general political direction.
 			</p>
+			<ol>
+				<li>SM holders may stake their tokens for fixed periods (3 months, 6 months, 1 year, or 2 years). While staked, the tokens are fully locked and cannot be withdrawn.</li>
+				<li>Staked SM grants additional voting weight, but only on proposals that spend SM from the treasury. The longer the lock, the higher the multiplier (1x for 3mo, 1.5x for 6mo, 2x for 1yr, 3x for 2yr).</li>
+				<li>A 30-day minimum staking period is required before any voting weight is granted. No last-minute staking is allowed.</li>
+				<li>No single staker may control more than 25% of the total voting weight on any proposal, regardless of how much they have staked.</li>
+				<li>Proposals that change the staking rules, caps, or multipliers may only be voted on with pure ST — staked SM carries zero weight on those votes.</li>
+			</ol>
 			<p>
-				The labor-over-capital principle is therefore preserved. SpaceTime continues to determine all 
-				ordinary governance outcomes and remains the only asset that can shape the protocol's general 
-				political direction. Staked SpaceMoney receives no standing franchise; it contributes only an 
-				additional, proposal-scoped weight when the community is deciding whether to spend SpaceMoney 
-				already held in treasury. Capital does not purchase governance in the general case; it only 
-				registers commitment where treasury allocation is the immediate object of decision.
+				These safeguards preserve the meritocratic spirit of *Space by ensuring that labor-derived 
+				SpaceTime remains sovereign over ordinary governance and over the rules governing capital itself. 
+				Committed capital is given a voice only where treasury deployment is at issue, only after a real 
+				time commitment has been demonstrated, and only within explicit anti-concentration limits. The 
+				result is not a return to plutocratic voting, but a more disciplined and accountable treasury process 
+				within a still meritocratic constitutional order.
 			</p>
 			<div class="earning-table">
 				<table>
@@ -323,21 +328,34 @@
 			</div>
 			<p>
 				Formally, let 𝟙<sub>SM-spend</sub>(p) indicate whether proposal p authorizes the expenditure of 
-				SpaceMoney from treasury, let SM<sub>i</sub><sup>staked</sup>(L) denote the amount of SpaceMoney 
-				staked by agent i for lock-up period L, and let m(L) be the multiplier attached to that lock-up. 
-				Then the voting weight of agent i on proposal p is:
+				SpaceMoney from treasury, let 𝟙<sub>rule</sub>(p) indicate whether proposal p changes staking rules, 
+				caps, or multipliers, let 𝟙<sub>30d</sub>(i, L) indicate that agent i's stake in lock-up bucket L has 
+				been active for at least 30 days, let SM<sub>i</sub><sup>staked</sup>(L) denote the amount of 
+				SpaceMoney staked by agent i for lock-up period L, and let m(L) be the multiplier attached to 
+				that lock-up. Define preliminary proposal weight as:
 			</p>
 			<div class="equation-block">
 				<div class="equation">
-					V<sub>i</sub>(p) = ST<sub>i</sub> + 𝟙<sub>SM-spend</sub>(p) · Σ<sub>L</sub>(m(L) · SM<sub>i</sub><sup>staked</sup>(L))
+					Ṽ<sub>i</sub>(p) = ST<sub>i</sub> + 𝟙<sub>SM-spend</sub>(p) · (1 - 𝟙<sub>rule</sub>(p)) · Σ<sub>L</sub>(m(L) · 𝟙<sub>30d</sub>(i, L) · SM<sub>i</sub><sup>staked</sup>(L))
 				</div>
-				<p class="equation-label">[General governance weight] + [Conditional staked-SM treasury weight]</p>
+				<p class="equation-label">[General governance weight] + [Eligible conditional staked-SM treasury weight]</p>
 			</div>
 			<p>
-				For any proposal where 𝟙<sub>SM-spend</sub>(p) = 0, the second term disappears and voting reverts to 
-				pure SpaceTime weighting. Unstaked SpaceMoney never contributes to proposal outcomes. The result 
-				is a two-layer governance design: labor governs the system as a whole, while time-committed 
-				capital may participate only in decisions that directly allocate treasury SpaceMoney.
+				The enforceable proposal weight is then capped for any staker at 25% of total proposal voting power:
+			</p>
+			<div class="equation-block">
+				<div class="equation">
+					V<sub>i</sub>(p) = min(Ṽ<sub>i</sub>(p), 0.25 · Σ<sub>j</sub> Ṽ<sub>j</sub>(p))
+				</div>
+				<p class="equation-label">[Preliminary proposal weight] subject to [anti-concentration ceiling]</p>
+			</div>
+			<p>
+				For any proposal where 𝟙<sub>SM-spend</sub>(p) = 0, or where 𝟙<sub>rule</sub>(p) = 1, the additional 
+				staking term disappears and voting reverts to pure SpaceTime weighting. Unstaked SpaceMoney, or 
+				SpaceMoney staked for fewer than 30 days, never contributes to proposal outcomes. The result is a 
+				two-layer governance design: labor governs the system as a whole, while time-committed capital may 
+				participate only in decisions that directly allocate treasury SpaceMoney and only within explicit 
+				constitutional limits.
 			</p>
 
 			<h3 id="sunset-mechanism">3.4 Sunset Mechanism</h3>
@@ -470,7 +488,8 @@
 			<p>
 				For proposal-specific treasury expenditures denominated in SpaceMoney, voting weight is extended 
 				to incorporate the conditional staking term defined in Section 3.3. Accordingly, the operative 
-				proposal share becomes ω<sub>i</sub>(p) = V<sub>i</sub>(p) / ΣV<sub>j</sub>(p), while all non-treasury proposals 
+				proposal share becomes ω<sub>i</sub>(p) = V<sub>i</sub>(p) / ΣV<sub>j</sub>(p), while proposals that do not spend 
+				SpaceMoney from treasury, as well as proposals that modify staking rules, caps, or multipliers, 
 				continue to satisfy ω<sub>i</sub>(p) = θ<sub>i</sub>.
 			</p>
 
@@ -1086,7 +1105,7 @@
 
 	/* Screen styles */
 	.whitepaper-container {
-		max-width: 900px;
+		max-width: 1120px;
 		margin: 0 auto;
 		padding: var(--space-xl) var(--space-lg);
 		position: relative;
