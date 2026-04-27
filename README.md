@@ -8,7 +8,7 @@
 
 Athena is the governance layer for **\*Space**, a decentralized organization
 designed to evolve from founder-led to fully community-governed. The system is
-built with **hardcoded sunset triggers** that automatically dissolve centralized
+built with **hardcoded transition triggers** that automatically dissolve centralized
 control when the community proves itself ready.
 
 ### The Vision
@@ -58,7 +58,7 @@ metrics, control burns automatically. No promises—just code.
 - Founder controls **treasury keys**
 - Founder controls **contract upgrade keys**
 
-### Sunset Triggers (Hardcoded)
+### Transition Triggers (Hardcoded)
 
 Control auto-revokes when ALL conditions are met:
 
@@ -102,7 +102,7 @@ Every proposal contains:
 
 - Token holders = members
 - Smart contracts = operating rules
-- Founder = "Initial Controller" with sunset conditions
+- Founder = "Initial Controller" with transition conditions
 - Trigger conditions dissolve special rights automatically
 
 ---
@@ -259,7 +259,7 @@ Phase 2: Real token contracts
 Phase 3: Proposal system
 Phase 4: ST earning mechanics
 Phase 5: Governance voting
-Phase 6: Sunset trigger implementation
+Phase 6: Transition trigger implementation
 ```
 
 ---

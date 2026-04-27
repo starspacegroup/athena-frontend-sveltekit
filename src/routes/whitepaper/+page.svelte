@@ -58,7 +58,7 @@
 			This whitepaper presents <strong>*Space DAO</strong>, a novel governance framework that addresses 
 			the fundamental challenges of decentralized organizations through a mathematically-grounded, 
 			dual-token mechanism design. By separating economic participation (SpaceMoney) from governance 
-			power (SpaceTime), and implementing hardcoded sunset triggers for founder control, *Space 
+			power (SpaceTime), and implementing hardcoded transition triggers for founder special powers, *Space 
 			creates alignment between individual incentives and collective welfare. We demonstrate through 
 			game-theoretic analysis that this design achieves Nash equilibrium at socially optimal outcomes, 
 			prevents plutocratic capture, and provides a credible commitment mechanism for progressive 
@@ -77,7 +77,7 @@
 					<li><a href="#two-token-model">The Two-Token Model</a></li>
 					<li><a href="#incentive-structures">Incentive Structures</a></li>
 					<li><a href="#governance">Governance</a></li>
-					<li><a href="#sunset-mechanism">Sunset Mechanism</a></li>
+					<li><a href="#transition-mechanism">Transition Mechanism</a></li>
 				</ol>
 			</li>
 			<li><a href="#mathematical-foundations">Mathematical Foundations</a>
@@ -122,7 +122,7 @@
 			<ol class="principles">
 				<li><strong>Separation of Economic and Political Power:</strong> Money cannot buy votes.</li>
 				<li><strong>Labor-Based Governance:</strong> Voting power is earned through demonstrated commitment.</li>
-				<li><strong>Credible Decentralization:</strong> Founder control has hardcoded, verifiable sunset conditions.</li>
+				<li><strong>Credible Decentralization:</strong> Founder control has hardcoded, verifiable transition conditions.</li>
 			</ol>
 		</section>
 
@@ -358,13 +358,13 @@
 				constitutional limits.
 			</p>
 
-			<h3 id="sunset-mechanism">3.4 Sunset Mechanism</h3>
+			<h3 id="transition-mechanism">3.4 Transition Mechanism</h3>
 			<p>
 				The founder's special powers (veto, treasury keys, upgrade authority) are subject to 
-				<strong>hardcoded, on-chain sunset triggers</strong>:
+				<strong>hardcoded, on-chain transition triggers</strong>:
 			</p>
 			
-			<div class="sunset-table">
+			<div class="transition-table">
 				<table>
 					<thead>
 						<tr>
@@ -603,7 +603,7 @@
 			</div>
 			<p>
 				*Space's mechanism directly addresses each of these failure modes through its 
-				structural separation of powers and mandatory sunset triggers.
+				structural separation of powers and mandatory transition triggers.
 			</p>
 
 			<h3>5.3 Behavioral Economics Support</h3>
@@ -663,7 +663,7 @@
 						<tr>
 							<td>Founder Capture</td>
 							<td class="vulnerable">Common failure mode</td>
-							<td class="protected">Protected — hardcoded sunset</td>
+							<td class="protected">Protected — hardcoded transition</td>
 						</tr>
 					</tbody>
 				</table>
@@ -707,7 +707,7 @@
 				<li><strong>Strict separation</strong> of economic and governance tokens</li>
 				<li><strong>Labor-based</strong> governance power acquisition</li>
 				<li><strong>Mathematical decay</strong> functions preventing accumulation</li>
-				<li><strong>Hardcoded sunset</strong> triggers for credible decentralization</li>
+				<li><strong>Hardcoded transition</strong> triggers for credible decentralization</li>
 			</ol>
 			<p>
 				We create a system where individual incentives align with collective welfare, 
@@ -745,7 +745,7 @@
 				<li>Completing the SpaceMoney (SM) and SpaceTime (ST) token smart contracts</li>
 				<li>Implementing the dual-token governance mechanism with proper separation of economic and voting power</li>
 				<li>Deploying the SpaceTime decay function on-chain</li>
-				<li>Configuring the sunset trigger conditions as immutable smart contract logic</li>
+				<li>Configuring the transition trigger conditions as immutable smart contract logic</li>
 				<li>Auditing and testing all contracts before mainnet deployment</li>
 			</ul>
 
@@ -780,7 +780,7 @@
 					and manage governance proposals with rich formatting and attachment support</li>
 				<li><strong>Voting System UI:</strong> An intuitive interface for casting votes, viewing active 
 					proposals, and tracking voting history</li>
-				<li><strong>Governance Dashboard:</strong> Real-time visualization of DAO metrics, sunset trigger 
+				<li><strong>Governance Dashboard:</strong> Real-time visualization of DAO metrics, transition trigger 
 					progress, and token distribution statistics</li>
 				<li><strong>Member Profiles:</strong> Personal dashboards showing SpaceTime earnings, voting 
 					records, and contribution history</li>
@@ -805,7 +805,7 @@
 				<li><strong>Agent-Based Modeling:</strong> Configure virtual participants with customizable 
 					behaviors, wealth distributions, and voting strategies to simulate diverse community compositions</li>
 				<li><strong>Governance Scenario Testing:</strong> Run simulations of proposal voting, token 
-					decay dynamics, and sunset trigger conditions over extended virtual time periods</li>
+					decay dynamics, and transition trigger conditions over extended virtual time periods</li>
 				<li><strong>Attack Vector Analysis:</strong> Test the resilience of governance mechanisms 
 					against simulated whale attacks, Sybil attacks, and voter coordination attempts</li>
 				<li><strong>Economic Modeling:</strong> Project token economics, treasury growth, and 
@@ -1409,7 +1409,7 @@
 
 	/* Tables */
 	.earning-table,
-	.sunset-table,
+	.transition-table,
 	.attack-table {
 		overflow-x: auto;
 		-webkit-overflow-scrolling: touch;
