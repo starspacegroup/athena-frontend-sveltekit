@@ -97,19 +97,19 @@
 			icon: '⏰',
 			title: 'SpaceTime (ST)',
 			subtitle: 'Labor Token',
-			description: 'Earned through work—proposals, tasks, successful outcomes. Carries voting power & decays over time to prevent hoarding.'
+			description: 'Soulbound and never purchasable. Earned by chatting in voice (1 ST/min), sending messages (lottery), bumping, and delivering proposals. Decays 9% per week—voting power belongs to active members only.'
 		},
 		{
 			icon: '💎',
 			title: 'SpaceMoney (SM)',
 			subtitle: 'Economic Token',
-			description: 'Your stake in the treasury. Fund proposals, access incubator projects, and share in revenue. Carries higher voting weight on finance-based proposals.'
+			description: 'Your stake in the treasury. Purchasable via linear bonding curve (starts at $0.50, +$0.01 per token minted). Stake for 5–20 years to earn conditional voting weight on treasury proposals only.'
 		},
 		{
 			icon: '⚖️',
-			title: 'Progressive Decentralization',
-			subtitle: 'Trustless Transition',
-			description: 'Hardcoded triggers transfer control to the community. 5 years of 99.9% proposal alignment → full autonomy.'
+			title: 'Skin-in-the-Game Voting',
+			subtitle: 'Accountable Governance',
+			description: 'Voting costs 5 ST. Winners get their ST back; losers\' ST redistributes to the winning side. Proposers also stake ST—failed proposals burn 10% to treasury and redistribute the rest to AGAINST voters.'
 		},
 		{
 			icon: '🏛️',
@@ -130,13 +130,13 @@
 			phase: 'Transition',
 			status: 'pending',
 			title: 'Earning Trust',
-			items: ['10K+ distinct ST earners', 'Treasury diversification (<20% founder)', 'Proposal success metrics tracked']
+			items: ['10K+ distinct ST earners', 'Founder treasury holdings < 20%', '99.9% proposal acceptance rate tracked']
 		},
 		{
 			phase: 'Future',
 			status: 'locked',
 			title: 'Full Autonomy',
-			items: ['Veto auto-revoked', 'Upgrade keys burned', 'Pure ST-weighted governance']
+			items: ['Veto auto-burns permanently', 'Upgrade keys → multi-sig DAO', 'Pure ST-weighted democracy']
 		}
 	];
 </script>

@@ -68,7 +68,7 @@
 		<div class="header-icon">💰</div>
 		<div>
 			<h1>Purchase SpaceMoney</h1>
-			<p>Increase your voting power in *Space DAO</p>
+			<p>Buy treasury stake via linear bonding curve — starting at $0.50, +$0.01 per token minted</p>
 		</div>
 	</div>
 
@@ -170,31 +170,31 @@
 			<h3>About SpaceMoney</h3>
 			<div class="info-items">
 				<div class="info-item">
+					<span class="info-icon">�</span>
+					<div>
+						<h4>Bonding Curve Pricing</h4>
+						<p>SpaceMoney uses a linear bonding curve. Starting price: $0.50 per token. Price increases by $0.01 for each token minted—buy early for the best price.</p>
+					</div>
+				</div>
+				<div class="info-item">
 					<span class="info-icon">🗳️</span>
 					<div>
-						<h4>Voting Power</h4>
-						<p>Each SpaceMoney token equals one vote in *Space DAO governance. Voting weight is heavier on finance-based proposals.</p>
+						<h4>Staking for Voting</h4>
+						<p>Stake SM for 5, 10, or 20 years to earn conditional voting weight on treasury proposals. Multiplier: 2^(years/20). Unstaked SM carries no voting power.</p>
 					</div>
 				</div>
 				<div class="info-item">
 					<span class="info-icon">📤</span>
 					<div>
 						<h4>Transferable</h4>
-						<p>SpaceMoney can be transferred to other wallet addresses</p>
+						<p>SpaceMoney can be transferred to other wallet addresses. No supply cap.</p>
 					</div>
 				</div>
 				<div class="info-item">
-					<span class="info-icon">🔒</span>
+					<span class="info-icon">🏦</span>
 					<div>
-						<h4>Secure</h4>
-						<p>Tokens are stored securely on the blockchain</p>
-					</div>
-				</div>
-				<div class="info-item">
-					<span class="info-icon">⚡</span>
-					<div>
-						<h4>Instant</h4>
-						<p>Tokens are credited immediately after purchase</p>
+						<h4>Treasury Backed</h4>
+						<p>All SM purchase proceeds go directly to the *Space DAO treasury. Your tokens represent a stake in the collective treasury.</p>
 					</div>
 				</div>
 			</div>

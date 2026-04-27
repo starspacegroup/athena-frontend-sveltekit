@@ -76,7 +76,11 @@
 				<ol>
 					<li><a href="#two-token-model">The Two-Token Model</a></li>
 					<li><a href="#incentive-structures">Incentive Structures</a></li>
-					<li><a href="#governance">Governance</a></li>
+					<li><a href="#governance">Governance & SM Staking</a></li>
+					<li><a href="#voting-mechanics">Voting Mechanics</a></li>
+					<li><a href="#proposals">Proposals</a></li>
+					<li><a href="#treasury">Treasury</a></li>
+					<li><a href="#reputation-slashing">Reputation & Slashing</a></li>
 					<li><a href="#transition-mechanism">Transition Mechanism</a></li>
 				</ol>
 			</li>
@@ -214,154 +218,382 @@
 			<h3 id="incentive-structures">3.2 Incentive Structures</h3>
 			
 			<h4>3.2.1 SpaceTime Earning Mechanisms</h4>
+			<p>SpaceTime is <strong>never purchasable</strong>. All earning is activity-based and subject to Discord wallet-linking for social multiplier activation (Sybil protection).</p>
 			<div class="earning-table">
 				<table>
 					<thead>
 						<tr>
 							<th>Activity</th>
 							<th>ST Reward</th>
-							<th>Verification</th>
+							<th>Notes</th>
 						</tr>
 					</thead>
 					<tbody>
 						<tr>
-							<td>Proposal Completion</td>
-							<td>Defined per proposal</td>
-							<td>Outcome-based metrics</td>
+							<td><strong>Voice Chat</strong></td>
+							<td>1 ST/minute active in channel</td>
+							<td>+5% multiplier per person who joins within 60 min of you joining (3+ min stay required); caps at +50% (10 people). Multiplier stops when you leave.</td>
 						</tr>
 						<tr>
-							<td>Correct Governance Vote</td>
-							<td>R<sub>vote</sub> = α · √ST<sub>i</sub></td>
-							<td>Post-hoc outcome verification</td>
+							<td><strong>Messages (Lottery)</strong></td>
+							<td>Base 1 ST per win; scales with concurrent chatters</td>
+							<td>1 in 50 messages wins; max 1 win per user per week.</td>
 						</tr>
 						<tr>
-							<td>Qualification Tests</td>
-							<td>Fixed per certification</td>
-							<td>Automated assessment</td>
+							<td><strong>Bump Command</strong></td>
+							<td>9 ST per bump</td>
+							<td>Fixed reward; tracks via Discord bot.</td>
 						</tr>
 						<tr>
-							<td>Community Contributions</td>
-							<td>Peer-reviewed allocation</td>
-							<td>Multi-sig approval</td>
+							<td><strong>Proposal Delivery</strong></td>
+							<td>Defined per proposal (success)</td>
+							<td>Earned on successful completion evaluation vote. Failure results in reputation loss.</td>
+						</tr>
+						<tr>
+							<td><strong>Admin Actions</strong></td>
+							<td>TBD</td>
+							<td>Council-approved allocations; not yet specified.</td>
 						</tr>
 					</tbody>
 				</table>
 			</div>
+			<p>
+				<strong>Sybil Protection:</strong> Discord accounts must be linked to a wallet before triggering 
+				social multipliers for others. Identity multiplication provides no governance advantage, since 
+				work output is bounded by real-world time and effort.
+			</p>
 
 			<h4>3.2.2 SpaceTime Decay Function</h4>
 			<p>
-				To prevent accumulation and ensure ongoing participation, SpaceTime decays according to:
+				To prevent accumulation and ensure ongoing participation, SpaceTime decays at <strong>9% per week</strong>:
 			</p>
 			<div class="equation-block">
 				<div class="equation">
-					ST<sub>i</sub>(t) = ST<sub>i</sub>(t₀) · e<sup>−λ(t − t₀)</sup>
+					ST<sub>i</sub>(t) = ST<sub>i</sub>(t₀) · (1 − 0.09)<sup>(t − t₀) / 7</sup>
 				</div>
-				<p>Where λ = 0.0001 per block (~3% annual decay rate)</p>
+				<p>Where time is measured in days; weekly decay rate δ = 0.09</p>
 			</div>
 			<p>
-				This mechanism draws from the "use it or lose it" principle in commons governance 
-				(Ostrom, 1990) and ensures that voting power reflects <em>current</em> commitment 
-				rather than historical accumulation.
+				This aggressive decay rate ensures that voting power reflects <em>current and ongoing</em> 
+				community engagement. A member who disengages for even a few weeks sees meaningful voting 
+				weight reduction, preventing legacy accumulation from conferring permanent governance influence.
 			</p>
 
-			<h3 id="governance">3.3 Governance</h3>
+			<h3 id="governance">3.3 Governance & SM Staking</h3>
 			<p>
-				The governance system remains anchored in SpaceTime as the sole source of general voting power. 
-				However, proposals that authorize expenditures from the SpaceMoney treasury create a narrower class 
-				of decisions in which capital at risk has direct informational value. For this class alone, *Space 
-				permits a conditional voting supplement for SpaceMoney that has been voluntarily committed to the 
-				staking contract for a fixed duration.
+				Governance voting power derives entirely from SpaceTime. SpaceMoney carries 
+				<strong>no baseline voting weight</strong>. However, SM holders may voluntarily 
+				stake their tokens for long fixed periods to gain conditional voting weight on 
+				treasury-expenditure proposals, subject to strict anti-concentration rules. This 
+				preserves meritocratic governance while giving long-term capital a disciplined voice 
+				where treasury deployment is at stake.
 			</p>
-			<p>
-				This refinement is intended to improve treasury stewardship without disturbing the constitutional 
-				logic of the dual-token model. It gives committed SpaceMoney participants a narrowly tailored voice 
-				when communal reserves are being allocated, while preserving SpaceTime as the sole determinant of the 
-				protocol's general political direction.
-			</p>
+
+			<h4>3.3.1 Staking Mechanics</h4>
 			<ol>
-				<li>SM holders may stake their tokens for fixed periods (3 months, 6 months, 1 year, or 2 years). While staked, the tokens are fully locked and cannot be withdrawn.</li>
-				<li>Staked SM grants additional voting weight, but only on proposals that spend SM from the treasury. The longer the lock, the higher the multiplier (1x for 3mo, 1.5x for 6mo, 2x for 1yr, 3x for 2yr).</li>
-				<li>A 30-day minimum staking period is required before any voting weight is granted. No last-minute staking is allowed.</li>
-				<li>No single staker may control more than 25% of the total voting weight on any proposal, regardless of how much they have staked.</li>
-				<li>Proposals that change the staking rules, caps, or multipliers may only be voted on with pure ST — staked SM carries zero weight on those votes.</li>
+				<li>SM may be staked for <strong>5, 10, or 20 years</strong>. Staked tokens are fully locked for the chosen period.</li>
+				<li>Voting power multiplier follows an <strong>exponential curve</strong>: m(years) = 2<sup>years/20</sup>. Unstaked tokens give base weight (m = 1).</li>
+				<li>Staked tokens are <strong>allocated manually per proposal</strong>. Each allocated staking position can only be used once per proposal.</li>
+				<li>Allocated tokens remain locked until the staking period expires, then auto-unlock.</li>
+				<li>No single staker may control more than <strong>25% of the total voting weight</strong> on any proposal.</li>
+				<li>Proposals that change staking rules, caps, or multipliers may only be voted on with pure ST — staked SM carries zero weight on those votes.</li>
 			</ol>
-			<p>
-				These safeguards preserve the meritocratic spirit of *Space by ensuring that labor-derived 
-				SpaceTime remains sovereign over ordinary governance and over the rules governing capital itself. 
-				Committed capital is given a voice only where treasury deployment is at issue, only after a real 
-				time commitment has been demonstrated, and only within explicit anti-concentration limits. The 
-				result is not a return to plutocratic voting, but a more disciplined and accountable treasury process 
-				within a still meritocratic constitutional order.
-			</p>
+
 			<div class="earning-table">
 				<table>
 					<thead>
 						<tr>
 							<th>SM Lock-Up Period</th>
-							<th>Voting Multiplier m(L)</th>
-							<th>Interpretation</th>
+							<th>Voting Multiplier m(years)</th>
+							<th>Approximate Value</th>
 						</tr>
 					</thead>
 					<tbody>
 						<tr>
-							<td>3 months</td>
-							<td>1.0x</td>
-							<td>Minimum treasury-aligned commitment</td>
+							<td>Unstaked</td>
+							<td>2<sup>0/20</sup> = 1.00×</td>
+							<td>Base weight</td>
 						</tr>
 						<tr>
-							<td>6 months</td>
-							<td>1.5x</td>
-							<td>Intermediate alignment horizon</td>
+							<td>5 years</td>
+							<td>2<sup>5/20</sup> ≈ 1.19×</td>
+							<td>Medium commitment</td>
 						</tr>
 						<tr>
-							<td>1 year</td>
-							<td>2.0x</td>
-							<td>Long-term treasury stewardship</td>
+							<td>10 years</td>
+							<td>2<sup>10/20</sup> ≈ 1.41×</td>
+							<td>Long-term alignment</td>
 						</tr>
 						<tr>
-							<td>2 years</td>
-							<td>3.0x</td>
-							<td>Maximum capital commitment</td>
+							<td>20 years</td>
+							<td>2<sup>20/20</sup> = 2.00×</td>
+							<td>Maximum commitment</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+			<h4>3.3.2 Formal Weight</h4>
+			<p>
+				Let 𝟙<sub>SM-spend</sub>(p) indicate whether proposal p authorizes treasury SpaceMoney expenditure, 
+				let 𝟙<sub>rule</sub>(p) indicate whether p modifies staking rules, caps, or multipliers, 
+				let SM<sub>i</sub><sup>staked</sup>(L) denote SM staked by agent i in lock-up L, 
+				and let m(L) = 2<sup>L/20</sup> be the corresponding multiplier. Define preliminary proposal weight:
+			</p>
+			<div class="equation-block">
+				<div class="equation">
+					Ṽ<sub>i</sub>(p) = ST<sub>i</sub> + 𝟙<sub>SM-spend</sub>(p) · (1 − 𝟙<sub>rule</sub>(p)) · Σ<sub>L</sub>(m(L) · SM<sub>i</sub><sup>staked</sup>(L))
+				</div>
+				<p class="equation-label">[Governance weight] + [Eligible conditional staked-SM treasury weight]</p>
+			</div>
+			<p>The enforceable proposal weight is capped at 25% per staker:</p>
+			<div class="equation-block">
+				<div class="equation">
+					V<sub>i</sub>(p) = min(Ṽ<sub>i</sub>(p), 0.25 · Σ<sub>j</sub> Ṽ<sub>j</sub>(p))
+				</div>
+				<p class="equation-label">[Preliminary weight] subject to [anti-concentration ceiling]</p>
+			</div>
+			<p>
+				For any proposal where 𝟙<sub>SM-spend</sub>(p) = 0 or 𝟙<sub>rule</sub>(p) = 1, 
+				voting reverts to pure ST weighting. Labor governs the system; committed capital 
+				participates only in decisions that directly allocate treasury funds and only within 
+				explicit constitutional limits.
+			</p>
+
+			<h3 id="voting-mechanics">3.4 Voting Mechanics</h3>
+			<p>
+				All governance votes are ST-denominated. Voting is designed with explicit skin-in-the-game 
+				incentives so that participants bear the cost of being wrong.
+			</p>
+			
+			<h4>3.4.1 Requirements & Cost</h4>
+			<ul>
+				<li><strong>Minimum balance to vote:</strong> 50 ST</li>
+				<li><strong>Cost per vote:</strong> 5 ST (for or against)</li>
+			</ul>
+
+			<h4>3.4.2 Incentive Structure</h4>
+			<div class="transition-table">
+				<table>
+					<thead>
+						<tr>
+							<th>Outcome</th>
+							<th>FOR Voters</th>
+							<th>AGAINST Voters</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td><strong>Proposal PASSES</strong></td>
+							<td class="protected">Get 5 ST back</td>
+							<td class="vulnerable">Lose 5 ST — split evenly among FOR voters</td>
+						</tr>
+						<tr>
+							<td><strong>Proposal FAILS</strong></td>
+							<td class="vulnerable">Lose 5 ST — split evenly among AGAINST voters</td>
+							<td class="protected">Get 5 ST back + equal share of 90% of proposer's submission ST</td>
 						</tr>
 					</tbody>
 				</table>
 			</div>
 			<p>
-				Formally, let 𝟙<sub>SM-spend</sub>(p) indicate whether proposal p authorizes the expenditure of 
-				SpaceMoney from treasury, let 𝟙<sub>rule</sub>(p) indicate whether proposal p changes staking rules, 
-				caps, or multipliers, let 𝟙<sub>30d</sub>(i, L) indicate that agent i's stake in lock-up bucket L has 
-				been active for at least 30 days, let SM<sub>i</sub><sup>staked</sup>(L) denote the amount of 
-				SpaceMoney staked by agent i for lock-up period L, and let m(L) be the multiplier attached to 
-				that lock-up. Define preliminary proposal weight as:
-			</p>
-			<div class="equation-block">
-				<div class="equation">
-					Ṽ<sub>i</sub>(p) = ST<sub>i</sub> + 𝟙<sub>SM-spend</sub>(p) · (1 - 𝟙<sub>rule</sub>(p)) · Σ<sub>L</sub>(m(L) · 𝟙<sub>30d</sub>(i, L) · SM<sub>i</sub><sup>staked</sup>(L))
-				</div>
-				<p class="equation-label">[General governance weight] + [Eligible conditional staked-SM treasury weight]</p>
-			</div>
-			<p>
-				The enforceable proposal weight is then capped for any staker at 25% of total proposal voting power:
-			</p>
-			<div class="equation-block">
-				<div class="equation">
-					V<sub>i</sub>(p) = min(Ṽ<sub>i</sub>(p), 0.25 · Σ<sub>j</sub> Ṽ<sub>j</sub>(p))
-				</div>
-				<p class="equation-label">[Preliminary proposal weight] subject to [anti-concentration ceiling]</p>
-			</div>
-			<p>
-				For any proposal where 𝟙<sub>SM-spend</sub>(p) = 0, or where 𝟙<sub>rule</sub>(p) = 1, the additional 
-				staking term disappears and voting reverts to pure SpaceTime weighting. Unstaked SpaceMoney, or 
-				SpaceMoney staked for fewer than 30 days, never contributes to proposal outcomes. The result is a 
-				two-layer governance design: labor governs the system as a whole, while time-committed capital may 
-				participate only in decisions that directly allocate treasury SpaceMoney and only within explicit 
-				constitutional limits.
+				When a proposal fails, 10% of the proposer's submission ST goes to the treasury. This 
+				creates a self-correcting signal: well-reasoned proposals pass while extractive or 
+				low-quality proposals redistribute ST to the community members who correctly identified them.
 			</p>
 
-			<h3 id="transition-mechanism">3.4 Transition Mechanism</h3>
+			<h4>3.4.3 Voting Duration & Quorum</h4>
+			<ul>
+				<li><strong>Standard proposals:</strong> 7-day voting window</li>
+				<li><strong>Quorum:</strong> 30% of outstanding tokens must participate</li>
+				<li><strong>Passing threshold:</strong> Simple majority for operational; 2/3 supermajority for constitutional changes</li>
+				<li><strong>Emergency proposals:</strong> 24-hour window; 50% quorum required</li>
+			</ul>
+
+			<h3 id="proposals">3.5 Proposals</h3>
+
+			<h4>3.5.1 Submission Cost</h4>
+			<p>
+				Proposals cost a minimum of <strong>9 ST</strong> to submit. The actual cost scales 
+				exponentially with:
+			</p>
+			<ul>
+				<li>The <strong>completion timeline</strong> chosen by the proposer — longer timelines cost exponentially more ST</li>
+				<li>The <strong>proposal budget</strong> requested from treasury</li>
+				<li>The <strong>proposal type</strong></li>
+			</ul>
+			<p>
+				This structure prevents spam and ensures proposers have genuine stake in their own proposals.
+			</p>
+
+			<h4>3.5.2 Proposal Types</h4>
+			<div class="transition-table">
+				<table>
+					<thead>
+						<tr>
+							<th>Type</th>
+							<th>Trigger</th>
+							<th>Process</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td><strong>Fast-track</strong></td>
+							<td>Under 5% of treasury OR $50,000 (whichever is lower)</td>
+							<td>No amendment phase; goes straight to vote</td>
+						</tr>
+						<tr>
+							<td><strong>Standard</strong></td>
+							<td>All other proposals</td>
+							<td>Amendment phase before voting locks</td>
+						</tr>
+						<tr>
+							<td><strong>Emergency</strong></td>
+							<td>Triggered by early contributor council or supermajority community vote</td>
+							<td>24-hour window; 50% quorum; no amendment phase</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+			<h4>3.5.3 Amendment Phase</h4>
+			<ul>
+				<li>Any community member may suggest amendments before the vote locks</li>
+				<li>Proposer accepts or rejects amendments at their discretion</li>
+				<li>If accepted amendments change <strong>time estimates or budget by 20% or more</strong>, the voting period resets</li>
+			</ul>
+
+			<h4>3.5.4 Execution & Evaluation</h4>
+			<p>
+				Every proposal includes a <strong>completion date</strong> chosen by the proposer. At that 
+				date, an auto-triggered <em>evaluation proposal</em> goes live and the community votes on 
+				whether delivery was fulfilled as promised.
+			</p>
+			<ul>
+				<li><strong>Success:</strong> Proposer gains reputation and earns ST as reward</li>
+				<li><strong>Failure:</strong> Proposer loses reputation (double penalty rate vs gain rate); see Section 3.7</li>
+				<li>Treasury funds flow directly to the asset or vendor — never to the proposer directly unless labor compensation is explicitly included in the budget</li>
+			</ul>
+
+			<h3 id="treasury">3.6 Treasury</h3>
+			<p>
+				All treasury guidelines below are <strong>goverable</strong> — the community may change them 
+				through standard proposals.
+			</p>
+			<div class="transition-table">
+				<table>
+					<thead>
+						<tr>
+							<th>Rule</th>
+							<th>Default Value</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>Emergency reserve (untouchable)</td>
+							<td>15% of treasury</td>
+						</tr>
+						<tr>
+							<td>Annual R&amp;D allocation</td>
+							<td>9%</td>
+						</tr>
+						<tr>
+							<td>Max quarterly spend</td>
+							<td>10–20% of treasury</td>
+						</tr>
+						<tr>
+							<td>Max single-asset purchase</td>
+							<td>40% of treasury</td>
+						</tr>
+						<tr>
+							<td>Diversification policy</td>
+							<td>Across multiple asset types</td>
+						</tr>
+						<tr>
+							<td>Execution threshold (multi-sig)</td>
+							<td>3-of-5 trusted members above spend threshold</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+			<h4>3.6.1 Funds Flow</h4>
+			<ul>
+				<li><strong>Inflows:</strong> SM token purchases (bonding curve), 10% of failed-proposal ST, emergency reserve contributions</li>
+				<li><strong>Outflows:</strong> Via approved proposals only; funds go directly to asset/vendor, not proposer (unless labor is budgeted)</li>
+			</ul>
+
+			<h4>3.6.2 SpaceMoney Bonding Curve</h4>
+			<p>
+				SM tokens are purchasable via a <strong>linear bonding curve</strong>: starting price $0.50, 
+				increasing $0.01 per token minted. There is no hard supply cap. All purchase proceeds 
+				go directly to the treasury.
+			</p>
+			<div class="equation-block">
+				<div class="equation">
+					P(n) = $0.50 + $0.01 · n
+				</div>
+				<p class="equation-label">Where n = total tokens minted to date</p>
+			</div>
+
+			<h3 id="reputation-slashing">3.7 Reputation & Slashing</h3>
+
+			<h4>3.7.1 Reputation</h4>
+			<p>Reputation starts at 0 for all members and evolves through proposal delivery outcomes:</p>
+			<ul>
+				<li><strong>Gains:</strong> Successful proposal delivery</li>
+				<li><strong>Losses:</strong> Failed delivery at double the gain rate</li>
+				<li><strong>Threshold:</strong> Reaching −50 reputation triggers <em>exile</em></li>
+				<li><strong>Exile duration:</strong> Fibonacci sequence in months per offense (1, 1, 2, 3, 5, 8, …)</li>
+				<li><strong>High reputation:</strong> Lower proposal submission costs; higher voting weight on relevant proposals</li>
+				<li><strong>Low reputation:</strong> Higher proposal submission costs</li>
+			</ul>
+
+			<h4>3.7.2 Slashing</h4>
+			<div class="transition-table">
+				<table>
+					<thead>
+						<tr>
+							<th>Offense</th>
+							<th>Trigger</th>
+							<th>Penalty</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>Spam voting</td>
+							<td>Community vote</td>
+							<td>−10% ST</td>
+						</tr>
+						<tr>
+							<td>Failed proposal after warning</td>
+							<td>Evaluation vote</td>
+							<td>−25% ST</td>
+						</tr>
+						<tr>
+							<td>Malicious governance attack</td>
+							<td>Supermajority vote</td>
+							<td>Lose all ST + Fibonacci exile</td>
+						</tr>
+						<tr>
+							<td>SM violation (minor)</td>
+							<td>Community vote</td>
+							<td>−5% SM</td>
+						</tr>
+						<tr>
+							<td>SM violation (serious)</td>
+							<td>Community vote</td>
+							<td>−10% SM</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+			<h3 id="transition-mechanism">3.8 Transition Mechanism</h3>
 			<p>
 				The founder's special powers (veto, treasury keys, upgrade authority) are subject to 
-				<strong>hardcoded, on-chain transition triggers</strong>:
+				<strong>hardcoded, on-chain transition triggers</strong>. All three conditions must be met 
+				<em>simultaneously</em>:
 			</p>
 			
 			<div class="transition-table">
@@ -400,7 +632,7 @@
 			<ol>
 				<li>Founder veto power burns permanently</li>
 				<li>Upgrade keys transfer to multi-sig DAO control</li>
-				<li>ST-led governance activates permanently, with conditional staked-SM weight retained only for SM treasury expenditure proposals</li>
+				<li>Pure ST-weighted democracy activates (with conditional staked-SM weight retained only for SM treasury expenditure proposals)</li>
 			</ol>
 		</section>
 
@@ -457,18 +689,20 @@
 			<p>The aggregate SpaceTime supply follows the differential equation:</p>
 			<div class="equation-block">
 				<div class="equation">
-					dST<sub>total</sub>/dt = μ · W(t) − λ · ST<sub>total</sub>
+					dST<sub>total</sub>/dt = μ · W(t) − δ · ST<sub>total</sub>
 				</div>
-				<p class="equation-label">[Minting from work] − [Decay]</p>
+				<p class="equation-label">[Minting from work] − [Decay at δ = 9%/week]</p>
 			</div>
 			<p>At steady state (dST<sub>total</sub>/dt = 0):</p>
 			<div class="equation-block">
 				<div class="equation">
-					ST* = (μ · W*) / λ
+					ST* = (μ · W*) / δ
 				</div>
 			</div>
 			<p>
-				This ensures a bounded, stable supply proportional to ongoing productive activity.
+				This ensures a bounded, stable supply proportional to ongoing productive activity. The 
+				9% weekly decay rate is calibrated to require consistent engagement—a disengaged member 
+				loses half their ST in approximately 7.3 weeks.
 			</p>
 
 			<h4>4.2.2 Voting Power Distribution</h4>
@@ -705,9 +939,12 @@
 			</p>
 			<ol>
 				<li><strong>Strict separation</strong> of economic and governance tokens</li>
-				<li><strong>Labor-based</strong> governance power acquisition</li>
-				<li><strong>Mathematical decay</strong> functions preventing accumulation</li>
-				<li><strong>Hardcoded transition</strong> triggers for credible decentralization</li>
+				<li><strong>Activity-based</strong> governance power acquisition (voice, messages, bumps, proposal delivery)</li>
+				<li><strong>9% weekly decay</strong> ensuring voting weight reflects current engagement</li>
+				<li><strong>Skin-in-the-game voting</strong> with 5 ST cost and result-contingent redistribution</li>
+				<li><strong>Exponential proposal submission costs</strong> tied to timeline and budget, preventing spam</li>
+				<li><strong>Reputation & slashing</strong> systems creating accountability for delivery</li>
+				<li><strong>Hardcoded sunset triggers</strong> for credible, automatic decentralization</li>
 			</ol>
 			<p>
 				We create a system where individual incentives align with collective welfare, 

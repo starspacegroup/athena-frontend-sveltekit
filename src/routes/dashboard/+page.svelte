@@ -38,7 +38,7 @@
 		{
 			icon: '💰',
 			title: 'Purchase Tokens',
-			description: 'Buy SpaceMoney to increase voting power',
+			description: 'Buy SpaceMoney via bonding curve (starts $0.50)',
 			href: '/tokens/purchase',
 			color: 'purple'
 		},
@@ -52,7 +52,7 @@
 		{
 			icon: '🗳️',
 			title: 'Governance',
-			description: 'Vote on active proposals',
+			description: 'Vote on active proposals (costs 5 ST)',
 			href: '#',
 			color: 'pink',
 			soon: true

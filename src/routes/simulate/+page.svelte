@@ -13,14 +13,17 @@
 		// Token Parameters
 		initialSpaceMoney: 1000000,
 		initialSpaceTime: 0,
-		stDecayRate: 0.0001,
+		stDecayRate: 0.09, // 9% per week (per the finalized tokenomics)
 		stMintRate: 10,
-		pricePerPacemoney: 0.01, // USD per $PACEMONEY token
+		smStartingPrice: 0.50, // USD — bonding curve starting price
+		smPriceIncrement: 0.01, // USD increase per token minted
 		
 		// Governance Parameters
-		proposalThreshold: 100,
-		quorumPercentage: 20,
-		proposalFrequency: 5, // days between proposals
+		proposalThreshold: 9,       // minimum ST to submit a proposal
+		votingMinBalance: 50,       // minimum ST balance required to vote
+		votingCostST: 5,            // ST cost per vote (for or against)
+		quorumPercentage: 30,       // 30% of outstanding tokens required
+		proposalFrequency: 5,       // days between proposals
 		
 		// Owner/Founder Settings
 		ownerVetoProbability: 15, // % chance owner vetoes a passing proposal
@@ -50,7 +53,7 @@
 		// Asset Investment Settings
 		enableAssetInvestments: true,
 		assetProposalFrequency: 20, // days between asset proposals
-		maxAssetAllocation: 30, // max % of treasury for single asset
+		maxAssetAllocation: 40, // max % of treasury for single asset (per governance rules)
 		assetVolatility: 0.15, // annual volatility (0.15 = 15%)
 		assetAppreciationBias: 0.05 // slight positive bias (5% annual)
 	});
@@ -83,6 +86,7 @@
 		disengagedAgents: 0, // Agents who have "left" due to low sentiment
 		newAgentsAttracted: 0, // Cumulative new agents attracted
 		communityHealth: 100, // Combined sentiment + trust indicator
+		treasuryST: 0, // ST accumulated by treasury from failed proposals (10% of submission cost)
 		
 		// Asset Investment metrics
 		totalAssetValue: 0, // Current market value of all assets
@@ -98,11 +102,11 @@
 		name: string;
 		type: 'real-estate' | 'equipment' | 'intellectual-property' | 'infrastructure' | 'art-collectibles';
 		purchaseDay: number;
-		purchasePrice: number; // in $PACEMONEY
+		purchasePrice: number; // in SM
 		purchasePriceUSD: number;
-		currentValue: number; // current value in $PACEMONEY
+		currentValue: number; // current value in SM
 		currentValueUSD: number;
-		pnl: number; // profit/loss in $PACEMONEY
+		pnl: number; // profit/loss in SM
 		pnlPercent: number;
 		volatility: number; // individual asset volatility
 		appreciationRate: number; // base annual appreciation
@@ -117,8 +121,8 @@
 		day: number;
 		title: string;
 		type: 'time-heavy' | 'money-heavy' | 'balanced';
-		timeWeight: number; // 0-1, how much $PACETIME matters
-		moneyWeight: number; // 0-1, how much $PACEMONEY matters
+		timeWeight: number; // 0-1, how much ST matters
+		moneyWeight: number; // 0-1, how much SM matters
 		votesFor: number;
 		votesAgainst: number;
 		passed: boolean;
@@ -263,7 +267,7 @@
 		},
 		{
 			name: 'Whale Dominated',
-			description: '$PACEMONEY concentration scenario',
+			description: 'SM concentration scenario — whale dominance test',
 			config: {
 				totalAgents: 100,
 				whalePercentage: 10,
@@ -278,7 +282,7 @@
 		},
 		{
 			name: 'Sybil Attack',
-			description: 'Test $PACETIME resistance to identity attacks',
+			description: 'Test ST soulbound resistance to Sybil attacks',
 			config: {
 				totalAgents: 150,
 				whalePercentage: 3,
@@ -409,9 +413,9 @@
 		const normalizedMoneyWeight = moneyWeight / totalWeight;
 		
 		// Calculate weighted voting power
-		// $PACETIME contribution (earned through participation)
+		// ST contribution (earned through participation)
 		const timeContribution = agent.spaceTime * normalizedTimeWeight;
-		// $PACEMONEY contribution (purchased/held)
+		// SM contribution (purchased/held)
 		const moneyContribution = Math.sqrt(agent.spaceMoney) * normalizedMoneyWeight; // sqrt to reduce whale dominance
 		
 		return timeContribution + moneyContribution;
@@ -459,9 +463,9 @@
 
 	// Calculate dynamic active voters based on sentiment and trust
 	function calculateActiveVoters(): number {
-		// Get eligible agents (meet SpaceTime threshold and not disengaged)
+		// Get eligible agents (meet 50 ST voting minimum and not disengaged)
 		const eligibleAgents = agents.filter(a => 
-			a.spaceTime >= config.proposalThreshold * 0.1 && !a.isDisengaged
+			a.spaceTime >= config.votingMinBalance && !a.isDisengaged
 		);
 		
 		// Calculate expected active voters based on probability weighting
@@ -607,7 +611,7 @@
 			
 			// Apply return to current value
 			asset.currentValue = asset.currentValue * (1 + dailyReturn);
-			asset.currentValueUSD = asset.currentValue * config.pricePerPacemoney;
+			asset.currentValueUSD = asset.currentValue * config.smStartingPrice;
 			
 			// Update P&L
 			asset.pnl = asset.currentValue - asset.purchasePrice;
@@ -641,7 +645,7 @@
 		// Randomize price within 70-130% of base
 		const priceMultiplier = 0.7 + Math.random() * 0.6;
 		const purchasePrice = Math.floor(template.basePrice * priceMultiplier);
-		const purchasePriceUSD = purchasePrice * config.pricePerPacemoney;
+		const purchasePriceUSD = purchasePrice * config.smStartingPrice;
 		
 		// Check if this exceeds max allocation
 		const currentTreasuryValue = metrics.totalSpaceMoney;
@@ -664,13 +668,17 @@
 		let votesFor = 0;
 		let votesAgainst = 0;
 		let votersCount = 0;
+		const votersFor: typeof agents = [];
+		const votersAgainst: typeof agents = [];
 		
 		for (const agent of agents) {
 			const votingPower = calculateVotingPower(agent, timeWeight, moneyWeight);
 			
 			const effectiveParticipation = agent.participationRate * (agent.sentiment / 100);
-			if (votingPower >= config.proposalThreshold * 0.1 && Math.random() < effectiveParticipation) {
+			if (agent.spaceTime >= config.votingMinBalance && votingPower > 0 && Math.random() < effectiveParticipation) {
 				votersCount++;
+				// Deduct ST voting cost (skin-in-the-game)
+				agent.spaceTime = Math.max(0, agent.spaceTime - config.votingCostST);
 				
 				// Agent voting based on risk tolerance (whales more cautious, newer agents more optimistic)
 				const riskAppetite = agent.isWhale ? 0.4 : 0.6;
@@ -679,8 +687,10 @@
 				
 				if (voteYes) {
 					votesFor += votingPower;
+					votersFor.push(agent);
 				} else {
 					votesAgainst += votingPower;
+					votersAgainst.push(agent);
 				}
 			}
 		}
@@ -698,6 +708,19 @@
 		}
 		
 		const passed = wouldPass && !vetoed;
+		
+		// Skin-in-the-game ST redistribution per governance spec:
+		if (passed) {
+			// FOR voters get 5 ST back; AGAINST voters lose 5 ST → split evenly among FOR voters
+			const againstPool = votersAgainst.length * config.votingCostST;
+			const forBonus = votersFor.length > 0 ? againstPool / votersFor.length : 0;
+			for (const w of votersFor) w.spaceTime += config.votingCostST + forBonus;
+		} else {
+			// Asset proposals: on FAIL, against voters reclaim 5 ST + share of for-voters' pool
+			const forPool = votersFor.length * config.votingCostST;
+			const againstBonus = votersAgainst.length > 0 ? forPool / votersAgainst.length : 0;
+			for (const w of votersAgainst) w.spaceTime += config.votingCostST + againstBonus;
+		}
 		const assetTypeEmoji = {
 			'real-estate': '🏢',
 			'equipment': '⚙️',
@@ -725,7 +748,7 @@
 			});
 			
 			metrics.proposalsPassed++;
-			addLog(day, 'success', `${assetTypeEmoji} ASSET ACQUIRED: "${template.name}" for ${purchasePrice.toLocaleString()} $PACEMONEY ($${purchasePriceUSD.toLocaleString()})`);
+			addLog(day, 'success', `${assetTypeEmoji} ASSET ACQUIRED: "${template.name}" for ${purchasePrice.toLocaleString()} SM (~$${purchasePriceUSD.toLocaleString()})`); 
 			
 			// Asset acquisitions boost community confidence
 			metrics.communitySentiment = Math.min(100, metrics.communitySentiment + 2);
@@ -751,9 +774,10 @@
 	}
 
 	function simulateDay(day: number) {
-		// SpaceTime ($PACETIME) decay
+		// SpaceTime (ST) decay — 9% per week applied daily
+		const dailyDecayFactor = Math.pow(1 - config.stDecayRate, 1 / 7);
 		for (const agent of agents) {
-			agent.spaceTime *= Math.exp(-config.stDecayRate);
+			agent.spaceTime *= dailyDecayFactor;
 		}
 		
 		// Natural sentiment decay (requires continuous healthy governance)
@@ -777,7 +801,7 @@
 		// Attract new agents to healthy communities
 		attractNewAgents(day);
 		
-		// Participation and $PACETIME minting
+		// Participation and ST minting
 		let dailyParticipants = 0;
 		for (const agent of agents) {
 			// Disengaged agents don't participate
@@ -810,7 +834,7 @@
 		
 		// Whale Attack Simulation
 		if (config.enableWhaleAttack && day === config.whaleAttackDay) {
-			addLog(day, 'danger', '🐋 WHALE ATTACK: Large $PACEMONEY holders attempting to dominate voting');
+			addLog(day, 'danger', '🐋 WHALE ATTACK: Large SM holders attempting to dominate voting');
 			const whales = agents.filter(a => a.isWhale);
 			for (const whale of whales) {
 				whale.spaceMoney *= 2; // Whales double down
@@ -821,12 +845,12 @@
 		// Sybil Attack Simulation
 		if (config.enableSybilAttack && day === 100) {
 			addLog(day, 'danger', `👥 SYBIL ATTACK: ${config.sybilAgentCount} fake identities attempting to join`);
-			// Sybil agents have minimal $PACEMONEY but try to earn $PACETIME
+			// Sybil agents have minimal SM but cannot earn ST soulbound tokens through fake identity
 			for (let i = 0; i < config.sybilAgentCount; i++) {
 				agents.push({
 					id: agents.length,
-					spaceMoney: 10 + Math.random() * 20, // Very low $PACEMONEY
-					spaceTime: 0, // No $PACETIME yet - they need to earn it
+					spaceMoney: 10 + Math.random() * 20, // Very low SM
+					spaceTime: 0, // No ST yet - soulbound tokens must be earned
 					isWhale: false,
 					participationRate: 0.95, // Very active fake accounts
 					votingAccuracy: 0, // Always vote maliciously
@@ -836,7 +860,7 @@
 					joinDay: day
 				});
 			}
-			addLog(day, 'info', `Sybil agents must earn $PACETIME through participation to gain voting power`);
+			addLog(day, 'info', `Sybil agents must earn ST through participation — soulbound tokens prevent identity-split advantage`);
 		}
 		
 		// Update metrics
@@ -848,6 +872,13 @@
 		const template = proposalTemplates[Math.floor(Math.random() * proposalTemplates.length)];
 		const proposalId = proposals.length + 1;
 		
+		// Pick a proposer — random eligible agent with enough ST for submission cost
+		const eligibleProposers = agents.filter(a => a.spaceTime >= config.proposalThreshold && !a.isDisengaged);
+		if (eligibleProposers.length === 0) return; // No eligible proposers
+		const proposer = eligibleProposers[Math.floor(Math.random() * eligibleProposers.length)];
+		const submissionCost = config.proposalThreshold; // min 9 ST (scales in full impl)
+		proposer.spaceTime = Math.max(0, proposer.spaceTime - submissionCost);
+		
 		// Calculate total voting power for quorum
 		const totalVotingPower = agents.reduce((sum, a) => 
 			sum + calculateVotingPower(a, template.timeWeight, template.moneyWeight), 0);
@@ -856,21 +887,27 @@
 		let votesFor = 0;
 		let votesAgainst = 0;
 		let votersCount = 0;
+		const votersFor: typeof agents = [];
+		const votersAgainst: typeof agents = [];
 		
 		for (const agent of agents) {
 			const votingPower = calculateVotingPower(agent, template.timeWeight, template.moneyWeight);
 			
-			// Must have minimum voting power and decide to participate
+			// Must have minimum ST balance and decide to participate
 			const effectiveParticipation = agent.participationRate * (agent.sentiment / 100);
-			if (votingPower >= config.proposalThreshold * 0.1 && Math.random() < effectiveParticipation) {
+			if (agent.spaceTime >= config.votingMinBalance && votingPower > 0 && Math.random() < effectiveParticipation) {
 				votersCount++;
+				// Deduct ST voting cost (skin-in-the-game)
+				agent.spaceTime = Math.max(0, agent.spaceTime - config.votingCostST);
 				
 				// Voting decision based on accuracy and sentiment
 				const voteCorrectly = Math.random() < agent.votingAccuracy;
 				if (voteCorrectly) {
 					votesFor += votingPower;
+					votersFor.push(agent);
 				} else {
 					votesAgainst += votingPower;
+					votersAgainst.push(agent);
 				}
 			}
 		}
@@ -889,6 +926,25 @@
 		}
 		
 		const passed = wouldPass && !vetoed;
+		
+		// Skin-in-the-game ST redistribution per governance spec:
+		if (passed) {
+			// FOR voters get 5 ST back; AGAINST voters lose 5 ST → split evenly among FOR voters
+			const againstPool = votersAgainst.length * config.votingCostST;
+			const forBonus = votersFor.length > 0 ? againstPool / votersFor.length : 0;
+			for (const w of votersFor) w.spaceTime += config.votingCostST + forBonus;
+		} else {
+			// AGAINST voters get 5 ST back + equal share of 90% of proposer's submission ST
+			// FOR voters lose 5 ST → split evenly among AGAINST voters
+			// 10% of proposer's submission ST → treasury
+			const forPool = votersFor.length * config.votingCostST;
+			const againstBonus = votersAgainst.length > 0 ? forPool / votersAgainst.length : 0;
+			const proposerPenaltyToDistribute = submissionCost * 0.9;
+			const proposerPenaltyToTreasury = submissionCost * 0.1;
+			const proposerShare = votersAgainst.length > 0 ? proposerPenaltyToDistribute / votersAgainst.length : 0;
+			for (const w of votersAgainst) w.spaceTime += config.votingCostST + againstBonus + proposerShare;
+			metrics.treasuryST += proposerPenaltyToTreasury;
+		}
 		
 		// Record proposal
 		proposals.push({
@@ -969,7 +1025,7 @@
 		
 		// Dynamic active voters calculation based on sentiment and trust
 		metrics.eligibleVoters = agents.filter(a => 
-			a.spaceTime >= config.proposalThreshold * 0.1 && !a.isDisengaged
+			a.spaceTime >= config.votingMinBalance && !a.isDisengaged
 		).length;
 		metrics.activeVoters = calculateActiveVoters();
 		metrics.disengagedAgents = agents.filter(a => a.isDisengaged).length;
@@ -1110,6 +1166,7 @@
 			disengagedAgents: 0,
 			newAgentsAttracted: 0,
 			communityHealth: 100,
+			treasuryST: 0,
 			totalAssetValue: 0,
 			totalAssetCost: 0,
 			totalAssetPnL: 0,
@@ -1167,7 +1224,7 @@
 	// Computed values for chart rendering
 	let chartMaxST = $derived(Math.max(...history.map(h => h.totalST), 1));
 	let chartMaxSM = $derived(Math.max(...history.map(h => h.totalSM), 1));
-	let chartMaxUSD = $derived(Math.max(...history.map(h => h.totalSM * config.pricePerPacemoney), 1));
+	let chartMaxUSD = $derived(Math.max(...history.map(h => h.totalSM * config.smStartingPrice), 1));
 	let chartMaxVoters = $derived(Math.max(...history.map(h => h.activeVoters), 1));
 	let chartMaxProposals = $derived(Math.max(
 		...history.map(h => h.proposalsPassed + h.proposalsFailed + h.proposalsVetoed), 
@@ -1336,16 +1393,16 @@
 						<div class="config-details-content">
 							<div class="config-grid-compact">
 								<label class="config-item-compact">
-									<span class="config-label-compact">$PACETIME Decay</span>
-									<input type="number" bind:value={config.stDecayRate} min="0" max="0.01" step="0.0001" disabled={isRunning} />
+									<span class="config-label-compact">ST Weekly Decay</span>
+									<input type="number" bind:value={config.stDecayRate} min="0" max="0.99" step="0.01" disabled={isRunning} />
 								</label>
 								<label class="config-item-compact">
-									<span class="config-label-compact">$PACETIME Mint Rate</span>
+									<span class="config-label-compact">ST Mint Rate</span>
 									<input type="number" bind:value={config.stMintRate} min="1" max="100" disabled={isRunning} />
 								</label>
 								<label class="config-item-compact">
-									<span class="config-label-compact">$PACEMONEY Price (USD)</span>
-									<input type="number" bind:value={config.pricePerPacemoney} min="0.001" max="1000" step="0.001" disabled={isRunning} />
+									<span class="config-label-compact">SM Starting Price (USD)</span>
+									<input type="number" bind:value={config.smStartingPrice} min="0.01" max="1000" step="0.01" disabled={isRunning} />
 								</label>
 							</div>
 						</div>
@@ -1583,9 +1640,9 @@
 			</div>
 
 			<div class="charts-grid">
-				<!-- $PACETIME Supply Chart -->
+				<!-- ST Supply Chart -->
 				<div class="chart-card">
-					<h3>$PACETIME Supply</h3>
+					<h3>SpaceTime (ST) Supply</h3>
 					<div class="chart-container">
 						{#if history.length > 1}
 							<svg viewBox="0 0 400 150" class="chart-svg">
@@ -1607,9 +1664,9 @@
 					</div>
 				</div>
 
-				<!-- $PACEMONEY Supply Chart -->
+				<!-- SM Supply Chart -->
 				<div class="chart-card">
-					<h3>$PACEMONEY Supply</h3>
+					<h3>SpaceMoney (SM) Supply</h3>
 					<div class="chart-container">
 						{#if history.length > 1}
 							<svg viewBox="0 0 400 150" class="chart-svg">
@@ -1631,9 +1688,9 @@
 					</div>
 				</div>
 
-				<!-- $PACEMONEY USD Value Chart -->
+				<!-- SM Treasury Value Chart -->
 				<div class="chart-card">
-					<h3>$PACEMONEY Market Cap (USD)</h3>
+					<h3>SM Treasury Value (USD)</h3>
 					<div class="chart-container">
 						{#if history.length > 1}
 							<svg viewBox="0 0 400 150" class="chart-svg">
@@ -1641,15 +1698,15 @@
 									<line x1="40" y1={130 - y * 1.2} x2="390" y2={130 - y * 1.2} class="grid-line" />
 								{/each}
 								<path
-									d="M 40 130 {history.map((h, i) => `L ${40 + (i / (history.length - 1)) * 350} ${130 - ((h.totalSM * config.pricePerPacemoney) / chartMaxUSD) * 120}`).join(' ')} L 390 130 Z"
+									d="M 40 130 {history.map((h, i) => `L ${40 + (i / (history.length - 1)) * 350} ${130 - ((h.totalSM * config.smStartingPrice) / chartMaxUSD) * 120}`).join(' ')} L 390 130 Z"
 									class="chart-area green"
 								/>
 								<path
-									d="M {history.map((h, i) => `${40 + (i / (history.length - 1)) * 350} ${130 - ((h.totalSM * config.pricePerPacemoney) / chartMaxUSD) * 120}`).join(' L ')}"
+									d="M {history.map((h, i) => `${40 + (i / (history.length - 1)) * 350} ${130 - ((h.totalSM * config.smStartingPrice) / chartMaxUSD) * 120}`).join(' L ')}"
 									class="chart-line green" fill="none"
 								/>
 							</svg>
-							<div class="chart-value-label">${(history[history.length - 1]?.totalSM * config.pricePerPacemoney || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+							<div class="chart-value-label">${(history[history.length - 1]?.totalSM * config.smStartingPrice || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
 						{:else}
 							<div class="chart-empty"><span>Start simulation to see data</span></div>
 						{/if}
@@ -1885,7 +1942,7 @@
 					
 					<!-- Token Distribution Pie -->
 					<div class="pie-chart-wrapper">
-						<h4>$PACETIME Distribution</h4>
+						<h4>ST Distribution</h4>
 						<svg viewBox="0 0 100 100" class="pie-chart">
 							{#if true}
 								{@const whaleST = agents.filter(a => a.isWhale).reduce((sum, a) => sum + a.spaceTime, 0)}
@@ -1907,7 +1964,7 @@
 								<circle cx="50" cy="50" r="25" fill="#1a1625" />
 								<!-- Center text -->
 								<text x="50" y="47" text-anchor="middle" fill="white" font-size="6" font-weight="bold">{(totalST / 1000).toFixed(1)}k</text>
-								<text x="50" y="56" text-anchor="middle" fill="#a0a0a0" font-size="4">$PACETIME</text>
+								<text x="50" y="56" text-anchor="middle" fill="#a0a0a0" font-size="4">ST</text>
 							{/if}
 						</svg>
 						<div class="pie-legend">
@@ -1938,7 +1995,7 @@
 						<div class="metric-icon">⏰</div>
 						<div class="metric-content">
 							<div class="metric-value">{metrics.totalSpaceTime.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
-							<div class="metric-label">$PACETIME Supply</div>
+							<div class="metric-label">ST Supply</div>
 							<div class="metric-hint">Earned through participation</div>
 						</div>
 					</div>
@@ -1946,9 +2003,9 @@
 						<div class="metric-icon">💵</div>
 						<div class="metric-content">
 							<div class="metric-value">{metrics.totalSpaceMoney.toLocaleString()}</div>
-							<div class="metric-label">$PACEMONEY Supply</div>
-							<div class="metric-usd">${(metrics.totalSpaceMoney * config.pricePerPacemoney).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD</div>
-							<div class="metric-hint">@ ${config.pricePerPacemoney}/token</div>
+							<div class="metric-label">SM Supply</div>
+							<div class="metric-usd">${(metrics.totalSpaceMoney * config.smStartingPrice).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD</div>
+							<div class="metric-hint">@ ${config.smStartingPrice} starting price</div>
 						</div>
 					</div>
 					<div class="metric-card green">
@@ -1963,6 +2020,14 @@
 						<div class="metric-content">
 							<div class="metric-value">{metrics.proposalsFailed}</div>
 							<div class="metric-label">Proposals Failed</div>
+						</div>
+					</div>
+					<div class="metric-card gold">
+						<div class="metric-icon">🏛️</div>
+						<div class="metric-content">
+							<div class="metric-value">{metrics.treasuryST.toLocaleString(undefined, { maximumFractionDigits: 1 })}</div>
+							<div class="metric-label">Treasury ST</div>
+							<div class="metric-hint">10% from failed proposals</div>
 						</div>
 					</div>
 					<div class="metric-card orange">
@@ -2061,18 +2126,18 @@
 						</div>
 						<div class="portfolio-stat">
 							<span class="portfolio-label">Total Cost</span>
-							<span class="portfolio-value">{metrics.totalAssetCost.toLocaleString()} $PM</span>
-							<span class="portfolio-usd">${(metrics.totalAssetCost * config.pricePerPacemoney).toLocaleString()}</span>
+							<span class="portfolio-value">{metrics.totalAssetCost.toLocaleString()} SM</span>
+							<span class="portfolio-usd">${(metrics.totalAssetCost * config.smStartingPrice).toLocaleString()}</span>
 						</div>
 						<div class="portfolio-stat">
 							<span class="portfolio-label">Current Value</span>
-							<span class="portfolio-value">{metrics.totalAssetValue.toLocaleString()} $PM</span>
-							<span class="portfolio-usd">${(metrics.totalAssetValue * config.pricePerPacemoney).toLocaleString()}</span>
+							<span class="portfolio-value">{metrics.totalAssetValue.toLocaleString()} SM</span>
+							<span class="portfolio-usd">${(metrics.totalAssetValue * config.smStartingPrice).toLocaleString()}</span>
 						</div>
 						<div class="portfolio-stat" class:profit={metrics.totalAssetPnL >= 0} class:loss={metrics.totalAssetPnL < 0}>
 							<span class="portfolio-label">Total P&L</span>
 							<span class="portfolio-value pnl">
-								{metrics.totalAssetPnL >= 0 ? '+' : ''}{metrics.totalAssetPnL.toLocaleString()} $PM
+								{metrics.totalAssetPnL >= 0 ? '+' : ''}{metrics.totalAssetPnL.toLocaleString()} SM
 							</span>
 							<span class="portfolio-percent">
 								({metrics.totalAssetPnLPercent >= 0 ? '+' : ''}{metrics.totalAssetPnLPercent.toFixed(2)}%)
@@ -2132,11 +2197,11 @@
 									<div class="asset-values">
 										<div class="asset-value-item">
 											<span class="asset-value-label">Cost</span>
-											<span class="asset-value-amount">{asset.purchasePrice.toLocaleString()} $PM</span>
+											<span class="asset-value-amount">{asset.purchasePrice.toLocaleString()} SM</span>
 										</div>
 										<div class="asset-value-item">
 											<span class="asset-value-label">Current</span>
-											<span class="asset-value-amount">{asset.currentValue.toLocaleString()} $PM</span>
+											<span class="asset-value-amount">{asset.currentValue.toLocaleString()} SM</span>
 										</div>
 										<div class="asset-value-item pnl-item">
 											<span class="asset-value-label">P&L</span>
@@ -2194,7 +2259,7 @@
 										{proposal.approvalRate.toFixed(1)}% approval
 									</span>
 									<span class="proposal-weights">
-										$PACETIME: {(proposal.timeWeight * 100).toFixed(0)}% | $PACEMONEY: {(proposal.moneyWeight * 100).toFixed(0)}%
+										ST: {(proposal.timeWeight * 100).toFixed(0)}% | SM: {(proposal.moneyWeight * 100).toFixed(0)}%
 									</span>
 								</div>
 								<div class="proposal-bar">
@@ -2889,6 +2954,7 @@
 	.metric-card.amber .metric-icon { background: rgba(245, 158, 11, 0.15); }
 	.metric-card.red .metric-icon { background: rgba(239, 68, 68, 0.15); }
 	.metric-card.blue .metric-icon { background: rgba(59, 130, 246, 0.15); }
+	.metric-card.gold .metric-icon { background: rgba(234, 179, 8, 0.15); }
 	.metric-card.gradient .metric-icon { background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(6, 182, 212, 0.15)); }
 
 	.metric-content {
@@ -2911,6 +2977,7 @@
 	.metric-card.amber .metric-value { color: var(--color-warning); }
 	.metric-card.red .metric-value { color: var(--color-error); }
 	.metric-card.blue .metric-value { color: #3b82f6; }
+	.metric-card.gold .metric-value { color: #eab308; }
 	.metric-card.gradient .metric-value {
 		background: var(--gradient-primary);
 		-webkit-background-clip: text;
