@@ -77,7 +77,7 @@
 		proposalsFailed: 0,
 		proposalsVetoed: 0,
 		activeVoters: 0,
-		sunsetProgress: 0,
+		handoffProgress: 0,
 		communitySentiment: 100, // 0-100, decreases with vetoes
 		ownerTrust: 100, // 0-100, decreases with vetoes
 		
@@ -143,7 +143,7 @@
 		proposalsPassed: number;
 		proposalsFailed: number;
 		proposalsVetoed: number;
-		sunsetProgress: number;
+		handoffProgress: number;
 		eligibleVoters: number;
 		disengagedAgents: number;
 		totalAgents: number;
@@ -1033,15 +1033,15 @@
 		// Calculate community health (combined sentiment + trust)
 		metrics.communityHealth = (metrics.communitySentiment * 0.6 + metrics.ownerTrust * 0.4);
 		
-		// Calculate sunset progress (simplified)
+		// Calculate Handoff Progress (simplified)
 		const uniqueEarners = activeAgents.filter(a => a.spaceTime > 0).length;
 		const acceptanceRate = proposals.length > 0 
 			? (metrics.proposalsPassed / proposals.length) * 100 
 			: 0;
-		// Sunset requires: 99.9% acceptance rate, 10k earners, low founder concentration
+		// Handoff requires: 99.9% acceptance rate, 10k earners, low founder concentration
 		const earnerProgress = Math.min(100, uniqueEarners / 100 * 100);
 		const acceptanceProgress = Math.min(100, acceptanceRate / 99.9 * 100);
-		metrics.sunsetProgress = (earnerProgress + acceptanceProgress) / 2;
+		metrics.handoffProgress = (earnerProgress + acceptanceProgress) / 2;
 		
 		// Record history for all metrics
 		history.push({
@@ -1056,7 +1056,7 @@
 			proposalsPassed: metrics.proposalsPassed,
 			proposalsFailed: metrics.proposalsFailed,
 			proposalsVetoed: metrics.proposalsVetoed,
-			sunsetProgress: metrics.sunsetProgress,
+			handoffProgress: metrics.handoffProgress,
 			eligibleVoters: metrics.eligibleVoters,
 			disengagedAgents: metrics.disengagedAgents,
 			totalAgents: agents.length,
@@ -1159,7 +1159,7 @@
 			proposalsFailed: 0,
 			proposalsVetoed: 0,
 			activeVoters: 0,
-			sunsetProgress: 0,
+			handoffProgress: 0,
 			communitySentiment: 100,
 			ownerTrust: 100,
 			eligibleVoters: 0,
@@ -1611,28 +1611,28 @@
 				Time Series
 			</h2>
 			
-			<!-- Sunset Progress - Full Width at Top -->
-			<div class="sunset-progress-bar">
-				<div class="sunset-header">
-					<h3>🌅 Sunset Progress</h3>
-					<span class="sunset-value">{(history.length > 0 ? history[history.length - 1].sunsetProgress : 0).toFixed(1)}%</span>
+			<!-- Handoff Progress - Full Width at Top -->
+			<div class="handoff-progress-bar">
+				<div class="handoff-header">
+					<h3>🌅 Handoff Progress</h3>
+					<span class="handoff-value">{(history.length > 0 ? history[history.length - 1].handoffProgress : 0).toFixed(1)}%</span>
 				</div>
-				<div class="sunset-track">
-					<div class="sunset-fill" style="width: {history.length > 0 ? Math.min(100, history[history.length - 1].sunsetProgress) : 0}%"></div>
-					<div class="sunset-target"></div>
+				<div class="handoff-track">
+					<div class="handoff-fill" style="width: {history.length > 0 ? Math.min(100, history[history.length - 1].handoffProgress) : 0}%"></div>
+					<div class="handoff-target"></div>
 				</div>
 				{#if history.length > 1}
-					<div class="sunset-mini-chart">
-						<svg viewBox="0 0 800 60" class="sunset-svg" preserveAspectRatio="none">
+					<div class="handoff-mini-chart">
+						<svg viewBox="0 0 800 60" class="handoff-svg" preserveAspectRatio="none">
 							<!-- Target line at 100% -->
-							<line x1="0" y1="5" x2="800" y2="5" class="sunset-target-line" />
+							<line x1="0" y1="5" x2="800" y2="5" class="handoff-target-line" />
 							<path
-								d="M 0 55 {history.map((h, i) => `L ${(i / (history.length - 1)) * 800} ${55 - (h.sunsetProgress / 100) * 50}`).join(' ')} L 800 55 Z"
-								class="sunset-area"
+								d="M 0 55 {history.map((h, i) => `L ${(i / (history.length - 1)) * 800} ${55 - (h.handoffProgress / 100) * 50}`).join(' ')} L 800 55 Z"
+								class="handoff-area"
 							/>
 							<path
-								d="M {history.map((h, i) => `${(i / (history.length - 1)) * 800} ${55 - (h.sunsetProgress / 100) * 50}`).join(' L ')}"
-								class="sunset-line" fill="none"
+								d="M {history.map((h, i) => `${(i / (history.length - 1)) * 800} ${55 - (h.handoffProgress / 100) * 50}`).join(' L ')}"
+								class="handoff-line" fill="none"
 							/>
 						</svg>
 					</div>
@@ -2092,10 +2092,10 @@
 					<div class="metric-card gradient">
 						<div class="metric-icon">🌅</div>
 						<div class="metric-content">
-							<div class="metric-value">{metrics.sunsetProgress.toFixed(1)}%</div>
-							<div class="metric-label">Sunset Progress</div>
-							<div class="sunset-bar">
-								<div class="sunset-fill" style="width: {metrics.sunsetProgress}%"></div>
+							<div class="metric-value">{metrics.handoffProgress.toFixed(1)}%</div>
+							<div class="metric-label">Handoff Progress</div>
+							<div class="handoff-bar">
+								<div class="handoff-fill" style="width: {metrics.handoffProgress}%"></div>
 							</div>
 						</div>
 					</div>
@@ -3010,7 +3010,7 @@
 		border: 1px solid var(--color-border);
 	}
 
-	.sunset-bar {
+	.handoff-bar {
 		height: 4px;
 		background: var(--color-bg-primary);
 		border-radius: var(--radius-full);
@@ -3018,15 +3018,15 @@
 		overflow: hidden;
 	}
 
-	.sunset-fill {
+	.handoff-fill {
 		height: 100%;
 		background: var(--gradient-primary);
 		border-radius: var(--radius-full);
 		transition: width 0.3s ease;
 	}
 
-	/* Full-width Sunset Progress Bar */
-	.sunset-progress-bar {
+	/* Full-width Handoff Progress Bar */
+	.handoff-progress-bar {
 		background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(236, 72, 153, 0.1));
 		border: 1px solid var(--color-border);
 		border-radius: var(--radius-lg);
@@ -3034,21 +3034,21 @@
 		margin-bottom: var(--space-lg);
 	}
 
-	.sunset-header {
+	.handoff-header {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
 		margin-bottom: var(--space-sm);
 	}
 
-	.sunset-header h3 {
+	.handoff-header h3 {
 		font-size: 1rem;
 		font-weight: 600;
 		margin: 0;
 		color: var(--color-text-primary);
 	}
 
-	.sunset-value {
+	.handoff-value {
 		font-size: 1.25rem;
 		font-weight: 700;
 		background: var(--gradient-primary);
@@ -3057,7 +3057,7 @@
 		background-clip: text;
 	}
 
-	.sunset-track {
+	.handoff-track {
 		position: relative;
 		height: 12px;
 		background: var(--color-bg-primary);
@@ -3066,14 +3066,14 @@
 		margin-bottom: var(--space-sm);
 	}
 
-	.sunset-progress-bar .sunset-fill {
+	.handoff-progress-bar .handoff-fill {
 		height: 100%;
 		background: var(--gradient-primary);
 		border-radius: var(--radius-full);
 		transition: width 0.3s ease;
 	}
 
-	.sunset-target {
+	.handoff-target {
 		position: absolute;
 		right: 0;
 		top: 0;
@@ -3083,29 +3083,29 @@
 		box-shadow: 0 0 8px var(--color-success);
 	}
 
-	.sunset-mini-chart {
+	.handoff-mini-chart {
 		height: 60px;
 		margin-top: var(--space-xs);
 	}
 
-	.sunset-svg {
+	.handoff-svg {
 		width: 100%;
 		height: 100%;
 	}
 
-	.sunset-target-line {
+	.handoff-target-line {
 		stroke: var(--color-success);
 		stroke-width: 1;
 		stroke-dasharray: 4 4;
 		opacity: 0.5;
 	}
 
-	.sunset-area {
+	.handoff-area {
 		fill: url(#gradientFill);
 		opacity: 0.3;
 	}
 
-	.sunset-line {
+	.handoff-line {
 		stroke: var(--color-accent-primary);
 		stroke-width: 2;
 		stroke-linecap: round;

@@ -220,7 +220,7 @@
 		<div class="section-header">
 			<span class="section-badge">Governance</span>
 			<h2 class="section-title">The Path to Autonomy</h2>
-			<p class="section-subtitle">Built-in sunset triggers ensure power transfers to the community—trustlessly.</p>
+			<p class="section-subtitle">Built-in handoff triggers ensure power transfers to the community—trustlessly.</p>
 		</div>
 		<div class="governance-timeline">
 			{#each governancePhases as phase, i}
@@ -310,7 +310,7 @@
 					</div>
 					<div class="document-preview">
 						<p class="preview-abstract">
-							A novel governance framework that achieves Nash equilibrium at socially optimal outcomes through strict separation of economic and governance tokens, labor-based voting power, and hardcoded sunset triggers for credible decentralization.
+							A novel governance framework that achieves Nash equilibrium at socially optimal outcomes through strict separation of economic and governance tokens, labor-based voting power, and hardcoded handoff triggers for credible decentralization.
 						</p>
 					</div>
 					<a href="/whitepaper" class="btn btn-primary btn-lg document-cta">
@@ -356,7 +356,7 @@
 
 					<div class="achievement-card" style="--delay: 0.5s">
 						<div class="achievement-icon">🔓</div>
-						<h4>Credible Sunset</h4>
+						<h4>Credible Handoff</h4>
 						<p>Details the hardcoded on-chain triggers that guarantee founder control dissolution—mathematics, not promises.</p>
 					</div>
 				</div>

@@ -944,7 +944,7 @@
 				<li><strong>Skin-in-the-game voting</strong> with 5 ST cost and result-contingent redistribution</li>
 				<li><strong>Exponential proposal submission costs</strong> tied to timeline and budget, preventing spam</li>
 				<li><strong>Reputation & slashing</strong> systems creating accountability for delivery</li>
-				<li><strong>Hardcoded sunset triggers</strong> for credible, automatic decentralization</li>
+				<li><strong>Hardcoded handoff triggers</strong> for credible, automatic decentralization</li>
 			</ol>
 			<p>
 				We create a system where individual incentives align with collective welfare, 
