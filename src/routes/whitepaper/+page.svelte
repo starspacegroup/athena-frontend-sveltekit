@@ -491,7 +491,7 @@
 					<tbody>
 						<tr>
 							<td>Emergency reserve (untouchable)</td>
-							<td>15% of treasury</td>
+							<td>14% of treasury</td>
 						</tr>
 						<tr>
 							<td>Annual R&amp;D allocation</td>
@@ -503,7 +503,7 @@
 						</tr>
 						<tr>
 							<td>Max single-asset purchase</td>
-							<td>40% of treasury</td>
+							<td>23% of treasury</td>
 						</tr>
 						<tr>
 							<td>Diversification policy</td>
