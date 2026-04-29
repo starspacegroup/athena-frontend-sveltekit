@@ -3,22 +3,154 @@
 
 	const VERSION = '0.1-b';
 	const LAST_UPDATED = 'April 2026';
+	const BACK_TO_TOP_THRESHOLD = 700;
+	const SCROLL_OFFSET = 110;
+
+	let showBackToTop = $state(false);
 
 	function handlePrint() {
 		window.print();
 	}
 
-	onMount(() => {
-		// Add smooth scrolling for anchor links
-		document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-			anchor.addEventListener('click', (e) => {
-				e.preventDefault();
-				const target = document.querySelector((e.currentTarget as HTMLAnchorElement).getAttribute('href')!);
-				if (target) {
-					target.scrollIntoView({ behavior: 'smooth' });
-				}
-			});
+	function buildAnchorUrl(id: string) {
+		return `${window.location.origin}${window.location.pathname}${window.location.search}#${id}`;
+	}
+
+	function scrollToElementByHash(hash: string, replace = false) {
+		if (!hash || hash === '#') return;
+
+		const id = decodeURIComponent(hash.slice(1));
+		const target = document.getElementById(id);
+		if (!target) return;
+
+		const absoluteTop = target.getBoundingClientRect().top + window.scrollY;
+		window.scrollTo({
+			top: Math.max(absoluteTop - SCROLL_OFFSET, 0),
+			behavior: 'smooth'
 		});
+
+		if (replace) {
+			history.replaceState(null, '', `#${id}`);
+		} else {
+			history.pushState(null, '', `#${id}`);
+		}
+	}
+
+	function scrollToTop() {
+		window.scrollTo({ top: 0, behavior: 'smooth' });
+		history.replaceState(null, '', `${window.location.pathname}${window.location.search}`);
+	}
+
+	async function copyAnchorLink(id: string, button: HTMLButtonElement) {
+		const anchorUrl = buildAnchorUrl(id);
+		const originalText = button.textContent || 'Copy link';
+
+		try {
+			if (navigator.clipboard && window.isSecureContext) {
+				await navigator.clipboard.writeText(anchorUrl);
+			} else {
+				const textArea = document.createElement('textarea');
+				textArea.value = anchorUrl;
+				textArea.style.position = 'fixed';
+				textArea.style.opacity = '0';
+				document.body.appendChild(textArea);
+				textArea.select();
+				document.execCommand('copy');
+				document.body.removeChild(textArea);
+			}
+
+			button.textContent = 'Copied';
+			window.setTimeout(() => {
+				button.textContent = originalText;
+			}, 1400);
+		} catch {
+			button.textContent = 'Failed';
+			window.setTimeout(() => {
+				button.textContent = originalText;
+			}, 1400);
+		}
+	}
+
+	function injectHeadingAnchors() {
+		const anchorTargets = document.querySelectorAll<HTMLElement>('.paper-content section[id], .paper-content h3[id]');
+
+		anchorTargets.forEach((target) => {
+			const id = target.id;
+			if (!id) return;
+
+			const heading = target.matches('section')
+				? target.querySelector<HTMLHeadingElement>('h2')
+				: (target as HTMLHeadingElement);
+
+			if (!heading || heading.querySelector('.heading-links')) return;
+
+			const linksEl = document.createElement('span');
+			linksEl.className = 'heading-links no-print';
+
+			const anchorLink = document.createElement('a');
+			anchorLink.className = 'heading-anchor';
+			anchorLink.href = `#${id}`;
+			anchorLink.textContent = '#';
+			anchorLink.setAttribute('aria-label', `Copyable anchor for ${heading.textContent?.trim() || id}`);
+
+			const copyButton = document.createElement('button');
+			copyButton.className = 'copy-anchor-btn';
+			copyButton.type = 'button';
+			copyButton.textContent = 'Copy link';
+			copyButton.setAttribute('aria-label', `Copy direct link for ${heading.textContent?.trim() || id}`);
+			copyButton.addEventListener('click', async (event) => {
+				event.preventDefault();
+				event.stopPropagation();
+				await copyAnchorLink(id, copyButton);
+			});
+
+			linksEl.appendChild(anchorLink);
+			linksEl.appendChild(copyButton);
+			heading.appendChild(linksEl);
+		});
+	}
+
+	onMount(() => {
+		injectHeadingAnchors();
+
+		const handleDocumentAnchorClick = (event: MouseEvent) => {
+			const clickedAnchor = (event.target as HTMLElement).closest('a[href^="#"]') as HTMLAnchorElement | null;
+			if (!clickedAnchor) return;
+
+			const hash = clickedAnchor.getAttribute('href');
+			if (!hash || hash === '#') return;
+
+			const id = decodeURIComponent(hash.slice(1));
+			if (!document.getElementById(id)) return;
+
+			event.preventDefault();
+			scrollToElementByHash(`#${id}`);
+		};
+
+		const handleHashChange = () => {
+			if (!window.location.hash) return;
+			scrollToElementByHash(window.location.hash, true);
+		};
+
+		const handleScroll = () => {
+			showBackToTop = window.scrollY > BACK_TO_TOP_THRESHOLD;
+		};
+
+		document.addEventListener('click', handleDocumentAnchorClick);
+		window.addEventListener('hashchange', handleHashChange);
+		window.addEventListener('scroll', handleScroll, { passive: true });
+
+		if (window.location.hash) {
+			window.requestAnimationFrame(() => scrollToElementByHash(window.location.hash, true));
+		}
+
+		handleScroll();
+
+		return () => {
+			document.removeEventListener('click', handleDocumentAnchorClick);
+			window.removeEventListener('hashchange', handleHashChange);
+			window.removeEventListener('scroll', handleScroll);
+		};
 	});
 </script>
 
@@ -28,6 +160,8 @@
 </svelte:head>
 
 <div class="whitepaper-container">
+	<div id="top" aria-hidden="true"></div>
+
 	<!-- Print/Save Controls (hidden when printing) -->
 	<div class="save-controls no-print">
 		<button class="save-btn" onclick={handlePrint}>
@@ -1122,6 +1256,12 @@
 			</p>
 		</footer>
 	</article>
+
+	{#if showBackToTop}
+		<button class="back-to-top no-print" onclick={scrollToTop} type="button" aria-label="Back to top">
+			↑ Top
+		</button>
+	{/if}
 </div>
 
 <style>
@@ -1531,6 +1671,85 @@
 		color: var(--color-text-primary);
 	}
 
+	.paper-content section[id],
+	.paper-content h3[id] {
+		scroll-margin-top: 120px;
+	}
+
+	.paper-content section[id]:target,
+	.paper-content h3[id]:target {
+		outline: 1px solid color-mix(in srgb, var(--color-accent-primary) 45%, transparent);
+		box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent-primary) 15%, transparent);
+	}
+
+	:global(.heading-links) {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-xs);
+		margin-left: var(--space-sm);
+		vertical-align: middle;
+	}
+
+	:global(.heading-anchor) {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 1.7rem;
+		height: 1.7rem;
+		border-radius: var(--radius-full);
+		text-decoration: none;
+		font-size: 0.95rem;
+		font-weight: 700;
+		color: var(--color-accent-primary);
+		background: color-mix(in srgb, var(--color-accent-primary) 14%, transparent);
+		border: 1px solid color-mix(in srgb, var(--color-accent-primary) 28%, transparent);
+		transition: transform var(--transition-fast), background var(--transition-fast);
+	}
+
+	:global(.heading-anchor:hover) {
+		transform: translateY(-1px);
+		background: color-mix(in srgb, var(--color-accent-primary) 25%, transparent);
+	}
+
+	:global(.copy-anchor-btn) {
+		padding: 0.28rem 0.6rem;
+		border-radius: var(--radius-full);
+		border: 1px solid var(--color-border);
+		background: var(--color-bg-tertiary);
+		color: var(--color-text-secondary);
+		font-size: 0.75rem;
+		font-weight: 600;
+		cursor: pointer;
+		transition: transform var(--transition-fast), border-color var(--transition-fast);
+	}
+
+	:global(.copy-anchor-btn:hover) {
+		transform: translateY(-1px);
+		border-color: color-mix(in srgb, var(--color-accent-primary) 45%, var(--color-border));
+	}
+
+	.back-to-top {
+		position: fixed;
+		right: 1rem;
+		bottom: 1rem;
+		z-index: 250;
+		padding: 0.65rem 0.95rem;
+		border-radius: var(--radius-full);
+		border: 1px solid var(--color-border);
+		background: color-mix(in srgb, var(--color-bg-card) 82%, transparent);
+		backdrop-filter: blur(6px);
+		color: var(--color-text-primary);
+		font-weight: 700;
+		cursor: pointer;
+		box-shadow: var(--shadow-md);
+		transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+	}
+
+	.back-to-top:hover {
+		transform: translateY(-2px);
+		box-shadow: var(--shadow-lg);
+	}
+
 	.paper-content p {
 		line-height: 1.8;
 		margin: 0 0 var(--space-md);
@@ -1828,6 +2047,19 @@
 
 		.save-btn {
 			justify-content: center;
+		}
+
+		.back-to-top {
+			right: 0.75rem;
+			bottom: 0.75rem;
+			padding: 0.6rem 0.82rem;
+			font-size: 0.82rem;
+		}
+
+		:global(.heading-links) {
+			display: flex;
+			margin-top: var(--space-xs);
+			margin-left: 0;
 		}
 	}
 </style>
