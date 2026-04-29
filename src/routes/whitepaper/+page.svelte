@@ -1271,6 +1271,12 @@
 			display: none !important;
 		}
 
+		:global(.heading-links),
+		:global(.heading-anchor),
+		:global(.copy-anchor-btn) {
+			display: none !important;
+		}
+
 		.whitepaper-container {
 			background: white !important;
 			color: #1a1a1a !important;
