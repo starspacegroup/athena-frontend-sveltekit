@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 
-	const VERSION = '0.1';
+	const VERSION = '0.1-b';
 	const LAST_UPDATED = 'April 2026';
 
 	function handlePrint() {
