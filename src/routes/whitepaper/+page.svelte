@@ -1109,8 +1109,10 @@
 			<h3 id="smart-contracts">8.1 Smart Contract Development</h3>
 			<p>
 				The foundational infrastructure for *Space DAO is being built on the <strong>Polygon 
-				blockchain</strong> using <strong>Aragon</strong>, a battle-tested framework for DAO 
-				governance. Our immediate priorities include:
+				blockchain</strong> through a complete set of <strong>Athena smart contracts and web 
+				tools</strong>. This same DAO system is designed to eventually enable community members 
+				to create additional organizations using the framework developed here. Our immediate 
+				priorities include:
 			</p>
 			<ul>
 				<li>Completing the SpaceMoney (SM) and SpaceTime (ST) token smart contracts</li>
