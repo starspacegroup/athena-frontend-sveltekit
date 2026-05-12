@@ -363,6 +363,20 @@
 		height: auto;
 	}
 
+	:global(a) {
+		color: var(--color-accent-secondary);
+		text-decoration: none;
+		transition: color 0.2s ease;
+	}
+
+	:global(a:hover) {
+		color: var(--color-accent-primary);
+	}
+
+	:global(a:visited) {
+		color: var(--color-accent-secondary);
+	}
+
 	:global(::selection) {
 		background: var(--color-accent-primary);
 		color: white;
