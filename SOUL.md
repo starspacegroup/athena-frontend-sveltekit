@@ -97,65 +97,149 @@ When in doubt, choose the option that:
 
 ---
 
-## 7. The Ecosystem of Apps (To Decide)
+## 7. The Pantheon — Athena's Sub-Apps
 
-This frontend is one surface on Athena. A full ecosystem will need more. The following are the candidate apps — we need to decide which we build, which we partner on, and which we leave to the community.
+Athena is not a monolith. It is a **federation of focused sub-apps**, each owning one surface of organizational life. Every sub-app is independently usable, independently deployable, and bound to the others by a shared identity layer and on-chain protocol. An organization can adopt the whole pantheon or any subset.
 
-### 7.1 Confirmed Surfaces
+The naming convention is deliberate: each sub-app takes its name from the Greek tradition surrounding Athena. The name encodes the function — so the role is legible even before the docs load.
 
-- **Athena Web App** *(this repo)* — Landing, dashboard, treasury view, proposal browsing, profile, simulator, whitepaper. The canonical reference client.
+### 7.0 Naming and Composition Rules
 
-### 7.2 Decisions Needed
+- **One job per app.** If a sub-app needs a second tagline to explain itself, it should be split.
+- **Greek-coherent.** New sub-apps draw from the same mythological well. No mixed metaphors.
+- **Shared identity, separate surfaces.** All sub-apps authenticate through the same Athena identity layer (wallet + Discord + reputation passport). A user signs in once.
+- **Protocol-first, UI second.** Every sub-app is a window onto a contract. If the UI disappears, the function does not.
+- **Routes mirror names.** `/agora`, `/hermes`, `/aegis`, etc. Internal route names match the public name.
 
-Each item below needs a verdict: **build now / build later / partner / leave to community / kill**.
+### 7.1 The Pantheon
 
-#### A. Organization Creation
+| Sub-App | Role | Status |
+|---------|------|--------|
+| **Agora** | Proposals, deliberation, voting | Core |
+| **Hermes** | Economic-token markets: buy, sell, trade, transfer | Core |
+| **Aegis** | Treasury & personal balances: see what you (and the org) hold | Core |
+| **Stoa** | Long-form deliberation and proposal authoring | Core |
+| **Aletheia** | Identity, reputation, contribution passport | Core |
+| **Helm** | Founder console: org creation, parameters, transitions | Build later |
+| **Pythia** | Analytics and org-health reporting | Build later |
+| **Atlas** | Cross-organization explorer | Build later |
 
-- **Founder Console / Org Bootstrapper** — Wizard for deploying a new Athena organization: pick chain, configure currency names, set founder powers, define transition triggers, optionally attach a legal wrapper.
-- **Constitution Builder** — Templates and a guided editor for the organization's charter, proposal categories, slashing rules, and reputation parameters.
-- **Legal Wrapper Integrator** — Optional flow that connects to Wyoming DAO LLC formation services, equivalents in other jurisdictions, or a "no wrapper" pure-protocol path.
+#### 7.1.1 Agora — *The Assembly*
 
-#### B. Member-Facing
+The place where decisions are made.
 
-- **Mobile App** — Notifications, vote-from-phone, treasury watch, identity. Probably PWA first, native later.
-- **Browser Extension** — Sign votes, view org context on any page, sybil-resistant identity broadcast.
-- **Discord / Matrix / Slack Bots** — Native presence in the communication channels organizations already use. Vote prompts, treasury alerts, proposal summaries.
+- **Proposal lifecycle.** Draft → review → vote → execute. Every state on-chain, every transition signed.
+- **Voting with skin in the game.** Stake governance currency to vote. Winning side recovers stake; losing side's stake redistributes per the protocol's slashing rules.
+- **Live ballots.** Real-time tally, weighted by current governance-currency holdings (post-decay).
+- **Proposal categories.** Treasury spend, parameter change, constitutional, signaling. Each category can have distinct quorum and threshold rules.
+- **Execution receipts.** Passed proposals that bind on-chain actions execute automatically; off-chain proposals produce signed mandates.
+- **Vote delegation.** Optional: lend governance weight to a trusted delegate without transferring the underlying tokens.
+- **History.** Every vote, by every member, forever — the canonical record of organizational judgment.
 
-#### C. Governance Operations
+#### 7.1.2 Hermes — *The Messenger and Trader*
 
-- **Proposal Studio** — Rich proposal authoring: text, attached transactions, simulations, impact previews, co-author flows.
-- **Voting Client** — Standalone, minimal-surface voting app for users who want only the ballot.
-- **Delegate Marketplace** — Browse, vet, and delegate to active contributors. Public delegate statements, voting history, performance metrics.
+The market for the organization's economic currency.
 
-#### D. Economic & Treasury
+- **Buy.** Fiat on-ramp (where jurisdiction allows) and stablecoin swap into the org's economic token, priced against the treasury.
+- **Sell.** Redeem economic tokens into stablecoins or other supported assets, subject to treasury policy and lockups.
+- **Trade.** Peer-to-peer order book or AMM, depending on org configuration. Open price discovery.
+- **Transfer.** Send economic tokens to any wallet or to a Discord-linked member. Memo-supported for accounting.
+- **Quotes and depth.** Live mid-price, bid/ask, depth chart, and 24h volume drawn directly from the contract.
+- **Jurisdictional gates.** Each market can require KYC, residency checks, or accredited-investor flags as the org demands. If the wrapper is off, Hermes runs gateless.
+- **Programmatic access.** Same orderbook exposed by SDK and webhook so external market makers can participate.
 
-- **Treasury Dashboard** — Inflows, outflows, runway, asset allocation, on-chain receipts. Deep enough for a CFO.
-- **Staking & Yield Interface** — Economic-currency staking, lockup management, claim flows.
-- **Market / Exchange Interface** — Buy/sell economic currency; optional, depends on jurisdiction.
+#### 7.1.3 Aegis — *The Shield*
 
-#### E. Identity & Reputation
+What you hold. What the org holds. Where it sits. The shield that protects value also reveals it.
 
-- **Athena Passport** — Portable identity: contribution history, reputation across organizations, public profile. Sybil-resistant.
-- **Contribution Verifier** — Tooling for org admins to attest to off-chain work (PRs, design, ops) that converts to governance currency.
+- **My balances.** Every Athena-native token across every org the user belongs to, in one view. Governance currency, economic currency, staked positions, locked positions, vesting schedules.
+- **Org treasury.** Total holdings broken down by asset class (native economic token, stablecoins, RWAs, NFTs, external positions). Real-time on-chain.
+- **Runway and health.** Months of operating cost remaining at current burn. Concentration warnings. Counterparty exposure.
+- **Inflows and outflows.** Every treasury transaction, categorized and attributable to a proposal or policy.
+- **Receipts.** Tax-grade exports of personal token movements. CFO-grade exports of treasury activity.
+- **Watch mode.** Public read-only view of any org's treasury — same Aegis surface, no auth required.
 
-#### F. Infrastructure & Developer
+#### 7.1.4 Stoa — *The Porch of Philosophers*
 
+Where deliberation happens before a vote. Slow thinking by design.
+
+- **Threaded discussion.** Long-form posts, references, citations, attached simulations. Markdown plus inline transaction previews.
+- **Proposal authoring.** Co-authoring, version history, structured templates per proposal category.
+- **Impact simulation.** Run a proposed transaction against current chain state and show the diff: treasury before/after, parameter before/after, who is affected.
+- **Sentiment, not voting.** Lightweight polls and ranked signals to gauge readiness before pushing to Agora.
+- **Quiet rooms.** Optional encrypted channels for sensitive proposals (M&A, legal, personnel), with on-chain commitments that they happened.
+
+#### 7.1.5 Aletheia — *Truth*
+
+Your identity inside the protocol. Portable across every org you join.
+
+- **Contribution passport.** Verified work history: PRs merged, designs shipped, hours logged, attestations from org admins. Cryptographically signed.
+- **Reputation score.** Per-org and aggregate. Reflects voting accuracy (did your side win? was the outcome good?), proposal quality, contribution density, and decay.
+- **Public profile.** Pseudonymous by default. Members choose what to reveal: wallet, Discord, GitHub, real name, jurisdiction.
+- **Sybil resistance.** Identity binding through proof-of-personhood adapters (Discord history, GitHub age, optional KYC). No single chokepoint.
+- **Reputation slashing.** On-chain record of governance failures (failed proposals, malicious votes) that the protocol penalizes.
+- **Portability.** Take your passport to a new Athena org and arrive with credible history. Orgs decide how much weight to give external reputation.
+
+#### 7.1.6 Helm — *The Steering Wheel*
+
+How a new organization comes into being and how an existing one steers.
+
+- **Org bootstrapper.** Wizard: choose chain, name the two currencies, configure founder powers, define transition triggers, set initial parameters.
+- **Constitution editor.** Templates for charter, proposal categories, slashing rules, reputation decay curves, treasury policy. Guided but not prescriptive.
+- **Legal wrapper integrator.** Optional: connect to Wyoming DAO LLC formation, equivalents elsewhere, or skip the wrapper entirely.
+- **Parameter board.** Live view of every configurable parameter and which proposal type can change it.
+- **Transition monitor.** Visual readout of founder-power dissolution: triggers met, triggers pending, time/conditions remaining.
+- **Multi-sig and key management.** For the small set of operations that legitimately require off-protocol coordination.
+
+#### 7.1.7 Pythia — *The Oracle*
+
+What is true about this organization, said clearly.
+
+- **Health score.** Composite metric: participation rate, distribution of governance currency, founder-power progress, treasury runway, slashing frequency.
+- **Risk reports.** Concentration risk, dependency risk (single contributors, single counterparties), governance capture risk.
+- **Participation analytics.** Active voters over time, proposal throughput, average deliberation length, voter-loss attribution.
+- **Comparative views.** Benchmark against other Athena orgs at the same maturity.
+- **Public reports.** Auditable, exportable, embedabble. Pythia is what a journalist, regulator, or partner reads first.
+
+#### 7.1.8 Atlas — *The World-Bearer*
+
+The map of every organization built on Athena. Etherscan-for-orgs.
+
+- **Universal directory.** Every public Athena deployment, searchable by name, chain, size, category, age.
+- **Org pages.** Aegis + Pythia summaries for any org without needing to log in.
+- **Proposal stream.** Cross-org feed of active and recent proposals. Optionally filtered by category or chain.
+- **Integration catalog.** Which sub-apps a given org has enabled, and which external tools it connects to.
+- **Network statistics.** How many orgs, how much value, how many active members, where they are.
+
+### 7.2 Already-Built Surfaces in This Repo
+
+The current Athena Web App contains early versions of several of these sub-apps. As they mature, they migrate to their named surface:
+
+- `/dashboard` → seed of **Aegis** (personal balances) + **Pythia** (org snapshot).
+- `/tokens/purchase`, `/tokens/transfer` → seed of **Hermes**.
+- `/profile` → seed of **Aletheia**.
+- `/simulate` → seed of **Stoa** (impact simulation).
+- `/whitepaper` → permanent reference, not a sub-app.
+
+### 7.3 Out-of-Pantheon Surfaces
+
+Some clients are not "sub-apps" in the pantheon sense — they are alternative front-ends to existing sub-apps. They share the pantheon's identity layer but are not named after Greek figures.
+
+- **Mobile App** — PWA first, native later. Mostly Aegis + Agora notifications.
+- **Browser Extension** — Sign votes, view org context anywhere.
+- **Discord / Matrix / Slack Bots** — Native presence in the channels orgs already use.
 - **Athena SDK** — TypeScript / Rust / Python clients.
-- **Athena CLI** — Power-user operations: bulk proposal creation, treasury ops, migrations.
+- **Athena CLI** — Power-user operations.
 - **Indexer / GraphQL API** — Read-side infrastructure other apps can build on.
-- **Webhook & Event Service** — Push-style integration for partner systems.
 
-#### G. Analytics, Audit, Trust
+### 7.4 Vertical Templates
 
-- **Public Explorer** — Universal browser for any Athena organization, like Etherscan-for-orgs.
-- **Health Score & Risk Reports** — Governance health metrics: participation rates, concentration, slashing events, founder-transition progress.
-- **Audit Trail Exporter** — Compliance-grade exports for organizations that need them (accounting, regulators, members).
+Pre-configured pantheons for specific org shapes. Each template ships parameter defaults, proposal categories, and a starter constitution.
 
-#### H. Specialized / Vertical
-
-- **Research Collective Template** — Pre-configured Athena for academic / scientific groups.
-- **Cooperative Template** — Pre-configured for worker / consumer co-ops.
-- **Family Office Template** — Multi-generation wealth and decision-making.
+- **Research Collective** — Academic / scientific groups.
+- **Cooperative** — Worker or consumer co-ops.
+- **Family Office** — Multi-generation wealth and decision-making.
+- **Creator Guild** — Aligned with *Space's incubator and live/work-space thesis.
 
 ---
 

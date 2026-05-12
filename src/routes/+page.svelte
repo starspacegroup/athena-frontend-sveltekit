@@ -119,6 +119,147 @@
 		}
 	];
 
+	// The Pantheon — Athena's sub-apps. Each one is a focused surface,
+	// independently usable, bound to the others by shared identity and protocol.
+	const pantheon = [
+		{
+			name: 'Agora',
+			tagline: 'The Assembly',
+			role: 'Proposals & Voting',
+			icon: '🗳️',
+			status: 'core',
+			color: 'violet',
+			route: '/agora',
+			description: 'Draft proposals, deliberate, and vote with skin in the game. Stake governance currency to participate; winning side recovers stake, losing side\'s stake redistributes per protocol.',
+			features: [
+				'On-chain proposal lifecycle: draft → review → vote → execute',
+				'Live ballots weighted by post-decay governance balance',
+				'Category-specific quorum and thresholds',
+				'Optional vote delegation without transferring tokens',
+				'Permanent record of every member\'s judgment'
+			]
+		},
+		{
+			name: 'Hermes',
+			tagline: 'The Messenger',
+			role: 'Markets & Exchange',
+			icon: '⚡',
+			status: 'core',
+			color: 'amber',
+			route: '/hermes',
+			description: 'Buy, sell, trade, and transfer the organization\'s economic token. Open price discovery against the treasury, plus peer-to-peer markets with depth charts and live quotes.',
+			features: [
+				'Buy with stablecoin or fiat (where jurisdiction allows)',
+				'Sell back to treasury or peer-to-peer order book',
+				'Transfer to any wallet or Discord-linked member',
+				'Live mid-price, bid/ask, depth, and 24h volume',
+				'Configurable KYC and residency gates per market'
+			]
+		},
+		{
+			name: 'Aegis',
+			tagline: 'The Shield',
+			role: 'Treasury & Balances',
+			icon: '🛡️',
+			status: 'core',
+			color: 'emerald',
+			route: '/aegis',
+			description: 'See what you hold. See what the organization holds. The shield that protects value also reveals it — for members, operators, and the public.',
+			features: [
+				'Every Athena-native token across every org you belong to',
+				'Org treasury broken down by asset class, real-time',
+				'Runway, concentration warnings, counterparty exposure',
+				'Tax-grade personal exports; CFO-grade treasury exports',
+				'Public read-only view of any org\'s treasury'
+			]
+		},
+		{
+			name: 'Stoa',
+			tagline: 'The Porch',
+			role: 'Deliberation & Authoring',
+			icon: '📜',
+			status: 'core',
+			color: 'sky',
+			route: '/stoa',
+			description: 'Where deliberation happens before a vote. Slow thinking by design — long-form authoring, impact simulation, and structured templates for each proposal category.',
+			features: [
+				'Threaded long-form discussion with markdown and references',
+				'Co-authoring and version history per proposal',
+				'Inline transaction simulation: treasury and parameters diff',
+				'Lightweight sentiment polls before pushing to Agora',
+				'Optional encrypted rooms with on-chain commitments'
+			]
+		},
+		{
+			name: 'Aletheia',
+			tagline: 'Truth',
+			role: 'Identity & Reputation',
+			icon: '🦉',
+			status: 'core',
+			color: 'rose',
+			route: '/aletheia',
+			description: 'Your contribution passport. Portable across every Athena org you join. Pseudonymous by default, cryptographically signed, and reputation-aware.',
+			features: [
+				'Verified work history: PRs, designs, hours, attestations',
+				'Per-org and aggregate reputation scores',
+				'Sybil-resistant via proof-of-personhood adapters',
+				'Choose what to reveal: wallet, Discord, GitHub, name',
+				'Take your passport to any new Athena organization'
+			]
+		},
+		{
+			name: 'Helm',
+			tagline: 'The Steering Wheel',
+			role: 'Founder Console',
+			icon: '🧭',
+			status: 'later',
+			color: 'indigo',
+			route: '/helm',
+			description: 'How a new organization comes into being and how an existing one steers. Pick chain, name the two currencies, configure founder powers, define transition triggers.',
+			features: [
+				'Guided wizard for new-org deployment',
+				'Constitution templates: charter, categories, slashing, decay',
+				'Optional Wyoming DAO LLC or other legal wrappers',
+				'Live parameter board with proposal-type permissions',
+				'Visual readout of founder-power dissolution progress'
+			]
+		},
+		{
+			name: 'Pythia',
+			tagline: 'The Oracle',
+			role: 'Analytics & Health',
+			icon: '🔮',
+			status: 'later',
+			color: 'fuchsia',
+			route: '/pythia',
+			description: 'What is true about this organization, said clearly. The first place a journalist, regulator, or partner reads. Composite health, risks, and benchmarks.',
+			features: [
+				'Composite health score: participation, distribution, runway',
+				'Risk reports: concentration, dependency, capture',
+				'Participation analytics over time',
+				'Comparative benchmarks against peer Athena orgs',
+				'Exportable, embeddable, auditable reports'
+			]
+		},
+		{
+			name: 'Atlas',
+			tagline: 'The World-Bearer',
+			role: 'Multi-Org Explorer',
+			icon: '🗺️',
+			status: 'later',
+			color: 'teal',
+			route: '/atlas',
+			description: 'The map of every organization built on Athena. Etherscan-for-orgs — searchable, comparable, and credible without an account.',
+			features: [
+				'Universal directory of public Athena deployments',
+				'Org pages with Aegis + Pythia summaries, no login',
+				'Cross-org stream of active and recent proposals',
+				'Integration catalog: which sub-apps each org has enabled',
+				'Network-wide statistics: orgs, value, members, chains'
+			]
+		}
+	];
+
 	const governancePhases = [
 		{
 			phase: 'Now',
@@ -213,6 +354,59 @@
 					<p>{feature.description}</p>
 				</div>
 			{/each}
+		</div>
+	</section>
+
+	<!-- Pantheon Section — Athena's Sub-Apps -->
+	<section class="pantheon-section" id="pantheon">
+		<div class="section-header">
+			<span class="section-badge">The Pantheon</span>
+			<h2 class="section-title">Athena's Sub-Apps</h2>
+			<p class="section-subtitle">
+				Athena is a federation of focused sub-apps, not a monolith. Each one owns a single surface of organizational life — proposals, markets, treasury, identity. Adopt the whole pantheon or any subset. They share one identity layer and one protocol.
+			</p>
+		</div>
+
+		<div class="pantheon-grid">
+			{#each pantheon as app, i}
+				<div class="pantheon-card pantheon-{app.color} {app.status === 'later' ? 'pantheon-later' : ''}" style="--delay: {i * 0.08}s">
+					<div class="pantheon-card-head">
+						<div class="pantheon-icon">{app.icon}</div>
+						<div class="pantheon-heading">
+							<h3>{app.name}</h3>
+							<span class="pantheon-tagline">{app.tagline}</span>
+						</div>
+						<span class="pantheon-status">
+							{app.status === 'core' ? 'Core' : 'Build Later'}
+						</span>
+					</div>
+
+					<div class="pantheon-role">{app.role}</div>
+					<p class="pantheon-description">{app.description}</p>
+
+					<ul class="pantheon-features">
+						{#each app.features as item}
+							<li>{item}</li>
+						{/each}
+					</ul>
+
+					<div class="pantheon-route">
+						<code>{app.route}</code>
+					</div>
+				</div>
+			{/each}
+		</div>
+
+		<div class="pantheon-footer">
+			<div class="pantheon-principle">
+				<span class="pantheon-principle-icon">🏛️</span>
+				<div>
+					<h4>One Identity. Many Surfaces.</h4>
+					<p>
+						Sign in once with your wallet and Discord. Your reputation, balances, votes, and history follow you across every sub-app — and across every Athena organization you join.
+					</p>
+				</div>
+			</div>
 		</div>
 	</section>
 
@@ -1833,6 +2027,229 @@
 
 		.creative-disciplines {
 			justify-content: center;
+		}
+	}
+
+	/* ====================================================================
+	   Pantheon Section — sub-apps grid
+	   ==================================================================== */
+	.pantheon-section {
+		padding: var(--space-3xl) 0;
+	}
+
+	.pantheon-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(min(340px, 100%), 1fr));
+		gap: var(--space-lg);
+		margin-bottom: var(--space-2xl);
+	}
+
+	.pantheon-card {
+		position: relative;
+		background: var(--color-bg-card);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-lg);
+		padding: var(--space-xl);
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-md);
+		transition: all var(--transition-base);
+		animation: fadeInUp 0.6s ease-out backwards;
+		animation-delay: var(--delay);
+		overflow: hidden;
+	}
+
+	.pantheon-card::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: 3px;
+		background: var(--pantheon-accent, var(--gradient-primary));
+		opacity: 0.9;
+	}
+
+	.pantheon-card:hover {
+		transform: translateY(-4px);
+		border-color: var(--color-border-hover);
+		box-shadow: var(--shadow-lg);
+	}
+
+	.pantheon-violet   { --pantheon-accent: linear-gradient(135deg, #8b5cf6, #6366f1); --pantheon-tint: rgba(139, 92, 246, 0.10); }
+	.pantheon-amber    { --pantheon-accent: linear-gradient(135deg, #f59e0b, #ef4444); --pantheon-tint: rgba(245, 158, 11, 0.10); }
+	.pantheon-emerald  { --pantheon-accent: linear-gradient(135deg, #10b981, #14b8a6); --pantheon-tint: rgba(16, 185, 129, 0.10); }
+	.pantheon-sky      { --pantheon-accent: linear-gradient(135deg, #38bdf8, #3b82f6); --pantheon-tint: rgba(56, 189, 248, 0.10); }
+	.pantheon-rose     { --pantheon-accent: linear-gradient(135deg, #f43f5e, #ec4899); --pantheon-tint: rgba(244, 63, 94, 0.10); }
+	.pantheon-indigo   { --pantheon-accent: linear-gradient(135deg, #6366f1, #4f46e5); --pantheon-tint: rgba(99, 102, 241, 0.10); }
+	.pantheon-fuchsia  { --pantheon-accent: linear-gradient(135deg, #d946ef, #a855f7); --pantheon-tint: rgba(217, 70, 239, 0.10); }
+	.pantheon-teal     { --pantheon-accent: linear-gradient(135deg, #14b8a6, #06b6d4); --pantheon-tint: rgba(20, 184, 166, 0.10); }
+
+	.pantheon-card-head {
+		display: flex;
+		align-items: flex-start;
+		gap: var(--space-md);
+	}
+
+	.pantheon-icon {
+		font-size: 2.25rem;
+		line-height: 1;
+		width: 56px;
+		height: 56px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: var(--pantheon-tint, var(--color-bg-tertiary));
+		border-radius: var(--radius-md);
+		flex-shrink: 0;
+	}
+
+	.pantheon-heading {
+		flex: 1;
+		min-width: 0;
+	}
+
+	.pantheon-heading h3 {
+		font-family: var(--font-display);
+		font-size: 1.5rem;
+		margin: 0;
+		line-height: 1.1;
+	}
+
+	.pantheon-tagline {
+		display: block;
+		font-size: 0.75rem;
+		font-style: italic;
+		color: var(--color-text-muted);
+		margin-top: 2px;
+		letter-spacing: 0.02em;
+	}
+
+	.pantheon-status {
+		font-size: 0.625rem;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		padding: 4px 8px;
+		border-radius: var(--radius-sm);
+		background: rgba(16, 185, 129, 0.15);
+		color: var(--color-success);
+		white-space: nowrap;
+		flex-shrink: 0;
+	}
+
+	.pantheon-later .pantheon-status {
+		background: rgba(245, 158, 11, 0.15);
+		color: var(--color-warning);
+	}
+
+	.pantheon-role {
+		font-size: 0.75rem;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		color: var(--color-text-secondary);
+	}
+
+	.pantheon-description {
+		font-size: 0.9375rem;
+		line-height: 1.6;
+		color: var(--color-text-secondary);
+		margin: 0;
+	}
+
+	.pantheon-features {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-xs);
+	}
+
+	.pantheon-features li {
+		font-size: 0.8125rem;
+		line-height: 1.5;
+		color: var(--color-text-secondary);
+		padding-left: var(--space-md);
+		position: relative;
+	}
+
+	.pantheon-features li::before {
+		content: '';
+		position: absolute;
+		left: 0;
+		top: 0.55em;
+		width: 6px;
+		height: 6px;
+		border-radius: 50%;
+		background: var(--pantheon-accent, var(--gradient-primary));
+	}
+
+	.pantheon-route {
+		margin-top: auto;
+		padding-top: var(--space-sm);
+		border-top: 1px solid var(--color-border);
+	}
+
+	.pantheon-route code {
+		font-family: var(--font-mono, ui-monospace, monospace);
+		font-size: 0.75rem;
+		color: var(--color-text-muted);
+		background: var(--pantheon-tint, var(--color-bg-tertiary));
+		padding: 2px 8px;
+		border-radius: var(--radius-sm);
+	}
+
+	.pantheon-later {
+		opacity: 0.85;
+	}
+
+	.pantheon-later .pantheon-icon {
+		filter: saturate(0.7);
+	}
+
+	.pantheon-footer {
+		margin-top: var(--space-xl);
+	}
+
+	.pantheon-principle {
+		display: flex;
+		align-items: flex-start;
+		gap: var(--space-lg);
+		padding: var(--space-xl);
+		background: linear-gradient(135deg, rgba(139, 92, 246, 0.08), rgba(59, 130, 246, 0.08));
+		border: 1px solid rgba(139, 92, 246, 0.25);
+		border-radius: var(--radius-lg);
+	}
+
+	.pantheon-principle-icon {
+		font-size: 2.5rem;
+		line-height: 1;
+		flex-shrink: 0;
+	}
+
+	.pantheon-principle h4 {
+		font-family: var(--font-display);
+		margin: 0 0 var(--space-xs);
+		font-size: 1.125rem;
+	}
+
+	.pantheon-principle p {
+		margin: 0;
+		color: var(--color-text-secondary);
+		line-height: 1.6;
+	}
+
+	@media (max-width: 768px) {
+		.pantheon-grid {
+			grid-template-columns: 1fr;
+		}
+
+		.pantheon-principle {
+			flex-direction: column;
+			text-align: center;
+			align-items: center;
 		}
 	}
 </style>
