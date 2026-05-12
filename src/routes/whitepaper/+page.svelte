@@ -41,6 +41,10 @@
 		history.replaceState(null, '', `${window.location.pathname}${window.location.search}`);
 	}
 
+	function scrollToToc() {
+		scrollToElementByHash('#toc', true);
+	}
+
 	async function copyAnchorLink(id: string, button: HTMLButtonElement) {
 		const anchorUrl = buildAnchorUrl(id);
 		const originalText = button.textContent || 'Copy link';
@@ -133,7 +137,13 @@
 		};
 
 		const handleScroll = () => {
-			showBackToTop = window.scrollY > BACK_TO_TOP_THRESHOLD;
+			const toc = document.getElementById('toc');
+			if (toc) {
+				const tocBottom = toc.getBoundingClientRect().bottom + window.scrollY;
+				showBackToTop = window.scrollY > tocBottom - SCROLL_OFFSET;
+			} else {
+				showBackToTop = window.scrollY > BACK_TO_TOP_THRESHOLD;
+			}
 		};
 
 		document.addEventListener('click', handleDocumentAnchorClick);
@@ -204,7 +214,7 @@
 	</section>
 
 	<!-- Table of Contents -->
-	<nav class="toc">
+	<nav id="toc" class="toc">
 		<h2>Table of Contents</h2>
 		<ol>
 			<li><a href="#introduction">Introduction</a></li>
@@ -1278,8 +1288,13 @@
 	</article>
 
 	{#if showBackToTop}
-		<button class="back-to-top no-print" onclick={scrollToTop} type="button" aria-label="Back to top">
-			↑ Top
+		<button
+			class="back-to-top no-print"
+			onclick={scrollToToc}
+			type="button"
+			aria-label="Back to table of contents"
+		>
+			↑ TOC
 		</button>
 	{/if}
 </div>
