@@ -1235,8 +1235,8 @@
 </script>
 
 <svelte:head>
-	<title>Simulation Testing | *Space DAO</title>
-	<meta name="description" content="Test and validate *Space DAO governance mechanisms through comprehensive simulations" />
+	<title>Simulation Testing | Athena</title>
+	<meta name="description" content="Test and validate Athena governance mechanisms through comprehensive simulations" />
 </svelte:head>
 
 <div class="simulate-page">
@@ -1642,7 +1642,7 @@
 			<div class="charts-grid">
 				<!-- ST Supply Chart -->
 				<div class="chart-card">
-					<h3>SpaceTime (ST) Supply</h3>
+					<h3>Governance Currency Supply</h3>
 					<div class="chart-container">
 						{#if history.length > 1}
 							<svg viewBox="0 0 400 150" class="chart-svg">
@@ -1666,7 +1666,7 @@
 
 				<!-- SM Supply Chart -->
 				<div class="chart-card">
-					<h3>SpaceMoney (SM) Supply</h3>
+					<h3>Economic Currency Supply</h3>
 					<div class="chart-container">
 						{#if history.length > 1}
 							<svg viewBox="0 0 400 150" class="chart-svg">

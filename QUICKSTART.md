@@ -1,4 +1,4 @@
-# Athena DAO - Quick Start Guide
+# Athena - Quick Start Guide
 
 This guide will get you up and running in 5 minutes.
 
@@ -39,10 +39,10 @@ Navigate to: http://localhost:5173
 3. **Access Dashboard** - View your tokens and perform operations
 
 ### Dashboard
-- View SpaceTime token balance (non-tradable)
-- View SpaceMoney token balance (tradable)
-- Purchase SpaceMoney tokens
-- Transfer SpaceMoney tokens
+- View the governance-currency balance (non-transferable)
+- View the economic-currency balance (transferable)
+- Purchase the economic currency
+- Transfer the economic currency
 
 ## 📝 Key Features
 

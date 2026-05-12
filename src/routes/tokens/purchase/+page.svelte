@@ -32,7 +32,7 @@
 				throw new Error(data.error || 'Purchase failed');
 			}
 
-			success = `Successfully purchased ${amount} SpaceMoney!`;
+			success = `Successfully purchased ${amount} economic tokens!`;
 			amount = '';
 
 			setTimeout(() => {
@@ -67,8 +67,8 @@
 	<div class="page-header">
 		<div class="header-icon">💰</div>
 		<div>
-			<h1>Purchase SpaceMoney</h1>
-			<p>Buy treasury stake via linear bonding curve — starting at $0.50, +$0.01 per token minted</p>
+			<h1>Purchase Economic Currency</h1>
+			<p>Buy the organization\'s treasury-linked currency via linear bonding curve, whatever name the community chooses for it</p>
 		</div>
 	</div>
 
@@ -77,7 +77,7 @@
 		<div class="form-card">
 			<div class="card-header">
 				<h2>Buy Tokens</h2>
-				<span class="token-badge">SM</span>
+				<span class="token-badge">ex. *Money</span>
 			</div>
 
 			<form onsubmit={(e) => { e.preventDefault(); handlePurchase(); }}>
@@ -95,7 +95,7 @@
 							min="0"
 							disabled={loading}
 						/>
-						<span class="input-suffix">SM</span>
+						<span class="input-suffix">Custom</span>
 					</div>
 				</div>
 
@@ -119,7 +119,7 @@
 					<div class="summary">
 						<div class="summary-row">
 							<span>Amount</span>
-							<span>{parseFloat(amount).toLocaleString()} SM</span>
+							<span>{parseFloat(amount).toLocaleString()} units</span>
 						</div>
 						<div class="summary-row">
 							<span>Network Fee</span>
@@ -128,7 +128,7 @@
 						<div class="summary-divider"></div>
 						<div class="summary-row total">
 							<span>You'll Receive</span>
-							<span class="gradient-text">{parseFloat(amount).toLocaleString()} SpaceMoney</span>
+							<span class="gradient-text">{parseFloat(amount).toLocaleString()} economic currency units</span>
 						</div>
 					</div>
 				{/if}
@@ -158,7 +158,7 @@
 							<span class="spinner"></span>
 							Processing...
 						{:else}
-							Purchase SpaceMoney
+							Purchase Economic Currency
 						{/if}
 					</button>
 				</div>
@@ -167,13 +167,13 @@
 
 		<!-- Info Card -->
 		<div class="info-card">
-			<h3>About SpaceMoney</h3>
+			<h3>About the Economic Currency</h3>
 			<div class="info-items">
 				<div class="info-item">
 					<span class="info-icon">�</span>
 					<div>
 						<h4>Bonding Curve Pricing</h4>
-						<p>SpaceMoney uses a linear bonding curve. Starting price: $0.50 per token. Price increases by $0.01 for each token minted—buy early for the best price.</p>
+						<p>The economic currency can use a linear bonding curve. Starting price: $0.50 per unit. Price increases by $0.01 for each unit minted, regardless of whether the organization calls it *Money or something else.</p>
 					</div>
 				</div>
 				<div class="info-item">
@@ -187,14 +187,14 @@
 					<span class="info-icon">📤</span>
 					<div>
 						<h4>Transferable</h4>
-						<p>SpaceMoney can be transferred to other wallet addresses. No supply cap.</p>
+						<p>The economic currency can be transferred to other wallet addresses. No supply cap is implied by the naming choice.</p>
 					</div>
 				</div>
 				<div class="info-item">
 					<span class="info-icon">🏦</span>
 					<div>
 						<h4>Treasury Backed</h4>
-						<p>All SM purchase proceeds go directly to the *Space DAO treasury. Your tokens represent a stake in the collective treasury.</p>
+						<p>All purchase proceeds go directly to the Athena treasury. These units represent a stake in the collective treasury.</p>
 					</div>
 				</div>
 			</div>

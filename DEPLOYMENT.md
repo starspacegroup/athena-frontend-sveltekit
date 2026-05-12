@@ -1,4 +1,4 @@
-# Athena DAO - Deployment Guide
+# Athena - Deployment Guide
 
 ## Prerequisites
 
@@ -12,7 +12,7 @@ Before deploying, ensure you have:
    - Copy Client ID and Client Secret
 
 2. **Token Contracts** (Optional for MVP)
-   - Deploy SpaceTime and SpaceMoney ERC-20 contracts on Polygon
+  - Deploy your governance and economic ERC-20 contracts on Polygon
    - Note the contract addresses
    - Or use placeholder addresses for testing
 
@@ -57,8 +57,8 @@ Click **"Environment variables"** and add:
 | `DISCORD_CLIENT_ID` | Your Discord OAuth Client ID | `1234567890123456789` |
 | `DISCORD_CLIENT_SECRET` | Your Discord OAuth Client Secret | `abcdef1234567890` |
 | `DISCORD_REDIRECT_URI` | Your callback URL | `https://athena.pages.dev/api/auth/callback` |
-| `SPACETIME_TOKEN_ADDRESS` | SpaceTime contract address | `0x1234...` |
-| `SPACEMONEY_TOKEN_ADDRESS` | SpaceMoney contract address | `0x5678...` |
+| `SPACETIME_TOKEN_ADDRESS` | Governance-currency contract address | `0x1234...` |
+| `SPACEMONEY_TOKEN_ADDRESS` | Economic-currency contract address | `0x5678...` |
 | `SESSION_SECRET` | Random secret string | `your-random-secret-key` |
 
 **Note**: For `DISCORD_REDIRECT_URI`, use your actual Cloudflare Pages URL.
@@ -378,4 +378,4 @@ Before marking deployment as complete:
 
 **Deployment Complete!** 🚀
 
-Your Athena DAO application is now live and accessible to users worldwide.
+Your Athena application is now live and accessible to users worldwide.

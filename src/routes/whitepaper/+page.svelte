@@ -155,8 +155,8 @@
 </script>
 
 <svelte:head>
-	<title>*Space DAO Whitepaper v{VERSION}</title>
-	<meta name="description" content="Technical whitepaper for the *Space DAO governance system - a scientifically-grounded approach to decentralized organization." />
+	<title>Athena Whitepaper v{VERSION}</title>
+	<meta name="description" content="Technical whitepaper for the Athena governance framework - a scientifically-grounded approach to decentralized organization." />
 </svelte:head>
 
 <div class="whitepaper-container">
@@ -174,10 +174,13 @@
 	<!-- Document Header -->
 	<header class="paper-header">
 		<div class="logo-section">
-			<img src="/space-logo.png" alt="*Space" class="paper-logo" />
+			<img src="/space-logo.png" alt="Athena" class="paper-logo" />
 		</div>
-		<h1>*Space DAO Whitepaper</h1>
+		<h1>Athena Whitepaper</h1>
 		<p class="subtitle">A Game-Theoretic Framework for Sustainable Decentralized Governance</p>
+		<p class="attribution">
+			Created by and for <a href="https://starspace.group" target="_blank" rel="noopener">*Space</a> — designed to be used directly, forked, or extended by any organization.
+		</p>
 		<div class="meta">
 			<span class="version">Version {VERSION}</span>
 			<span class="separator">•</span>
@@ -189,10 +192,10 @@
 	<section class="abstract">
 		<h2>Abstract</h2>
 		<p>
-			This whitepaper presents <strong>*Space DAO</strong>, a novel governance framework that addresses 
+			This whitepaper presents <strong>Athena</strong>, a governance framework that addresses 
 			the fundamental challenges of decentralized organizations through a mathematically-grounded, 
-			dual-token mechanism design. By separating economic participation (SpaceMoney) from governance 
-			power (SpaceTime), and implementing hardcoded transition triggers for founder special powers, *Space 
+			dual-currency mechanism design. By separating economic participation from governance 
+			power, and implementing hardcoded transition triggers for founder special powers, Athena 
 			creates alignment between individual incentives and collective welfare. We demonstrate through 
 			game-theoretic analysis that this design achieves Nash equilibrium at socially optimal outcomes, 
 			prevents plutocratic capture, and provides a credible commitment mechanism for progressive 
@@ -210,7 +213,7 @@
 				<ol>
 					<li><a href="#two-token-model">The Two-Token Model</a></li>
 					<li><a href="#incentive-structures">Incentive Structures</a></li>
-					<li><a href="#governance">Governance & SM Staking</a></li>
+					<li><a href="#governance">Governance & Economic-Currency Staking</a></li>
 					<li><a href="#voting-mechanics">Voting Mechanics</a></li>
 					<li><a href="#proposals">Proposals</a></li>
 					<li><a href="#treasury">Treasury</a></li>
@@ -253,7 +256,7 @@
 				commons" in governance participation.
 			</p>
 			<p>
-				*Space DAO introduces a novel framework that draws from three decades of mechanism design 
+				Athena introduces a novel framework that draws from three decades of mechanism design 
 				research, behavioral economics, and empirical observations of successful cooperative 
 				institutions. Our approach is built on three core principles:
 			</p>
@@ -262,6 +265,13 @@
 				<li><strong>Labor-Based Governance:</strong> Voting power is earned through demonstrated commitment.</li>
 				<li><strong>Credible Decentralization:</strong> Founder control has hardcoded, verifiable transition conditions.</li>
 			</ol>
+			<h3>1.1 Origin and Stewardship</h3>
+			<p>
+				Athena is a project <strong>created by and for <a href="https://starspace.group" target="_blank" rel="noopener">*Space</a></strong> — its first organization, primary user, and ongoing steward. *Space uses Athena to govern itself, ensuring every mechanism described in this paper is dogfooded against a real, operating community before it stabilizes.
+			</p>
+			<p>
+				Athena is <strong>not exclusive to *Space</strong>. The protocol is designed to be used directly by any organization, modified or forked to fit specific contexts, and extended through third-party apps, templates, and integrations. *Space's role is to keep the protocol honest by living inside it, and to demonstrate how a long-lived Athena organization behaves over time.
+			</p>
 		</section>
 
 		<!-- Section 2: Problem Statement -->
@@ -316,13 +326,13 @@
 
 			<h3 id="two-token-model">3.1 The Two-Token Model</h3>
 			<p>
-				*Space implements a strict separation between economic and governance tokens:
+				Athena implements a strict separation between economic and governance currencies:
 			</p>
 			
 			<div class="token-comparison">
 				<div class="token-card spacemoney">
-					<h4>SpaceMoney (SM)</h4>
-					<div class="token-type">Economic Token</div>
+					<h4>Economic Currency</h4>
+					<div class="token-type">Organization-Defined Name</div>
 					<ul>
 						<li>Purchasable on open market</li>
 						<li>Represents treasury share claims</li>
@@ -332,8 +342,8 @@
 					</ul>
 				</div>
 				<div class="token-card spacetime">
-					<h4>SpaceTime (ST)</h4>
-					<div class="token-type">Governance Token</div>
+					<h4>Governance Currency</h4>
+					<div class="token-type">Organization-Defined Name</div>
 					<ul>
 						<li><strong>Never purchasable</strong></li>
 						<li>Earned through labor &amp; correct governance</li>
@@ -348,34 +358,39 @@
 				This design implements the theoretical ideal described by Weyl &amp; Posner (2018) in 
 				"Radical Markets"—separating investment from control to prevent plutocratic capture.
 			</p>
+			<p>
+				The specific names of these currencies are intentionally configurable. One organization might call 
+				them <em>*Money</em> and <em>*Time</em>; another may adopt a different pair at formation or rename 
+				them later in its institutional life.
+			</p>
 
 			<h3 id="incentive-structures">3.2 Incentive Structures</h3>
 			
-			<h4>3.2.1 SpaceTime Earning Mechanisms</h4>
-			<p>SpaceTime is <strong>never purchasable</strong>. All earning is activity-based and subject to Discord wallet-linking for social multiplier activation (Sybil protection).</p>
+			<h4>3.2.1 Governance-Currency Earning Mechanisms</h4>
+			<p>The governance currency is <strong>never purchasable</strong>. All earning is activity-based and subject to Discord wallet-linking for social multiplier activation (Sybil protection).</p>
 			<div class="earning-table">
 				<table>
 					<thead>
 						<tr>
 							<th>Activity</th>
-							<th>ST Reward</th>
+							<th>Governance Reward</th>
 							<th>Notes</th>
 						</tr>
 					</thead>
 					<tbody>
 						<tr>
 							<td><strong>Voice Chat</strong></td>
-							<td>1 ST/minute active in channel</td>
+							<td>1 unit/minute active in channel</td>
 							<td>+5% multiplier per person who joins within 60 min of you joining (3+ min stay required); caps at +50% (10 people). Multiplier stops when you leave.</td>
 						</tr>
 						<tr>
 							<td><strong>Messages (Lottery)</strong></td>
-							<td>Base 1 ST per win; scales with concurrent chatters</td>
+							<td>Base 1 unit per win; scales with concurrent chatters</td>
 							<td>1 in 50 messages wins; max 1 win per user per week.</td>
 						</tr>
 						<tr>
 							<td><strong>Bump Command</strong></td>
-							<td>9 ST per bump</td>
+							<td>9 units per bump</td>
 							<td>Fixed reward; tracks via Discord bot.</td>
 						</tr>
 						<tr>
@@ -397,9 +412,9 @@
 				work output is bounded by real-world time and effort.
 			</p>
 
-			<h4>3.2.2 SpaceTime Decay Function</h4>
+			<h4>3.2.2 Governance-Currency Decay Function</h4>
 			<p>
-				To prevent accumulation and ensure ongoing participation, SpaceTime decays at <strong>9% per week</strong>:
+				To prevent accumulation and ensure ongoing participation, the governance currency decays at <strong>9% per week</strong>:
 			</p>
 			<div class="equation-block">
 				<div class="equation">
@@ -415,8 +430,8 @@
 
 			<h3 id="governance">3.3 Governance & SM Staking</h3>
 			<p>
-				Governance voting power derives entirely from SpaceTime. SpaceMoney carries 
-				<strong>no baseline voting weight</strong>. However, SM holders may voluntarily 
+				Governance voting power derives entirely from the governance currency. The economic currency carries 
+				<strong>no baseline voting weight</strong>. However, economic-currency holders may voluntarily 
 				stake their tokens for long fixed periods to gain conditional voting weight on 
 				treasury-expenditure proposals, subject to strict anti-concentration rules. This 
 				preserves meritocratic governance while giving long-term capital a disciplined voice 
@@ -469,7 +484,7 @@
 
 			<h4>3.3.2 Formal Weight</h4>
 			<p>
-				Let 𝟙<sub>SM-spend</sub>(p) indicate whether proposal p authorizes treasury SpaceMoney expenditure, 
+				Let 𝟙<sub>SM-spend</sub>(p) indicate whether proposal p authorizes treasury economic-currency expenditure, 
 				let 𝟙<sub>rule</sub>(p) indicate whether p modifies staking rules, caps, or multipliers, 
 				let SM<sub>i</sub><sup>staked</sup>(L) denote SM staked by agent i in lock-up L, 
 				and let m(L) = 2<sup>L/20</sup> be the corresponding multiplier. Define preliminary proposal weight:
@@ -657,9 +672,9 @@
 				<li><strong>Outflows:</strong> Via approved proposals only; funds go directly to asset/vendor, not proposer (unless labor is budgeted)</li>
 			</ul>
 
-			<h4>3.6.2 SpaceMoney Bonding Curve</h4>
+			<h4>3.6.2 Economic-Currency Bonding Curve</h4>
 			<p>
-				SM tokens are purchasable via a <strong>linear bonding curve</strong>: starting price $0.50, 
+				The economic currency is purchasable via a <strong>linear bonding curve</strong>: starting price $0.50, 
 				increasing $0.01 per token minted. There is no hard supply cap. All purchase proceeds 
 				go directly to the treasury.
 			</p>
@@ -778,7 +793,7 @@
 			
 			<h4>4.1.1 The Governance Game</h4>
 			<p>
-				We model *Space governance as an extensive-form game Γ = (N, H, P, f<sub>c</sub>, I, u) where:
+				We model Athena governance as an extensive-form game Γ = (N, H, P, f<sub>c</sub>, I, u) where:
 			</p>
 			<ul class="definition-list">
 				<li>N = &#123;1, 2, ..., n&#125; is the set of agents</li>
@@ -819,8 +834,8 @@
 
 			<h3 id="token-dynamics">4.2 Token Dynamics</h3>
 
-			<h4>4.2.1 SpaceTime Evolution</h4>
-			<p>The aggregate SpaceTime supply follows the differential equation:</p>
+			<h4>4.2.1 Governance-Currency Evolution</h4>
+			<p>The aggregate governance-currency supply follows the differential equation:</p>
 			<div class="equation-block">
 				<div class="equation">
 					dST<sub>total</sub>/dt = μ · W(t) − δ · ST<sub>total</sub>
@@ -854,10 +869,10 @@
 				less see it decrease. This creates <strong>meritocratic convergence</strong>.
 			</p>
 			<p>
-				For proposal-specific treasury expenditures denominated in SpaceMoney, voting weight is extended 
+				For proposal-specific treasury expenditures denominated in the economic currency, voting weight is extended 
 				to incorporate the conditional staking term defined in Section 3.3. Accordingly, the operative 
 				proposal share becomes ω<sub>i</sub>(p) = V<sub>i</sub>(p) / ΣV<sub>j</sub>(p), while proposals that do not spend 
-				SpaceMoney from treasury, as well as proposals that modify staking rules, caps, or multipliers, 
+				economic currency from treasury, as well as proposals that modify staking rules, caps, or multipliers, 
 				continue to satisfy ω<sub>i</sub>(p) = θ<sub>i</sub>.
 			</p>
 
@@ -867,7 +882,7 @@
 			<div class="theorem">
 				<p><strong>Theorem 1 (Existence of Productive Equilibrium):</strong></p>
 				<p>
-					Under the *Space mechanism, there exists a Nash equilibrium s* = (s<sub>1</sub>*, ..., s<sub>n</sub>*) 
+					Under the Athena mechanism, there exists a Nash equilibrium s* = (s<sub>1</sub>*, ..., s<sub>n</sub>*) 
 					where all agents choose positive effort (e<sub>i</sub>* &gt; 0) and truthful voting (v<sub>i</sub>* = v<sub>i</sub><sup>true</sup>).
 				</p>
 			</div>
@@ -970,12 +985,12 @@
 				</div>
 			</div>
 			<p>
-				*Space's mechanism directly addresses each of these failure modes through its 
+				Athena's mechanism directly addresses each of these failure modes through its 
 				structural separation of powers and mandatory transition triggers.
 			</p>
 
 			<h3>5.3 Behavioral Economics Support</h3>
-			<p>Key findings supporting the *Space design:</p>
+			<p>Key findings supporting the Athena design:</p>
 			<ul>
 				<li>
 					<strong>Earned Endowment Effect</strong> (Loewenstein &amp; Issacharoff, 1994): 
@@ -1004,7 +1019,7 @@
 						<tr>
 							<th>Attack Type</th>
 							<th>Traditional DAO</th>
-							<th>*Space Mitigation</th>
+							<th>Athena Mitigation</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -1039,7 +1054,7 @@
 
 			<h3>6.2 Economic Security</h3>
 			<p>
-				The cost to acquire 51% voting control in *Space:
+				The cost to acquire 51% voting control in Athena:
 			</p>
 			<div class="equation-block">
 				<div class="equation">
@@ -1052,9 +1067,9 @@
 				</p>
 			</div>
 
-			<h3>6.3 Legal Structure</h3>
+			<h3>6.3 Legal Structure (Optional)</h3>
 			<p>
-				*Space operates as a <strong>Wyoming DAO LLC</strong>, providing:
+				Athena is jurisdiction-agnostic and can run purely on-chain. Organizations seeking legal recognition may wrap an Athena deployment in a <strong>Wyoming DAO LLC</strong> (or comparable structure), which provides:
 			</p>
 			<ul>
 				<li>Legal recognition and limited liability</li>
@@ -1062,20 +1077,23 @@
 				<li>Regulatory clarity for token operations</li>
 				<li>Member protections under Wyoming DAO legislation</li>
 			</ul>
+			<p>
+				The legal wrapper is optional — the protocol itself is sovereign software, and organizations are free to choose the jurisdictional posture that fits their mission.
+			</p>
 		</section>
 
 		<!-- Section 7: Conclusion -->
 		<section id="conclusion">
 			<h2>7. Conclusion</h2>
 			<p>
-				*Space DAO represents a rigorous application of mechanism design principles to the 
+				Athena represents a rigorous application of mechanism design principles to the 
 				challenge of decentralized governance. By implementing:
 			</p>
 			<ol>
 				<li><strong>Strict separation</strong> of economic and governance tokens</li>
 				<li><strong>Activity-based</strong> governance power acquisition (voice, messages, bumps, proposal delivery)</li>
 				<li><strong>9% weekly decay</strong> ensuring voting weight reflects current engagement</li>
-				<li><strong>Skin-in-the-game voting</strong> with 5 ST cost and result-contingent redistribution</li>
+				<li><strong>Skin-in-the-game voting</strong> with governance-currency cost and result-contingent redistribution</li>
 				<li><strong>Exponential proposal submission costs</strong> tied to timeline and budget, preventing spam</li>
 				<li><strong>Reputation & slashing</strong> systems creating accountability for delivery</li>
 				<li><strong>Hardcoded handoff triggers</strong> for credible, automatic decentralization</li>
@@ -1091,7 +1109,7 @@
 				and DAO failure analysis supports the viability of this approach.
 			</p>
 			<p>
-				*Space offers not just a governance system, but a <strong>credible commitment to 
+				Athena offers not just a governance system, but a <strong>credible commitment to 
 				community sovereignty</strong>—encoded in mathematics, enforced by smart contracts, 
 				and validated by centuries of institutional precedent.
 			</p>
@@ -1101,23 +1119,23 @@
 		<section id="future-plans">
 			<h2>8. Future Plans</h2>
 			<p>
-				The *Space DAO ecosystem is under active development, with several key initiatives 
+				The Athena ecosystem is under active development, with several key initiatives 
 				planned to fully realize the vision outlined in this whitepaper. The following 
 				roadmap outlines our near-term development priorities:
 			</p>
 
 			<h3 id="smart-contracts">8.1 Smart Contract Development</h3>
 			<p>
-				The foundational infrastructure for *Space DAO is being built on the <strong>Polygon 
+				The foundational infrastructure for Athena is being built on the <strong>Polygon 
 				blockchain</strong> through a complete set of <strong>Athena smart contracts and web 
 				tools</strong>. This same DAO system is designed to eventually enable community members 
 				to create additional organizations using the framework developed here. Our immediate 
 				priorities include:
 			</p>
 			<ul>
-				<li>Completing the SpaceMoney (SM) and SpaceTime (ST) token smart contracts</li>
+				<li>Completing smart contracts for the economic and governance currencies</li>
 				<li>Implementing the dual-token governance mechanism with proper separation of economic and voting power</li>
-				<li>Deploying the SpaceTime decay function on-chain</li>
+				<li>Deploying the governance-currency decay function on-chain</li>
 				<li>Configuring the transition trigger conditions as immutable smart contract logic</li>
 				<li>Auditing and testing all contracts before mainnet deployment</li>
 			</ul>
@@ -1125,42 +1143,42 @@
 			<h3 id="spacebot-integration">8.2 SpaceBot Integration</h3>
 			<p>
 				<strong>SpaceBot</strong>, our Discord bot, will serve as the primary interface for 
-				community members to earn SpaceTime tokens through active participation. Planned 
+				community members to earn governance currency through active participation. Planned 
 				functionality includes:
 			</p>
 			<ul>
 				<li>Connecting SpaceBot to the deployed smart contracts on Polygon</li>
-				<li>Automated SpaceTime token awards for time spent in voice chats</li>
+				<li>Automated governance-currency awards for time spent in voice chats</li>
 				<li>Tracking and rewarding community engagement activities</li>
 				<li>Integration with Discord roles for governance tier recognition</li>
 				<li>Real-time balance checking and activity dashboards</li>
 			</ul>
 			<p>
-				This integration ensures that governance power (SpaceTime) is earned through genuine 
+				This integration ensures that governance power is earned through genuine 
 				community participation rather than capital investment, reinforcing our core principle 
 				of labor-based governance.
 			</p>
 
 			<h3 id="athena-development">8.3 Athena Platform Development</h3>
 			<p>
-				<strong>Athena</strong> is the web-based management platform for the *Space DAO ecosystem. 
+				<strong>Athena</strong> is the web-based management platform for governance systems built on this framework. 
 				The following features are under active development:
 			</p>
 			<ul>
-				<li><strong>SpaceMoney Purchase System:</strong> A secure, user-friendly interface for purchasing 
-					SpaceMoney tokens, including fiat on-ramps and cryptocurrency payment options</li>
+				<li><strong>Economic-Currency Purchase System:</strong> A secure, user-friendly interface for purchasing 
+					the organization's chosen economic currency, including fiat on-ramps and cryptocurrency payment options</li>
 				<li><strong>Proposal Creation Interface:</strong> Tools for community members to draft, submit, 
 					and manage governance proposals with rich formatting and attachment support</li>
 				<li><strong>Voting System UI:</strong> An intuitive interface for casting votes, viewing active 
 					proposals, and tracking voting history</li>
 				<li><strong>Governance Dashboard:</strong> Real-time visualization of DAO metrics, transition trigger 
 					progress, and token distribution statistics</li>
-				<li><strong>Member Profiles:</strong> Personal dashboards showing SpaceTime earnings, voting 
+				<li><strong>Member Profiles:</strong> Personal dashboards showing governance-currency earnings, voting 
 					records, and contribution history</li>
 			</ul>
 			<p>
 				Upon completion, Athena will provide the complete front-end experience for participating 
-				in *Space DAO governance, from token acquisition to proposal voting and beyond.
+				in Athena-governed organizations, from currency acquisition to proposal voting and beyond.
 			</p>
 
 			<h3 id="simulation-framework">8.4 Simulation Testing Framework</h3>
@@ -1182,7 +1200,7 @@
 				<li><strong>Attack Vector Analysis:</strong> Test the resilience of governance mechanisms 
 					against simulated whale attacks, Sybil attacks, and voter coordination attempts</li>
 				<li><strong>Economic Modeling:</strong> Project token economics, treasury growth, and 
-					SpaceTime distribution under various market and participation scenarios</li>
+					governance-currency distribution under various market and participation scenarios</li>
 				<li><strong>Visual Analytics:</strong> Real-time visualization of simulation results with 
 					interactive charts, network graphs, and statistical summaries</li>
 			</ul>
@@ -1199,7 +1217,7 @@
 			</ul>
 			<p>
 				This tool embodies our commitment to <strong>evidence-based governance design</strong>—ensuring 
-				that every mechanism in *Space DAO is validated through rigorous simulation before 
+				that every mechanism in Athena is validated through rigorous simulation before 
 				affecting real community assets and decisions.
 			</p>
 		</section>
@@ -1250,11 +1268,11 @@
 		<footer class="paper-footer">
 			<div class="footer-line"></div>
 			<p>
-				<strong>*Space DAO Whitepaper</strong> — Version {VERSION}<br>
+				<strong>Athena Whitepaper</strong> — Version {VERSION}<br>
 				<em>Last Updated: {LAST_UPDATED}</em>
 			</p>
 			<p class="copyright">
-				© 2026 *Space DAO LLC. This document is released under Creative Commons BY-SA 4.0.
+				© 2026 Athena. This document is released under Creative Commons BY-SA 4.0.
 			</p>
 		</footer>
 	</article>
@@ -1571,6 +1589,24 @@
 		font-size: 1.25rem;
 		color: var(--color-text-secondary);
 		margin: 0 0 var(--space-lg);
+	}
+
+	.paper-header .attribution {
+		font-size: 0.9375rem;
+		color: var(--color-text-muted);
+		max-width: 560px;
+		margin: 0 auto var(--space-lg);
+		line-height: 1.6;
+	}
+
+	.paper-header .attribution a {
+		color: var(--color-text-secondary);
+		text-decoration: none;
+		border-bottom: 1px dotted currentColor;
+	}
+
+	.paper-header .attribution a:hover {
+		color: var(--color-text-primary);
 	}
 
 	.paper-header .meta {

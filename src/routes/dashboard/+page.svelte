@@ -38,21 +38,21 @@
 		{
 			icon: '💰',
 			title: 'Purchase Tokens',
-			description: 'Buy SpaceMoney via bonding curve (starts $0.50)',
+			description: 'Buy the organization\'s economic currency via bonding curve',
 			href: '/tokens/purchase',
 			color: 'purple'
 		},
 		{
 			icon: '📤',
 			title: 'Transfer Tokens',
-			description: 'Send SpaceMoney to another address',
+			description: 'Send the organization\'s economic currency to another address',
 			href: '/tokens/transfer',
 			color: 'cyan'
 		},
 		{
 			icon: '🗳️',
 			title: 'Governance',
-			description: 'Vote on active proposals (costs 5 ST)',
+			description: 'Vote on active proposals using earned governance currency',
 			href: '#',
 			color: 'pink',
 			soon: true
@@ -79,7 +79,7 @@
 		<div class="dashboard-header">
 			<div class="greeting">
 				<h1>{greeting}, <span class="gradient-text">{$user?.discordUsername || 'Member'}</span></h1>
-				<p>Welcome to your *Space DAO dashboard</p>
+				<p>Welcome to your Athena dashboard</p>
 			</div>
 			<div class="header-stats">
 				<div class="stat-pill">
@@ -146,7 +146,7 @@
 			<div class="section-header">
 				<h2>
 					<span class="section-icon">💰</span>
-					Token Balances
+					Currency Balances
 				</h2>
 				<a href="/tokens/purchase" class="section-action">
 					Get Tokens →
@@ -157,16 +157,16 @@
 					<div class="balance-header">
 						<div class="balance-icon">⏰</div>
 						<div class="balance-info">
-							<h3>SpaceTime</h3>
-							<span class="token-type">Earned Token</span>
+							<h3>Governance Currency</h3>
+							<span class="token-type">Configurable Name</span>
 						</div>
 					</div>
 				<div class="balance-amount">
 					<span class="amount">{Number($tokenBalances.spaceTime).toLocaleString()}</span>
-					<span class="symbol">ST</span>
+					<span class="symbol">ex. *Time</span>
 				</div>
 					<div class="balance-footer">
-						<p>Non-tradable governance tokens earned through participation</p>
+						<p>Earned, non-transferable governance currency named by the organization and changeable over time</p>
 					</div>
 					<div class="balance-glow"></div>
 				</div>
@@ -175,16 +175,16 @@
 					<div class="balance-header">
 						<div class="balance-icon">💵</div>
 						<div class="balance-info">
-							<h3>SpaceMoney</h3>
-							<span class="token-type">Purchasable Token</span>
+							<h3>Economic Currency</h3>
+							<span class="token-type">Configurable Name</span>
 						</div>
 					</div>
 				<div class="balance-amount">
 					<span class="amount">{Number($tokenBalances.spaceMoney).toLocaleString()}</span>
-					<span class="symbol">SM</span>
+					<span class="symbol">ex. *Money</span>
 				</div>
 					<div class="balance-footer">
-						<p>Purchasable and transferable governance tokens</p>
+						<p>Purchasable, transferable treasury-linked currency using whatever name the organization adopts</p>
 					</div>
 					<div class="balance-glow"></div>
 				</div>
@@ -205,10 +205,10 @@
 			</div>
 			<div class="voting-bar">
 				<div class="voting-segment spacetime" style="width: {Number($tokenBalances.spaceTime) / (Number($tokenBalances.spaceTime) + Number($tokenBalances.spaceMoney) || 1) * 100}%">
-					<span class="segment-tooltip">SpaceTime: {$tokenBalances.spaceTime}</span>
+					<span class="segment-tooltip">Governance currency: {$tokenBalances.spaceTime}</span>
 				</div>
 				<div class="voting-segment spacemoney" style="width: {Number($tokenBalances.spaceMoney) / (Number($tokenBalances.spaceTime) + Number($tokenBalances.spaceMoney) || 1) * 100}%">
-					<span class="segment-tooltip">SpaceMoney: {$tokenBalances.spaceMoney}</span>
+					<span class="segment-tooltip">Economic currency: {$tokenBalances.spaceMoney}</span>
 				</div>
 			</div>
 			</div>

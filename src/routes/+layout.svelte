@@ -247,9 +247,12 @@
 		<div class="footer-content">
 			<div class="footer-brand">
 				<img src="/space-logo.png" alt="*Space" class="logo-icon" />
-				<span>*Space DAO</span>
+				<span>Athena</span>
 			</div>
-			<p>Decentralized governance for the future</p>
+			<p>Governance infrastructure for organizations built to outlive their creators</p>
+			<p class="footer-attribution">
+				Created by and for <a href="https://starspace.group" target="_blank" rel="noopener">*Space</a> — free to use, fork, and extend for any organization.
+			</p>
 			<div class="footer-links">
 				<a href="/">Home</a>
 				<span class="divider">•</span>
@@ -799,6 +802,21 @@
 		color: var(--color-text-muted);
 		margin: 0 0 var(--space-md);
 		font-size: 0.875rem;
+	}
+
+	.footer-attribution {
+		font-size: 0.8125rem;
+		opacity: 0.85;
+	}
+
+	.footer-attribution a {
+		color: var(--color-text-secondary);
+		text-decoration: none;
+		border-bottom: 1px dotted currentColor;
+	}
+
+	.footer-attribution a:hover {
+		color: var(--color-text-primary);
 	}
 
 	.footer-links {

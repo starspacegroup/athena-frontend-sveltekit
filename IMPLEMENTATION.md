@@ -1,15 +1,15 @@
-# Athena DAO Implementation
+# Athena Implementation
 
 ## Overview
 
-This is a complete SvelteKit application for the Athena DAO that allows users
+This is a complete SvelteKit application for Athena that allows users
 to:
 
 - Connect with their blockchain wallet (MetaMask or Coinbase Wallet on Polygon)
 - Authenticate with Discord OAuth
-- View their SpaceTime and SpaceMoney token balances
-- Purchase SpaceMoney tokens
-- Transfer SpaceMoney tokens to other addresses
+- View their governance and economic currency balances
+- Purchase the organization's economic currency
+- Transfer the organization's economic currency to other addresses
 
 ## Features Implemented
 
@@ -55,14 +55,14 @@ to:
 
 - **File**: `src/routes/dashboard/+page.svelte`
 - Displays user account information
-- Shows SpaceTime token balance (non-tradable)
-- Shows SpaceMoney token balance (tradable)
+- Shows governance-currency balance (non-transferable)
+- Shows economic-currency balance (transferable)
 - Links to purchase and transfer pages
 
 #### Purchase Page (`/tokens/purchase`)
 
 - **File**: `src/routes/tokens/purchase/+page.svelte`
-- Form to specify amount of SpaceMoney to purchase
+- Form to specify amount of economic currency to purchase
 - Processes purchase through API
 - Shows transaction hash on success
 
@@ -86,8 +86,8 @@ to:
 #### Token Endpoints
 
 - `GET /api/tokens/balances` - Get user's token balances
-- `POST /api/tokens/purchase` - Purchase SpaceMoney tokens
-- `POST /api/tokens/transfer` - Transfer SpaceMoney tokens
+- `POST /api/tokens/purchase` - Purchase economic currency units
+- `POST /api/tokens/transfer` - Transfer economic currency units
 
 ### 4. State Management
 
@@ -99,7 +99,7 @@ to:
   - `discordConnected`: Boolean flag for Discord connection
 
 - **`src/lib/stores/tokens.ts`**: Token balance state
-  - `tokenBalances`: SpaceTime and SpaceMoney balances
+- `tokenBalances`: governance and economic currency balances
 
 ### 5. Blockchain Integration
 
@@ -170,7 +170,7 @@ blockchain.
    User visits dashboard
    → GET /api/auth/me to verify session
    → GET /api/tokens/balances
-   → Display SpaceTime and SpaceMoney balances
+   → Display governance and economic currency balances
    ```
 
 2. **Purchase Tokens**:
@@ -217,7 +217,7 @@ blockchain.
 Currently, the following features use mock data:
 
 1. **Token Balances** (`/api/tokens/balances`):
-   - Returns hardcoded values (100 SpaceTime, 50 SpaceMoney)
+   - Returns hardcoded values (100 governance units, 50 economic units)
    - **Production TODO**: Fetch real balances from blockchain using ethers.js
 
 2. **Token Purchase** (`/api/tokens/purchase`):
@@ -242,8 +242,8 @@ Required for production:
 - `DISCORD_CLIENT_ID`: Your Discord OAuth client ID
 - `DISCORD_CLIENT_SECRET`: Your Discord OAuth client secret
 - `DISCORD_REDIRECT_URI`: Your production callback URL
-- `SPACETIME_TOKEN_ADDRESS`: SpaceTime ERC-20 contract address on Polygon
-- `SPACEMONEY_TOKEN_ADDRESS`: SpaceMoney ERC-20 contract address on Polygon
+- `SPACETIME_TOKEN_ADDRESS`: Governance-currency ERC-20 contract address on Polygon
+- `SPACEMONEY_TOKEN_ADDRESS`: Economic-currency ERC-20 contract address on Polygon
 - `SESSION_SECRET`: Random secret for session encryption
 
 ## Testing
@@ -274,10 +274,10 @@ Required for production:
    - Verify user information displays
 
 5. **Test Token Operations**:
-   - Click "Purchase SpaceMoney"
+   - Click "Purchase Economic Currency"
    - Enter amount, submit
    - Verify success message with transaction hash
-   - Click "Transfer SpaceMoney"
+   - Click "Transfer Economic Currency"
    - Enter recipient and amount
    - Verify success message with transaction hash
 

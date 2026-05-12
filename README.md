@@ -1,6 +1,6 @@
-# Athena DAO
+# Athena
 
-> _Governance interface for \*Space — a Wyoming DAO LLC with on-chain rule._
+> _A governance framework for building organizations designed to outlive their creators._
 
 ---
 
@@ -23,14 +23,16 @@ metrics, control burns automatically. No promises—just code.
 
 ---
 
-## Two-Token Model
+## Two-Currency Model
 
-| Token               | Type       | Acquisition     | Purpose                                                           |
-| ------------------- | ---------- | --------------- | ----------------------------------------------------------------- |
-| **SpaceMoney (SM)** | Economic   | Purchase / Earn | Treasury share, revenue share, incubator access, proposal funding |
-| **SpaceTime (ST)**  | Governance | Work only       | Voting power, proposal creation, reputation                       |
+| Currency | Type | Acquisition | Purpose |
+| -------- | ---- | ----------- | ------- |
+| **Economic currency** | Economic | Purchase / Earn | Treasury participation, revenue share, proposal funding |
+| **Governance currency** | Governance | Work only | Voting power, proposal creation, reputation |
 
-### SpaceMoney — _The Economic Token_
+Organizations can name these currencies however they want at formation and can rename them later. `*Money` and `*Time` are examples, not hard requirements.
+
+### Economic Currency
 
 - **Buyable** — functions like an equity analog
 - **Zero voting weight** — money can't buy governance
@@ -39,7 +41,7 @@ metrics, control burns automatically. No promises—just code.
   - 🔐 Stake for incubator project access
   - 🔥 Burn → mint dev credits in ecosystem projects
 
-### SpaceTime — _The Labor Token_
+### Governance Currency
 
 - **Earned only** — never purchasable
 - **Decays slowly** — prevents whale hoarding
@@ -65,11 +67,10 @@ Control auto-revokes when ALL conditions are met:
 | Metric                   | Threshold                     |
 | ------------------------ | ----------------------------- |
 | Proposal acceptance rate | 99.9% for 5 consecutive years |
-| ST distribution          | 10,000+ distinct earners      |
+| Governance-currency distribution | 10,000+ distinct earners |
 | Treasury concentration   | < 20% held by founder         |
 
-**Result:** Veto burns. Upgrade keys burn. Voting becomes pure ST-weighted
-democracy.
+**Result:** Veto burns. Upgrade keys burn. Voting becomes purely governance-currency weighted.
 
 ---
 
@@ -79,9 +80,9 @@ Every proposal contains:
 
 ```
 ┌─────────────────────────────────────────┐
-│  BUDGET          SM or stablecoins      │
-│  REWARD          ST to executor         │
-│  VOTER REWARD    ST to correct voters   │
+│  BUDGET          Economic currency or stablecoins │
+│  REWARD          Governance currency to executor  │
+│  VOTER REWARD    Governance currency to correct voters │
 │  SUCCESS METRIC  Measurable outcomes    │
 │  EXECUTION       Auto-runs or escrows   │
 └─────────────────────────────────────────┘
@@ -89,8 +90,8 @@ Every proposal contains:
 
 **Incentive alignment:**
 
-- Work = minted ST
-- Correct governance = minted ST
+- Work = minted governance currency
+- Correct governance = minted governance currency
 - Bad actors = nothing
 
 ---
@@ -146,8 +147,8 @@ cp .env.example .env
 | `DISCORD_CLIENT_ID`        | Discord OAuth client ID |
 | `DISCORD_CLIENT_SECRET`    | Discord OAuth secret    |
 | `DISCORD_REDIRECT_URI`     | Callback URL            |
-| `SPACETIME_TOKEN_ADDRESS`  | ST contract (Polygon)   |
-| `SPACEMONEY_TOKEN_ADDRESS` | SM contract (Polygon)   |
+| `SPACETIME_TOKEN_ADDRESS`  | Governance-currency contract (Polygon) |
+| `SPACEMONEY_TOKEN_ADDRESS` | Economic-currency contract (Polygon)   |
 | `SESSION_SECRET`           | Session encryption key  |
 
 ### 3. Run

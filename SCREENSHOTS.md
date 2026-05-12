@@ -1,13 +1,13 @@
-# Athena DAO - Application Screenshots & UI Overview
+# Athena - Application Screenshots & UI Overview
 
 ## Home Page (Login/Registration)
 
 **URL**: `/`
 
 ### When Not Logged In:
-- **Header**: Purple gradient with "Athena DAO" title and navigation
+- **Header**: Purple gradient with "Athena" title and navigation
 - **Hero Section**: 
-  - Large welcome message: "Welcome to Athena DAO"
+  - Large welcome message: "Welcome to Athena"
   - Subtitle describing the DAO purpose
 - **Authentication Section**:
   - Step 1: Connect Wallet
@@ -50,19 +50,19 @@
    - Title: "Token Balances"
    - Two cards side by side (responsive grid):
    
-   a. **SpaceTime Card**:
+  a. **Governance Currency Card**:
       - Top border: Purple (#667eea)
       - Large balance number with gradient color
-      - Description: "Non-tradable governance tokens earned through participation"
+    - Description: "Earned governance currency with organization-defined naming"
    
-   b. **SpaceMoney Card**:
+  b. **Economic Currency Card**:
       - Top border: Purple (#764ba2)
       - Large balance number with gradient color
-      - Description: "Purchasable and transferable governance tokens"
+    - Description: "Purchasable and transferable treasury-linked currency"
 
 4. **Action Buttons**:
-   - "Purchase SpaceMoney" (gradient button)
-   - "Transfer SpaceMoney" (outlined button)
+  - "Purchase Economic Currency" (gradient button)
+  - "Transfer Economic Currency" (outlined button)
 
 **Colors**:
 - Background: Light gray (#f5f5f5)
@@ -72,15 +72,15 @@
 
 ---
 
-## Purchase SpaceMoney Page
+## Purchase Economic Currency Page
 
 **URL**: `/tokens/purchase`
 
 **Layout**:
-1. **Title**: "Purchase SpaceMoney"
+1. **Title**: "Purchase Economic Currency"
 
 2. **Card Content**:
-   - Description paragraph explaining SpaceMoney tokens
+  - Description paragraph explaining the organization's economic currency
    - Form with:
      - "Amount to Purchase" input field
      - Number input with placeholder "0.0"
@@ -99,12 +99,12 @@
 
 ---
 
-## Transfer SpaceMoney Page
+## Transfer Economic Currency Page
 
 **URL**: `/tokens/transfer`
 
 **Layout**:
-1. **Title**: "Transfer SpaceMoney"
+1. **Title**: "Transfer Economic Currency"
 
 2. **Card Content**:
    - Description paragraph explaining token transfer

@@ -37,7 +37,7 @@
 				throw new Error(data.error || 'Transfer failed');
 			}
 
-			success = `Successfully transferred ${amount} SpaceMoney!`;
+			success = `Successfully transferred ${amount} economic currency units!`;
 			step = 3;
 
 			setTimeout(() => {
@@ -85,8 +85,8 @@
 	<div class="page-header">
 		<div class="header-icon">📤</div>
 		<div>
-			<h1>Transfer SpaceMoney</h1>
-			<p>Send tokens to another wallet address</p>
+			<h1>Transfer Economic Currency</h1>
+			<p>Send the organization\'s economic currency to another wallet address</p>
 		</div>
 	</div>
 
@@ -155,7 +155,7 @@
 				{#if step === 2}
 					<div class="step-content">
 						<h2>How much do you want to send?</h2>
-						<p class="step-description">Enter the amount of SpaceMoney to transfer</p>
+						<p class="step-description">Enter the amount of economic currency to transfer</p>
 
 						<!-- Recipient Preview -->
 						<div class="recipient-preview">
@@ -179,7 +179,7 @@
 									min="0"
 									disabled={loading}
 								/>
-								<span class="input-suffix">SM</span>
+								<span class="input-suffix">Custom</span>
 							</div>
 						</div>
 
@@ -188,7 +188,7 @@
 							<div class="summary">
 								<div class="summary-row">
 									<span>Amount</span>
-									<span>{parseFloat(amount).toLocaleString()} SM</span>
+									<span>{parseFloat(amount).toLocaleString()} units</span>
 								</div>
 								<div class="summary-row">
 									<span>Network Fee</span>
@@ -197,7 +197,7 @@
 								<div class="summary-divider"></div>
 								<div class="summary-row total">
 									<span>Recipient Gets</span>
-									<span class="gradient-text">{parseFloat(amount).toLocaleString()} SM</span>
+									<span class="gradient-text">{parseFloat(amount).toLocaleString()} economic currency units</span>
 								</div>
 							</div>
 						{/if}
@@ -236,7 +236,7 @@
 						<div class="transfer-summary">
 							<div class="summary-item">
 								<span class="summary-label">Amount Sent</span>
-								<span class="summary-value">{amount} SM</span>
+								<span class="summary-value">{amount} units</span>
 							</div>
 							<div class="summary-item">
 								<span class="summary-label">To</span>
@@ -278,8 +278,8 @@
 				<div class="info-item">
 					<span class="info-icon">💡</span>
 					<div>
-						<h4>SpaceMoney Only</h4>
-						<p>SpaceTime tokens cannot be transferred</p>
+						<h4>Economic Currency Only</h4>
+						<p>The governance currency is earned rather than transferred</p>
 					</div>
 				</div>
 			</div>

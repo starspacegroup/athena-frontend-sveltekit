@@ -95,15 +95,15 @@
 	const features = [
 		{
 			icon: '⏰',
-			title: 'SpaceTime (ST)',
-			subtitle: 'Labor Token',
-			description: 'Soulbound and never purchasable. Earned by chatting in voice (1 ST/min), sending messages (lottery), bumping, and delivering proposals. Decays 9% per week—voting power belongs to active members only.'
+			title: 'Governance Token',
+			subtitle: 'Configurable Identity',
+			description: 'Never purchasable and defined by the organization at formation. It can be called *Time, CivicTime, or any governance currency the community adopts later. Earned through contribution, subject to decay, and designed so voting power belongs to active members only.'
 		},
 		{
 			icon: '💎',
-			title: 'SpaceMoney (SM)',
-			subtitle: 'Economic Token',
-			description: 'Your stake in the treasury. Purchasable via linear bonding curve (starts at $0.50, +$0.01 per token minted). Stake for 5–20 years to earn conditional voting weight on treasury proposals only.'
+			title: 'Economic Token',
+			subtitle: 'Configurable Identity',
+			description: 'The organization\'s treasury-linked currency. It can be called *Money, GuildCoin, or any economic unit chosen at formation or renamed later. Purchasable, transferable, and optionally stakeable for conditional treasury-spend voting.'
 		},
 		{
 			icon: '⚖️',
@@ -147,15 +147,16 @@
 		<div class="hero-content">
 			<div class="hero-badge">
 				<span class="pulse-dot"></span>
-				Decentralized Autonomous Organization
+				Governance Infrastructure
 			</div>
 			<h1>
-				Welcome to
-				<span class="gradient-text">*Space DAO</span>
+				<span class="gradient-text">Governance Without Limits</span>
 			</h1>
+			<p class="hero-tagline">
+				Longevity and Prosperity Focused Governance Software
+			</p>
 			<p class="hero-description">
-				A Wyoming DAO LLC with on-chain governance. Earn SpaceTime through work to gain voting power.
-				Hold SpaceMoney for economic stake. Built to decentralize—trustlessly.
+				The operating system for organizations built to outlast their founders. Two configurable currencies — one earned through contribution, one anchored to the treasury — separate voting power from economic value, so authority and incentives can evolve independently as your community matures. Wrap it in a Wyoming DAO LLC for legal standing, or run purely on-chain. Either way, the rules are transparent, the ledger is permanent, and the institution you build today is engineered to compound for generations.
 			</p>
 			
 			{#if !$user}
@@ -198,7 +199,7 @@
 	<section class="features" id="features">
 		<div class="section-header">
 			<span class="section-badge">Two-Token Model</span>
-			<h2 class="section-title">Why *Space DAO?</h2>
+			<h2 class="section-title">Why Athena?</h2>
 			<p class="section-subtitle">Separate economic value from governance power. Work earns votes. Money earns stake.</p>
 		</div>
 		<div class="features-grid">
@@ -262,7 +263,7 @@
 				<div class="vision-card">
 					<div class="vision-card-icon">🧠</div>
 					<h4>Meritocratic Voting</h4>
-					<p>Voting power isn't bought—it's <strong>earned</strong>. SpaceTime rewards those who contribute value and make good decisions. Your governance weight correlates with your <strong>demonstrated judgment</strong>, not your wealth.</p>
+					<p>Voting power isn't bought—it's <strong>earned</strong>. The governance currency rewards those who contribute value and make good decisions. Your governance weight correlates with your <strong>demonstrated judgment</strong>, not your wealth.</p>
 				</div>
 
 				<div class="vision-card">
@@ -304,7 +305,7 @@
 					<div class="document-header">
 						<img src="/space-logo.png" alt="*Space" class="document-logo" />
 						<div class="document-title">
-							<h3>*Space DAO Whitepaper</h3>
+							<h3>Athena Whitepaper</h3>
 							<span class="document-version">Version 0.1 • February 2026</span>
 						</div>
 					</div>
@@ -333,7 +334,7 @@
 					<div class="achievement-card" style="--delay: 0.1s">
 						<div class="achievement-icon">🛡️</div>
 						<h4>Plutocracy Prevention</h4>
-						<p>Demonstrates how separating SpaceMoney (economic) from SpaceTime (governance) structurally prevents wealth from buying political power.</p>
+						<p>Demonstrates how separating the economic currency from the governance currency structurally prevents wealth from buying political power.</p>
 					</div>
 
 					<div class="achievement-card" style="--delay: 0.2s">
@@ -351,7 +352,7 @@
 					<div class="achievement-card" style="--delay: 0.4s">
 						<div class="achievement-icon">⏱️</div>
 						<h4>Decay Dynamics</h4>
-						<p>Models SpaceTime's exponential decay function ensuring voting power reflects current commitment, not historical accumulation.</p>
+						<p>Models the governance currency\'s decay function so voting power reflects current commitment, not historical accumulation.</p>
 					</div>
 
 					<div class="achievement-card" style="--delay: 0.5s">
@@ -442,7 +443,7 @@
 		{#if !$user}
 			<div class="connect-card">
 				<div class="connect-header">
-					<h2>Join *Space DAO</h2>
+					<h2>Join Athena</h2>
 					<p>Connect your wallet and Discord to get started</p>
 				</div>
 
@@ -599,6 +600,16 @@
 		-webkit-background-clip: text;
 		-webkit-text-fill-color: transparent;
 		background-clip: text;
+	}
+
+	.hero-tagline {
+		font-family: var(--font-display);
+		font-size: clamp(1.25rem, 2.2vw, 1.75rem);
+		font-weight: 600;
+		line-height: 1.3;
+		color: var(--color-text-primary);
+		margin: 0 0 var(--space-lg);
+		letter-spacing: -0.01em;
 	}
 
 	.hero-description {

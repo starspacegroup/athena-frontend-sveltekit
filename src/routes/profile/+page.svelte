@@ -79,7 +79,7 @@
 			</div>
 			<div class="profile-info">
 				<h1>{$user.discordUsername || 'Anonymous'}</h1>
-				<p class="profile-subtitle">*Space DAO Member</p>
+				<p class="profile-subtitle">Athena Member</p>
 			</div>
 		</div>
 
