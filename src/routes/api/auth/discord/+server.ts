@@ -1,11 +1,13 @@
 import { redirect } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { DISCORD_CLIENT_ID, DISCORD_REDIRECT_URI } from '$env/static/private';
+import { env } from '$env/dynamic/private';
+import { getDiscordOAuthConfig } from '$lib/server/discord';
 
 export const GET: RequestHandler = async () => {
+	const config = getDiscordOAuthConfig(env);
 	const params = new URLSearchParams({
-		client_id: DISCORD_CLIENT_ID,
-		redirect_uri: DISCORD_REDIRECT_URI,
+		client_id: config.clientId,
+		redirect_uri: config.redirectUri,
 		response_type: 'code',
 		scope: 'identify'
 	});

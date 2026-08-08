@@ -185,7 +185,7 @@ export async function connectWallet(wallet?: DetectedWallet): Promise<string> {
 
 	// If no wallet specified, try to get default
 	if (!wallet) {
-		wallet = getDefaultWallet();
+		wallet = getDefaultWallet() ?? undefined;
 	}
 
 	// On mobile, if wallet isn't installed, open deep link

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { user, walletConnected, discordConnected } from '$lib/stores/auth';
+	import type { User } from '$lib/stores/auth';
 	import WalletModal from '$lib/components/WalletModal.svelte';
 	import { onMount } from 'svelte';
 
@@ -30,7 +31,7 @@
 				throw new Error('Failed to authenticate with wallet');
 			}
 
-			const data = await response.json();
+			const data = (await response.json()) as { user: User };
 			user.set(data.user);
 			walletConnected.set(true);
 		} catch (err: any) {

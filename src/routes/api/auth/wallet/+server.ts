@@ -7,7 +7,7 @@ import {
 	updateSession,
 	setSessionCookie
 } from '$lib/server/session';
-import { DatabaseService, inMemoryAccountService, type Account } from '$lib/server/db';
+import { getDatabaseService, inMemoryAccountService, type Account } from '$lib/server/db';
 
 interface WalletAuthRequest {
 	walletAddress: string;
@@ -24,8 +24,8 @@ export const POST: RequestHandler = async (event) => {
 
 		// Create or get account - use D1 if available, otherwise in-memory fallback
 		let account: Account | null = null;
-		if (platform?.env?.DB) {
-			const db = new DatabaseService(platform.env.DB);
+		const db = getDatabaseService(platform);
+		if (db) {
 			account = await db.getOrCreateAccountByWallet(walletAddress);
 		} else {
 			// Use in-memory fallback for local development

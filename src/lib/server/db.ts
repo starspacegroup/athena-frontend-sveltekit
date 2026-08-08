@@ -253,3 +253,15 @@ export class DatabaseService {
     return result.meta.changes ?? 0;
   }
 }
+
+export function getDatabaseService(platform: App.Platform | undefined): DatabaseService | null {
+	if (!platform) {
+		return null;
+	}
+
+	if (!platform.env?.DB) {
+		throw new Error('Cloudflare D1 binding "DB" is required');
+	}
+
+	return new DatabaseService(platform.env.DB);
+}

@@ -1,5 +1,5 @@
 import type { RequestEvent } from '@sveltejs/kit';
-import { DatabaseService } from './db';
+import { getDatabaseService } from './db';
 
 export interface SessionData {
 	walletAddress?: string;
@@ -18,20 +18,12 @@ function generateSessionId(): string {
 	return crypto.randomUUID();
 }
 
-function getDb(event: RequestEvent): DatabaseService | null {
-	const db = event.platform?.env?.DB;
-	if (db) {
-		return new DatabaseService(db);
-	}
-	return null;
-}
-
 export async function createSession(data: SessionData, event?: RequestEvent): Promise<string> {
 	const sessionId = generateSessionId();
 
 	// Try to use D1 if available
 	if (event) {
-		const db = getDb(event);
+		const db = getDatabaseService(event.platform);
 		if (db) {
 			await db.createSession(sessionId, {
 				walletAddress: data.walletAddress,
@@ -51,7 +43,7 @@ export async function createSession(data: SessionData, event?: RequestEvent): Pr
 export async function getSession(sessionId: string, event?: RequestEvent): Promise<SessionData | null> {
 	// Try to use D1 if available
 	if (event) {
-		const db = getDb(event);
+		const db = getDatabaseService(event.platform);
 		if (db) {
 			const session = await db.getSession(sessionId);
 			if (session) {
@@ -73,7 +65,7 @@ export async function getSession(sessionId: string, event?: RequestEvent): Promi
 export async function updateSession(sessionId: string, data: Partial<SessionData>, event?: RequestEvent): Promise<void> {
 	// Try to use D1 if available
 	if (event) {
-		const db = getDb(event);
+		const db = getDatabaseService(event.platform);
 		if (db) {
 			await db.updateSession(sessionId, {
 				walletAddress: data.walletAddress,
@@ -95,7 +87,7 @@ export async function updateSession(sessionId: string, data: Partial<SessionData
 export async function deleteSession(sessionId: string, event?: RequestEvent): Promise<void> {
 	// Try to use D1 if available
 	if (event) {
-		const db = getDb(event);
+		const db = getDatabaseService(event.platform);
 		if (db) {
 			await db.deleteSession(sessionId);
 			return;

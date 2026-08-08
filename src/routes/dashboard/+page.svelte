@@ -3,6 +3,7 @@
 	import { goto } from '$app/navigation';
 	import { user } from '$lib/stores/auth';
 	import { tokenBalances } from '$lib/stores/tokens';
+	import type { TokenBalances } from '$lib/stores/tokens';
 
 	let loading = $state(true);
 	let greeting = $state('');
@@ -24,7 +25,7 @@
 		try {
 			const response = await fetch('/api/tokens/balances');
 			if (response.ok) {
-				const data = await response.json();
+				const data = (await response.json()) as TokenBalances;
 				tokenBalances.set(data);
 			}
 		} catch (error) {

@@ -7,8 +7,9 @@ import {
 	updateSession,
 	setSessionCookie
 } from '$lib/server/session';
-import { DatabaseService, inMemoryAccountService } from '$lib/server/db';
-import { DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET, DISCORD_REDIRECT_URI } from '$env/static/private';
+import { getDatabaseService, inMemoryAccountService } from '$lib/server/db';
+import { getDiscordOAuthConfig } from '$lib/server/discord';
+import { env } from '$env/dynamic/private';
 
 interface DiscordTokenResponse {
 	access_token: string;
@@ -33,6 +34,7 @@ export const GET: RequestHandler = async (event) => {
 	}
 
 	try {
+		const config = getDiscordOAuthConfig(env);
 		// Exchange code for access token
 		const tokenResponse = await fetch('https://discord.com/api/oauth2/token', {
 			method: 'POST',
@@ -40,11 +42,11 @@ export const GET: RequestHandler = async (event) => {
 				'Content-Type': 'application/x-www-form-urlencoded'
 			},
 			body: new URLSearchParams({
-				client_id: DISCORD_CLIENT_ID,
-				client_secret: DISCORD_CLIENT_SECRET,
+				client_id: config.clientId,
+				client_secret: config.clientSecret,
 				grant_type: 'authorization_code',
 				code,
-				redirect_uri: DISCORD_REDIRECT_URI
+				redirect_uri: config.redirectUri
 			})
 		});
 
@@ -83,8 +85,8 @@ export const GET: RequestHandler = async (event) => {
 
 		// Link Discord to account - use D1 if available, otherwise in-memory fallback
 		if (session?.walletAddress) {
-			if (platform?.env?.DB) {
-				const db = new DatabaseService(platform.env.DB);
+			const db = getDatabaseService(platform);
+			if (db) {
 				await db.linkDiscordToAccount(
 					session.walletAddress,
 					userData.id,
@@ -111,10 +113,11 @@ export const GET: RequestHandler = async (event) => {
 			setSessionCookie({ cookies } as any, newSessionId);
 		}
 
-		// Redirect to dashboard since user is now fully authenticated
-		throw redirect(302, '/dashboard');
 	} catch (error) {
 		console.error('Discord auth error:', error);
 		throw redirect(302, '/?error=discord_auth_failed');
 	}
+
+	// Redirect to dashboard since user is now fully authenticated
+	throw redirect(302, '/dashboard');
 };

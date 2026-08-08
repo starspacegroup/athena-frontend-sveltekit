@@ -1,7 +1,7 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { getSessionCookie, getSession, updateSession } from '$lib/server/session';
-import { DatabaseService, inMemoryAccountService } from '$lib/server/db';
+import { getDatabaseService, inMemoryAccountService } from '$lib/server/db';
 
 export const GET: RequestHandler = async (event) => {
 	const { cookies, platform } = event;
@@ -22,8 +22,8 @@ export const GET: RequestHandler = async (event) => {
 	if (session.walletAddress) {
 		let account = null;
 
-		if (platform?.env?.DB) {
-			const db = new DatabaseService(platform.env.DB);
+		const db = getDatabaseService(platform);
+		if (db) {
 			account = await db.getAccountByWallet(session.walletAddress);
 		} else {
 			// Use in-memory fallback for local development
