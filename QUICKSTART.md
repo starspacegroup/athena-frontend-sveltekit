@@ -18,7 +18,7 @@ Edit `.env` and add at minimum:
 ```bash
 DISCORD_CLIENT_ID=your-discord-client-id
 DISCORD_CLIENT_SECRET=your-discord-client-secret
-DISCORD_REDIRECT_URI=http://localhost:5173/api/auth/callback
+DISCORD_REDIRECT_URI=http://localhost:4222/api/auth/callback
 ```
 
 *Note: You can get Discord credentials at https://discord.com/developers/applications*
@@ -29,7 +29,7 @@ npm run dev
 ```
 
 ### 4. Open Browser
-Navigate to: http://localhost:5173
+Navigate to: http://localhost:4222
 
 ## 🎯 What You'll See
 
@@ -111,7 +111,7 @@ See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed deployment instructions.
 ```bash
 DISCORD_CLIENT_ID=your-client-id
 DISCORD_CLIENT_SECRET=your-client-secret
-DISCORD_REDIRECT_URI=http://localhost:5173/api/auth/callback
+DISCORD_REDIRECT_URI=http://localhost:4222/api/auth/callback
 ```
 
 ### Production

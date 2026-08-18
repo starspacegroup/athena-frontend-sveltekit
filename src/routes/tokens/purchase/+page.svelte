@@ -26,7 +26,7 @@
 				body: JSON.stringify({ amount })
 			});
 
-			const data = await response.json();
+			const data = (await response.json()) as { error?: string };
 
 			if (!response.ok) {
 				throw new Error(data.error || 'Purchase failed');

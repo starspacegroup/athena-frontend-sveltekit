@@ -257,7 +257,7 @@ Required for production:
    ```
 
 2. **Test Wallet Connection**:
-   - Visit http://localhost:5173
+   - Visit http://localhost:4222
    - Click "Connect Wallet"
    - Approve in MetaMask/Coinbase Wallet
    - Verify network switches to Polygon

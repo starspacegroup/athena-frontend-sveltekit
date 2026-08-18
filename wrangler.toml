@@ -6,7 +6,7 @@ bucket = ".svelte-kit/cloudflare"
 
 # D1 Database binding
 [[d1_databases]]
-binding = "athena_db"
+binding = "DB"
 database_name = "athena-db"
 database_id = "c25a363d-5b0d-4a75-bc73-d6021589c228"
 

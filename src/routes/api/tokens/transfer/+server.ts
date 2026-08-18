@@ -2,27 +2,31 @@ import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { getSessionCookie, getSession } from '$lib/server/session';
 
-export const POST: RequestHandler = async ({ request, cookies }) => {
+export const POST: RequestHandler = async (event) => {
+	const { request, cookies } = event;
 	const sessionId = getSessionCookie({ cookies } as any);
 
 	if (!sessionId) {
 		return json({ error: 'Unauthorized' }, { status: 401 });
 	}
 
-	const session = await getSession(sessionId);
+	const session = await getSession(sessionId, event);
 
 	if (!session || !session.walletAddress) {
 		return json({ error: 'Unauthorized' }, { status: 401 });
 	}
 
 	try {
-		const { toAddress, amount } = await request.json();
+		const { toAddress, amount } = (await request.json()) as {
+			toAddress?: unknown;
+			amount?: unknown;
+		};
 
-		if (!toAddress || !toAddress.startsWith('0x')) {
+		if (typeof toAddress !== 'string' || !toAddress.startsWith('0x')) {
 			return json({ error: 'Invalid recipient address' }, { status: 400 });
 		}
 
-		if (!amount || parseFloat(amount) <= 0) {
+		if (typeof amount !== 'string' || parseFloat(amount) <= 0) {
 			return json({ error: 'Invalid amount' }, { status: 400 });
 		}
 
