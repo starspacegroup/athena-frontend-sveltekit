@@ -268,3 +268,9 @@ Phase 6: Transition trigger implementation
 ## License
 
 MIT
+
+## Related repositories
+
+Internal planning, design and docs live in a separate private repository,
+`starspacegroup/athena-frontend-sveltekit-umbrella`, which has this repository checked out at `athena-frontend-sveltekit/`. Nothing in
+it is needed to build or run this one.
